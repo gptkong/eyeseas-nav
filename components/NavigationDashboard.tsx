@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { useNavigation } from '@/lib/hooks/useNavigation';
 import { NavigationCard } from './NavigationCard';
 import { SearchAndFilter } from './SearchAndFilter';
-import { StatsCards } from './StatsCards';
 import { Settings, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -13,11 +12,9 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 export function NavigationDashboard() {
   const {
     filteredLinks,
-    stats,
     isLoading,
     error,
     fetchLinks,
-    fetchStats,
     filterLinks,
   } = useNavigation();
 
@@ -34,7 +31,6 @@ export function NavigationDashboard() {
 
   const handleRefresh = () => {
     fetchLinks();
-    fetchStats();
   };
 
   if (error) {
@@ -84,9 +80,6 @@ export function NavigationDashboard() {
 
       {/* Main Content */}
       <div className="container mx-auto p-4">
-        {/* Stats Cards */}
-        <StatsCards stats={stats} isLoading={isLoading} />
-
         {/* Search and Filter */}
         <SearchAndFilter
           onSearch={handleSearch}

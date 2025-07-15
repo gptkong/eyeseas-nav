@@ -6,7 +6,6 @@ import { useNavigation } from '@/lib/hooks/useNavigation';
 import { NavigationLink } from '@/lib/types';
 import { NavigationLinkFormData } from '@/lib/validations';
 import { LinkForm } from './LinkForm';
-import { StatsCards } from '../StatsCards';
 import { Plus, Edit, Trash2, LogOut, Home, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -19,14 +18,12 @@ export function AdminDashboard() {
   const { logout } = useAuth();
   const {
     links,
-    stats,
     isLoading,
     error,
     createLink,
     updateLink,
     deleteLink,
     fetchLinks,
-    fetchStats,
   } = useNavigation();
 
   const [showForm, setShowForm] = useState(false);
@@ -127,9 +124,6 @@ export function AdminDashboard() {
 
       {/* Main Content */}
       <div className="container mx-auto p-4 space-y-6">
-        {/* Stats Cards */}
-        <StatsCards stats={stats} isLoading={isLoading} />
-
         {/* Navigation Links Management */}
         <Card>
           <CardHeader>

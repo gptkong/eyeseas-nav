@@ -95,7 +95,6 @@ export function useNavigation() {
 
       if (data.success) {
         await fetchLinks();
-        await fetchStats();
         return { success: true };
       } else {
         return { success: false, error: data.message || 'Failed to create link' };
@@ -122,7 +121,6 @@ export function useNavigation() {
 
       if (data.success) {
         await fetchLinks();
-        await fetchStats();
         return { success: true };
       } else {
         return { success: false, error: data.message || 'Failed to update link' };
@@ -145,7 +143,6 @@ export function useNavigation() {
 
       if (data.success) {
         await fetchLinks();
-        await fetchStats();
         return { success: true };
       } else {
         return { success: false, error: data.message || 'Failed to delete link' };
@@ -159,7 +156,6 @@ export function useNavigation() {
   // Initial load
   useEffect(() => {
     fetchLinks();
-    fetchStats();
   }, []);
 
   return {
