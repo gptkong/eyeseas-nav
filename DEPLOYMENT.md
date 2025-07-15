@@ -59,7 +59,6 @@ In your Vercel project dashboard, go to Settings > Environment Variables and add
 |----------|-------|-------------|
 | `REDIS_URL` | `redis://default:password@host:port` | From your Redis provider |
 | `ADMIN_PASSWORD` | `your_secure_password` | Choose a strong password |
-| `JWT_SECRET` | `your_jwt_secret` | Generate with: `openssl rand -base64 32` |
 
 ### Optional Variables
 
@@ -68,17 +67,7 @@ In your Vercel project dashboard, go to Settings > Environment Variables and add
 | `NEXT_PUBLIC_APP_NAME` | `EyeSeas Navigation` | App name (already set) |
 | `NEXT_PUBLIC_APP_DESCRIPTION` | `Internal and External Navigation Dashboard` | App description (already set) |
 
-## Step 4: Generate JWT Secret
-
-Run this command to generate a secure JWT secret:
-
-```bash
-openssl rand -base64 32
-```
-
-Or use an online generator like [generate-secret.vercel.app](https://generate-secret.vercel.app/32)
-
-## Step 5: Verify Deployment
+## Step 4: Verify Deployment
 
 1. Wait for deployment to complete
 2. Visit your deployed URL
@@ -86,7 +75,7 @@ Or use an online generator like [generate-secret.vercel.app](https://generate-se
 4. Go to `/admin` and test admin login
 5. Create a few test navigation links
 
-## Step 6: Domain Configuration (Optional)
+## Step 5: Domain Configuration (Optional)
 
 1. In Vercel Dashboard, go to your project
 2. Navigate to Settings > Domains
@@ -126,10 +115,9 @@ Or use an online generator like [generate-secret.vercel.app](https://generate-se
 ## Security Considerations
 
 1. **Strong Admin Password**: Use a complex password for admin access
-2. **JWT Secret**: Keep your JWT secret secure and never expose it
-3. **Environment Variables**: Never commit sensitive data to your repository
-4. **HTTPS**: Vercel provides HTTPS by default
-5. **Regular Updates**: Keep dependencies updated
+2. **Environment Variables**: Never commit sensitive data to your repository
+3. **HTTPS**: Vercel provides HTTPS by default
+4. **Regular Updates**: Keep dependencies updated
 
 ## Backup and Maintenance
 

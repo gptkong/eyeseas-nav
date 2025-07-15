@@ -7,7 +7,7 @@ import { ApiResponse } from '@/lib/types';
 // GET - Fetch single navigation link (public)
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const link = await DatabaseService.getLinkById(params.id);
@@ -38,7 +38,7 @@ export async function GET(
 // PUT - Update navigation link (admin only)
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Check authentication
@@ -93,7 +93,7 @@ export async function PUT(
 // DELETE - Delete navigation link (admin only)
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Check authentication

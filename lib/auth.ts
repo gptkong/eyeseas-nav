@@ -1,16 +1,13 @@
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
 import { AdminSession } from './types';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret-key';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
+const SESSION_DURATION = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
 
 export class AuthService {
   // Verify admin password
   static async verifyPassword(password: string): Promise<boolean> {
     try {
-      // For simplicity, we're using plain text comparison
-      // In production, you should hash the admin password
+      // Simple password verification
       return password === ADMIN_PASSWORD;
     } catch (error) {
       console.error('Error verifying password:', error);
@@ -18,34 +15,12 @@ export class AuthService {
     }
   }
 
-  // Generate JWT token
-  static generateToken(): string {
-    const payload = {
-      isAdmin: true,
-      iat: Math.floor(Date.now() / 1000),
-      exp: Math.floor(Date.now() / 1000) + (24 * 60 * 60), // 24 hours
+  // Create a simple session
+  static createSession(): AdminSession {
+    return {
+      isAuthenticated: true,
+      expiresAt: Date.now() + SESSION_DURATION,
     };
-
-    return jwt.sign(payload, JWT_SECRET);
-  }
-
-  // Verify JWT token
-  static verifyToken(token: string): AdminSession | null {
-    try {
-      const decoded = jwt.verify(token, JWT_SECRET) as any;
-      
-      if (decoded.isAdmin && decoded.exp > Math.floor(Date.now() / 1000)) {
-        return {
-          isAuthenticated: true,
-          expiresAt: decoded.exp * 1000, // Convert to milliseconds
-        };
-      }
-      
-      return null;
-    } catch (error) {
-      console.error('Error verifying token:', error);
-      return null;
-    }
   }
 
   // Check if session is valid
@@ -57,11 +32,22 @@ export class AuthService {
   // Get session from request headers
   static getSessionFromHeaders(headers: Headers): AdminSession | null {
     const authHeader = headers.get('authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    if (!authHeader || !authHeader.startsWith('Session ')) {
       return null;
     }
 
-    const token = authHeader.substring(7);
-    return this.verifyToken(token);
+    try {
+      const sessionData = authHeader.substring(8); // Remove 'Session ' prefix
+      const session = JSON.parse(Buffer.from(sessionData, 'base64').toString('utf-8'));
+
+      if (this.isSessionValid(session)) {
+        return session;
+      }
+
+      return null;
+    } catch (error) {
+      console.error('Error parsing session:', error);
+      return null;
+    }
   }
 }

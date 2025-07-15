@@ -6,7 +6,7 @@ import { ApiResponse } from '@/lib/types';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    
+
     // Validate request body
     const validation = adminLoginSchema.safeParse(body);
     if (!validation.success) {
@@ -29,12 +29,13 @@ export async function POST(request: NextRequest) {
       }, { status: 401 });
     }
 
-    // Generate token
-    const token = AuthService.generateToken();
+    // Create session
+    const session = AuthService.createSession();
+    const sessionString = Buffer.from(JSON.stringify(session)).toString('base64');
 
     return NextResponse.json<ApiResponse>({
       success: true,
-      data: { token },
+      data: { session: sessionString },
       message: 'Login successful',
     });
 

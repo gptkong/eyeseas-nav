@@ -31,7 +31,7 @@ A responsive web service navigation dashboard built with Next.js, DaisyUI, and R
 - **Frontend**: Next.js 15, React 19, TypeScript
 - **Styling**: Tailwind CSS, DaisyUI
 - **Database**: Redis (Redis Cloud compatible)
-- **Authentication**: JWT with bcryptjs
+- **Authentication**: Simple session-based authentication
 - **Forms**: React Hook Form with Zod validation
 - **Icons**: Lucide React
 - **Deployment**: Vercel
@@ -66,15 +66,9 @@ A responsive web service navigation dashboard built with Next.js, DaisyUI, and R
    ```env
    REDIS_URL=redis://default:your_password@your-redis-host:port
    ADMIN_PASSWORD=your_secure_admin_password
-   JWT_SECRET=your_jwt_secret_key
    ```
 
-4. **Generate JWT Secret**
-   ```bash
-   openssl rand -base64 32
-   ```
-
-5. **Test Redis connection**
+4. **Test Redis connection**
    ```bash
    npm run dev
    ```
@@ -108,7 +102,6 @@ A responsive web service navigation dashboard built with Next.js, DaisyUI, and R
 |----------|-------------|----------|
 | `REDIS_URL` | Redis connection string | Yes |
 | `ADMIN_PASSWORD` | Admin panel password | Yes |
-| `JWT_SECRET` | JWT signing secret | Yes |
 | `NEXT_PUBLIC_APP_NAME` | Application name | No |
 | `NEXT_PUBLIC_APP_DESCRIPTION` | App description | No |
 

@@ -23,8 +23,8 @@ export function useAuth() {
 
   const checkAuthStatus = async () => {
     try {
-      const token = localStorage.getItem('admin_token');
-      if (!token) {
+      const sessionString = localStorage.getItem('admin_session');
+      if (!sessionString) {
         setAuthState({
           isAuthenticated: false,
           isLoading: false,
@@ -35,7 +35,7 @@ export function useAuth() {
 
       const response = await fetch('/api/auth/verify', {
         headers: {
-          'Authorization': `Bearer ${token}`,
+          'Authorization': `Session ${sessionString}`,
         },
       });
 
@@ -48,7 +48,7 @@ export function useAuth() {
             session: data.data,
           });
         } else {
-          localStorage.removeItem('admin_token');
+          localStorage.removeItem('admin_session');
           setAuthState({
             isAuthenticated: false,
             isLoading: false,
@@ -56,7 +56,7 @@ export function useAuth() {
           });
         }
       } else {
-        localStorage.removeItem('admin_token');
+        localStorage.removeItem('admin_session');
         setAuthState({
           isAuthenticated: false,
           isLoading: false,
@@ -65,7 +65,7 @@ export function useAuth() {
       }
     } catch (error) {
       console.error('Auth check error:', error);
-      localStorage.removeItem('admin_token');
+      localStorage.removeItem('admin_session');
       setAuthState({
         isAuthenticated: false,
         isLoading: false,
@@ -86,8 +86,8 @@ export function useAuth() {
 
       const data: ApiResponse = await response.json();
 
-      if (data.success && data.data?.token) {
-        localStorage.setItem('admin_token', data.data.token);
+      if (data.success && data.data?.session) {
+        localStorage.setItem('admin_session', data.data.session);
         await checkAuthStatus();
 
         return { success: true };
@@ -101,7 +101,7 @@ export function useAuth() {
   };
 
   const logout = () => {
-    localStorage.removeItem('admin_token');
+    localStorage.removeItem('admin_session');
     setAuthState({
       isAuthenticated: false,
       isLoading: false,
@@ -115,8 +115,8 @@ export function useAuth() {
   };
 
   const getAuthHeaders = () => {
-    const token = localStorage.getItem('admin_token');
-    return token ? { 'Authorization': `Bearer ${token}` } : {};
+    const sessionString = localStorage.getItem('admin_session');
+    return sessionString ? { 'Authorization': `Session ${sessionString}` } : {};
   };
 
   return {

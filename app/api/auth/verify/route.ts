@@ -5,7 +5,7 @@ import { ApiResponse } from '@/lib/types';
 export async function GET(request: NextRequest) {
   try {
     const session = AuthService.getSessionFromHeaders(request.headers);
-    
+
     if (!session || !AuthService.isSessionValid(session)) {
       return NextResponse.json<ApiResponse>({
         success: false,
@@ -16,9 +16,9 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json<ApiResponse>({
       success: true,
-      data: { 
+      data: {
         isAuthenticated: true,
-        expiresAt: session.expiresAt 
+        expiresAt: session.expiresAt
       },
       message: 'Session is valid',
     });

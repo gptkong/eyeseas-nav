@@ -158,7 +158,7 @@ export function LinkForm({ link, onSubmit, onCancel, isLoading, open = true }: L
               </Label>
             </div>
             <p className="text-sm text-muted-foreground">
-              Inactive links won't be displayed to users
+              Inactive links won&apos;t be displayed to users
             </p>
           </form>
 
