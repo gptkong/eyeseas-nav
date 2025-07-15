@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "EyeSeas Navigation",
+  title: "Eyeseas Navigation",
   description: "Internal and External Navigation Dashboard",
 };
 
