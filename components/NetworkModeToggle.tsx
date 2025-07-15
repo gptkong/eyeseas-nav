@@ -36,23 +36,23 @@ export function NetworkModeToggle({
   return (
     <div className={cn('flex items-center gap-2', className)}>
       {showLabel && (
-        <Badge 
+        <Badge
           variant={isInternal ? 'default' : 'secondary'}
-          className="text-xs"
+          className="text-xs hidden sm:inline-flex"
         >
           {isInternal ? 'Internal' : 'External'}
         </Badge>
       )}
-      
+
       <Button
         variant="outline"
         size="sm"
         onClick={toggleNetworkMode}
         className={cn(
-          'flex items-center gap-2 transition-all duration-200',
+          'flex items-center gap-1 sm:gap-2 transition-all duration-200 min-w-0',
           sizeClasses[size],
-          isInternal 
-            ? 'border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100' 
+          isInternal
+            ? 'border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100'
             : 'border-green-200 bg-green-50 text-green-700 hover:bg-green-100'
         )}
         title={`Switch to ${isInternal ? 'External' : 'Internal'} Network`}
@@ -62,16 +62,19 @@ export function NetworkModeToggle({
         ) : (
           <Globe className={iconSizes[size]} />
         )}
-        
+
         {showLabel && (
           <>
-            <span className="hidden sm:inline">
+            <span className="hidden md:inline text-xs sm:text-sm">
               {isInternal ? 'Internal' : 'External'}
             </span>
+            <span className="hidden sm:inline md:hidden text-xs">
+              {isInternal ? 'Int' : 'Ext'}
+            </span>
             {isInternal ? (
-              <ToggleLeft className={iconSizes[size]} />
+              <ToggleLeft className={cn(iconSizes[size], 'hidden sm:inline')} />
             ) : (
-              <ToggleRight className={iconSizes[size]} />
+              <ToggleRight className={cn(iconSizes[size], 'hidden sm:inline')} />
             )}
           </>
         )}

@@ -18,15 +18,15 @@ export function SearchAndFilter({ onSearch }: SearchAndFilterProps) {
   };
 
   return (
-    <div className="flex flex-col sm:flex-row gap-4 mb-6">
+    <div className="mb-4 sm:mb-6">
       {/* Search Input */}
-      <div className="flex-1">
+      <div className="w-full">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
             type="text"
             placeholder="Search navigation links..."
-            className="pl-10"
+            className="pl-10 h-10 sm:h-11 text-sm sm:text-base"
             value={searchQuery}
             onChange={handleSearchChange}
           />

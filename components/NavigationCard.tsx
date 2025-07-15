@@ -44,13 +44,13 @@ export function NavigationCard({ link, onClick }: NavigationCardProps) {
   return (
     <Card
       className={cn(
-        "cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-[1.02]",
+        "cursor-pointer transition-all duration-200 hover:shadow-lg active:scale-[0.98] sm:hover:scale-[1.02]",
         !link.isActive && "opacity-60"
       )}
       onClick={handleClick}
     >
-      <CardContent className="p-4">
-        <div className="flex items-start justify-between mb-3">
+      <CardContent className="p-3 sm:p-4">
+        <div className="flex items-start justify-between mb-2 sm:mb-3">
           <div className="flex items-center gap-2 min-w-0 flex-1">
             {link.favicon ? (
               <img
@@ -64,27 +64,34 @@ export function NavigationCard({ link, onClick }: NavigationCardProps) {
             ) : (
               getNetworkIcon()
             )}
-            <h3 className="text-sm font-semibold truncate">
+            <h3 className="text-sm sm:text-base font-semibold truncate">
               {link.title}
             </h3>
           </div>
-          <div className="flex items-center gap-2 flex-shrink-0">
-            {getNetworkBadge()}
+          <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+            <div className="hidden xs:block">
+              {getNetworkBadge()}
+            </div>
             <ExternalLink className="w-3 h-3 text-muted-foreground" />
           </div>
         </div>
 
-        <p className="text-xs text-muted-foreground line-clamp-2 mb-3">
+        <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2 mb-2 sm:mb-3">
           {link.description}
         </p>
 
         <div className="flex items-center justify-between">
-          <span className="text-xs text-muted-foreground truncate">
+          <span className="text-xs text-muted-foreground truncate flex-1 mr-2">
             {new URL(currentUrl).hostname}
           </span>
-          {!link.isActive && (
-            <Badge variant="outline" className="text-xs">Inactive</Badge>
-          )}
+          <div className="flex items-center gap-1 flex-shrink-0">
+            <div className="xs:hidden">
+              {getNetworkBadge()}
+            </div>
+            {!link.isActive && (
+              <Badge variant="outline" className="text-xs">Inactive</Badge>
+            )}
+          </div>
         </div>
       </CardContent>
     </Card>
