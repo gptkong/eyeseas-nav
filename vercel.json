@@ -7,10 +7,5 @@
   "env": {
     "NEXT_PUBLIC_APP_NAME": "Eyeseas Navigation",
     "NEXT_PUBLIC_APP_DESCRIPTION": "Internal and External Navigation Dashboard"
-  },
-  "functions": {
-    "app/api/**/*.ts": {
-      "runtime": "nodejs18.x"
-    }
   }
 }
