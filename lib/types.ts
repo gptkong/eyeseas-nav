@@ -1,9 +1,9 @@
 export interface NavigationLink {
   id: string;
   title: string;
-  url: string;
+  internalUrl: string;
+  externalUrl: string;
   description: string;
-  category: 'internal' | 'external';
   icon?: string;
   favicon?: string;
   createdAt: string;
@@ -14,9 +14,9 @@ export interface NavigationLink {
 
 export interface CreateNavigationLinkData {
   title: string;
-  url: string;
+  internalUrl: string;
+  externalUrl: string;
   description: string;
-  category: 'internal' | 'external';
   icon?: string;
   favicon?: string;
   isActive?: boolean;
@@ -40,14 +40,13 @@ export interface ApiResponse<T = any> {
 
 export interface SearchFilters {
   query: string;
-  category: 'all' | 'internal' | 'external';
   isActive?: boolean;
 }
 
+export type NetworkMode = 'internal' | 'external';
+
 export interface DashboardStats {
   totalLinks: number;
-  internalLinks: number;
-  externalLinks: number;
   activeLinks: number;
   inactiveLinks: number;
 }

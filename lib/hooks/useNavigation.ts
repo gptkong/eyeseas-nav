@@ -19,9 +19,6 @@ export function useNavigation() {
       setError(null);
 
       const params = new URLSearchParams();
-      if (filters?.category && filters.category !== 'all') {
-        params.append('category', filters.category);
-      }
       if (filters?.isActive !== undefined) {
         params.append('isActive', filters.isActive.toString());
       }
@@ -58,22 +55,23 @@ export function useNavigation() {
   };
 
   // Filter links based on search query
-  const filterLinks = (query: string, category: 'all' | 'internal' | 'external' = 'all') => {
+  const filterLinks = (filters: SearchFilters) => {
     let filtered = [...links];
 
-    // Filter by category
-    if (category !== 'all') {
-      filtered = filtered.filter(link => link.category === category);
-    }
-
     // Filter by search query
-    if (query.trim()) {
-      const searchTerm = query.toLowerCase();
+    if (filters.query && filters.query.trim()) {
+      const searchTerm = filters.query.toLowerCase();
       filtered = filtered.filter(link =>
         link.title.toLowerCase().includes(searchTerm) ||
         link.description.toLowerCase().includes(searchTerm) ||
-        link.url.toLowerCase().includes(searchTerm)
+        link.internalUrl.toLowerCase().includes(searchTerm) ||
+        link.externalUrl.toLowerCase().includes(searchTerm)
       );
+    }
+
+    // Filter by active status
+    if (filters.isActive !== undefined) {
+      filtered = filtered.filter(link => link.isActive === filters.isActive);
     }
 
     setFilteredLinks(filtered);

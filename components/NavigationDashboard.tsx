@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useNavigation } from '@/lib/hooks/useNavigation';
 import { NavigationCard } from './NavigationCard';
 import { SearchAndFilter } from './SearchAndFilter';
+import { NetworkModeToggle } from './NetworkModeToggle';
 import { Settings, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -18,15 +19,8 @@ export function NavigationDashboard() {
     filterLinks,
   } = useNavigation();
 
-  const [currentCategory, setCurrentCategory] = useState<'all' | 'internal' | 'external'>('all');
-
   const handleSearch = (query: string) => {
-    filterLinks(query, currentCategory);
-  };
-
-  const handleCategoryChange = (category: 'all' | 'internal' | 'external') => {
-    setCurrentCategory(category);
-    filterLinks('', category);
+    filterLinks({ query });
   };
 
   const handleRefresh = () => {
@@ -57,7 +51,8 @@ export function NavigationDashboard() {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <h1 className="text-xl font-bold">EyeSeas Navigation</h1>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
+              <NetworkModeToggle size="sm" />
               <Button
                 variant="ghost"
                 size="sm"
@@ -83,8 +78,6 @@ export function NavigationDashboard() {
         {/* Search and Filter */}
         <SearchAndFilter
           onSearch={handleSearch}
-          onCategoryChange={handleCategoryChange}
-          currentCategory={currentCategory}
         />
 
         {/* Navigation Links Grid */}
@@ -125,9 +118,7 @@ export function NavigationDashboard() {
               </svg>
               <h3 className="text-lg font-semibold mb-2 text-foreground">No navigation links found</h3>
               <p className="text-sm">
-                {currentCategory === 'all'
-                  ? 'No navigation links have been added yet.'
-                  : `No ${currentCategory} navigation links found.`}
+                No navigation links have been added yet.
               </p>
             </div>
             <Button asChild>

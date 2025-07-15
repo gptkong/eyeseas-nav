@@ -144,8 +144,8 @@ export function AdminDashboard() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Title</TableHead>
-                    <TableHead>URL</TableHead>
-                    <TableHead>Category</TableHead>
+                    <TableHead>Internal URL</TableHead>
+                    <TableHead>External URL</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Actions</TableHead>
                   </TableRow>
@@ -156,7 +156,7 @@ export function AdminDashboard() {
                       <TableRow key={i}>
                         <TableCell><div className="w-32 h-4 bg-muted rounded animate-pulse"></div></TableCell>
                         <TableCell><div className="w-48 h-4 bg-muted rounded animate-pulse"></div></TableCell>
-                        <TableCell><div className="w-16 h-4 bg-muted rounded animate-pulse"></div></TableCell>
+                        <TableCell><div className="w-48 h-4 bg-muted rounded animate-pulse"></div></TableCell>
                         <TableCell><div className="w-16 h-4 bg-muted rounded animate-pulse"></div></TableCell>
                         <TableCell><div className="w-24 h-4 bg-muted rounded animate-pulse"></div></TableCell>
                       </TableRow>
@@ -176,19 +176,25 @@ export function AdminDashboard() {
                         </TableCell>
                         <TableCell>
                           <a
-                            href={link.url}
+                            href={link.internalUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-primary hover:underline flex items-center gap-1"
+                            className="text-primary hover:underline flex items-center gap-1 text-sm"
                           >
-                            {new URL(link.url).hostname}
+                            {new URL(link.internalUrl).hostname}
                             <ExternalLink className="w-3 h-3" />
                           </a>
                         </TableCell>
                         <TableCell>
-                          <Badge variant={link.category === 'internal' ? 'default' : 'secondary'}>
-                            {link.category}
-                          </Badge>
+                          <a
+                            href={link.externalUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-primary hover:underline flex items-center gap-1 text-sm"
+                          >
+                            {new URL(link.externalUrl).hostname}
+                            <ExternalLink className="w-3 h-3" />
+                          </a>
                         </TableCell>
                         <TableCell>
                           <Badge variant={link.isActive ? 'default' : 'destructive'}>

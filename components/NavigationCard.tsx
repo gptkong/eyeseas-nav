@@ -5,6 +5,7 @@ import { ExternalLink, Globe, Building } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import { useNetworkMode } from '@/lib/contexts/NetworkModeContext';
 
 interface NavigationCardProps {
   link: NavigationLink;
@@ -12,24 +13,28 @@ interface NavigationCardProps {
 }
 
 export function NavigationCard({ link, onClick }: NavigationCardProps) {
+  const { networkMode } = useNetworkMode();
+
+  const currentUrl = networkMode === 'internal' ? link.internalUrl : link.externalUrl;
+
   const handleClick = () => {
     if (onClick) {
       onClick();
     } else {
-      window.open(link.url, '_blank', 'noopener,noreferrer');
+      window.open(currentUrl, '_blank', 'noopener,noreferrer');
     }
   };
 
-  const getCategoryIcon = () => {
-    return link.category === 'internal' ? (
-      <Building className="w-4 h-4" />
+  const getNetworkIcon = () => {
+    return networkMode === 'internal' ? (
+      <Building className="w-4 h-4 text-blue-600" />
     ) : (
-      <Globe className="w-4 h-4" />
+      <Globe className="w-4 h-4 text-green-600" />
     );
   };
 
-  const getCategoryBadge = () => {
-    return link.category === 'internal' ? (
+  const getNetworkBadge = () => {
+    return networkMode === 'internal' ? (
       <Badge variant="default" className="text-xs">Internal</Badge>
     ) : (
       <Badge variant="secondary" className="text-xs">External</Badge>
@@ -57,14 +62,14 @@ export function NavigationCard({ link, onClick }: NavigationCardProps) {
                 }}
               />
             ) : (
-              getCategoryIcon()
+              getNetworkIcon()
             )}
             <h3 className="text-sm font-semibold truncate">
               {link.title}
             </h3>
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
-            {getCategoryBadge()}
+            {getNetworkBadge()}
             <ExternalLink className="w-3 h-3 text-muted-foreground" />
           </div>
         </div>
@@ -75,7 +80,7 @@ export function NavigationCard({ link, onClick }: NavigationCardProps) {
 
         <div className="flex items-center justify-between">
           <span className="text-xs text-muted-foreground truncate">
-            {new URL(link.url).hostname}
+            {new URL(currentUrl).hostname}
           </span>
           {!link.isActive && (
             <Badge variant="outline" className="text-xs">Inactive</Badge>

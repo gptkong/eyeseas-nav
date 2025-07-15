@@ -8,22 +8,16 @@ import { ApiResponse } from '@/lib/types';
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const category = searchParams.get('category');
     const isActive = searchParams.get('isActive');
-    
+
     let links = await DatabaseService.getAllLinks();
-    
-    // Filter by category if specified
-    if (category && category !== 'all') {
-      links = links.filter(link => link.category === category);
-    }
-    
+
     // Filter by active status if specified
     if (isActive !== null) {
       const activeFilter = isActive === 'true';
       links = links.filter(link => link.isActive === activeFilter);
     }
-    
+
     // Sort by order
     links.sort((a, b) => a.order - b.order);
 
