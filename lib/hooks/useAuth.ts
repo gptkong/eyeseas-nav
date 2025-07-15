@@ -89,6 +89,7 @@ export function useAuth() {
       if (data.success && data.data?.token) {
         localStorage.setItem('admin_token', data.data.token);
         await checkAuthStatus();
+
         return { success: true };
       } else {
         return { success: false, error: data.message || 'Login failed' };
@@ -106,6 +107,11 @@ export function useAuth() {
       isLoading: false,
       session: null,
     });
+
+    // Redirect to home page after logout
+    if (typeof window !== 'undefined') {
+      window.location.href = '/';
+    }
   };
 
   const getAuthHeaders = () => {

@@ -1,33 +1,37 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { LoginForm } from '@/components/admin/LoginForm';
 import { AdminDashboard } from '@/components/admin/AdminDashboard';
 
 export default function AdminPage() {
   const { isAuthenticated, isLoading } = useAuth();
-  const [showDashboard, setShowDashboard] = useState(false);
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      setShowDashboard(true);
-    }
-  }, [isAuthenticated]);
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
   const handleLoginSuccess = () => {
-    setShowDashboard(true);
+    // Check if there's a redirect parameter after successful login
+    const redirect = searchParams.get('redirect');
+    if (redirect) {
+      // Small delay to ensure auth state is updated
+      setTimeout(() => {
+        router.push(redirect);
+      }, 100);
+    }
+    // If no redirect, stay on admin page (will show dashboard)
   };
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-base-200 flex items-center justify-center">
-        <div className="loading loading-spinner loading-lg"></div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
       </div>
     );
   }
 
-  if (!isAuthenticated || !showDashboard) {
+  if (!isAuthenticated) {
     return <LoginForm onSuccess={handleLoginSuccess} />;
   }
 

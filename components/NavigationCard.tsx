@@ -2,6 +2,9 @@
 
 import { NavigationLink } from '@/lib/types';
 import { ExternalLink, Globe, Building } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
 
 interface NavigationCardProps {
   link: NavigationLink;
@@ -27,25 +30,28 @@ export function NavigationCard({ link, onClick }: NavigationCardProps) {
 
   const getCategoryBadge = () => {
     return link.category === 'internal' ? (
-      <div className="badge badge-primary badge-sm">Internal</div>
+      <Badge variant="default" className="text-xs">Internal</Badge>
     ) : (
-      <div className="badge badge-secondary badge-sm">External</div>
+      <Badge variant="secondary" className="text-xs">External</Badge>
     );
   };
 
   return (
-    <div 
-      className="card bg-base-100 shadow-md hover:shadow-lg transition-shadow cursor-pointer border border-base-200"
+    <Card
+      className={cn(
+        "cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-[1.02]",
+        !link.isActive && "opacity-60"
+      )}
       onClick={handleClick}
     >
-      <div className="card-body p-4">
-        <div className="flex items-start justify-between mb-2">
-          <div className="flex items-center gap-2">
+      <CardContent className="p-4">
+        <div className="flex items-start justify-between mb-3">
+          <div className="flex items-center gap-2 min-w-0 flex-1">
             {link.favicon ? (
-              <img 
-                src={link.favicon} 
-                alt="" 
-                className="w-4 h-4"
+              <img
+                src={link.favicon}
+                alt=""
+                className="w-4 h-4 flex-shrink-0"
                 onError={(e) => {
                   e.currentTarget.style.display = 'none';
                 }}
@@ -53,29 +59,29 @@ export function NavigationCard({ link, onClick }: NavigationCardProps) {
             ) : (
               getCategoryIcon()
             )}
-            <h3 className="card-title text-sm font-semibold truncate">
+            <h3 className="text-sm font-semibold truncate">
               {link.title}
             </h3>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-shrink-0">
             {getCategoryBadge()}
-            <ExternalLink className="w-3 h-3 text-base-content/60" />
+            <ExternalLink className="w-3 h-3 text-muted-foreground" />
           </div>
         </div>
-        
-        <p className="text-xs text-base-content/70 line-clamp-2 mb-3">
+
+        <p className="text-xs text-muted-foreground line-clamp-2 mb-3">
           {link.description}
         </p>
-        
+
         <div className="flex items-center justify-between">
-          <span className="text-xs text-base-content/50 truncate">
+          <span className="text-xs text-muted-foreground truncate">
             {new URL(link.url).hostname}
           </span>
           {!link.isActive && (
-            <div className="badge badge-ghost badge-xs">Inactive</div>
+            <Badge variant="outline" className="text-xs">Inactive</Badge>
           )}
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }

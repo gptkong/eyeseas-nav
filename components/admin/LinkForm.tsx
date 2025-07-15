@@ -5,15 +5,23 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { navigationLinkSchema, NavigationLinkFormData } from '@/lib/validations';
 import { NavigationLink } from '@/lib/types';
 import { X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 
 interface LinkFormProps {
   link?: NavigationLink;
   onSubmit: (data: NavigationLinkFormData) => Promise<void>;
   onCancel: () => void;
   isLoading: boolean;
+  open?: boolean;
 }
 
-export function LinkForm({ link, onSubmit, onCancel, isLoading }: LinkFormProps) {
+export function LinkForm({ link, onSubmit, onCancel, isLoading, open = true }: LinkFormProps) {
   const isEditing = !!link;
 
   const {
@@ -37,161 +45,140 @@ export function LinkForm({ link, onSubmit, onCancel, isLoading }: LinkFormProps)
   });
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-      <div className="card w-full max-w-2xl bg-base-100 shadow-xl max-h-[90vh] overflow-y-auto">
-        <div className="card-body">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="card-title text-xl">
-              {isEditing ? 'Edit Navigation Link' : 'Add New Navigation Link'}
-            </h2>
-            <button
-              className="btn btn-ghost btn-sm btn-circle"
-              onClick={onCancel}
-              disabled={isLoading}
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
+    <Dialog open={open} onOpenChange={onCancel}>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>
+            {isEditing ? 'Edit Navigation Link' : 'Add New Navigation Link'}
+          </DialogTitle>
+        </DialogHeader>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="form-control">
-                <label className="label">
-                  <span className="label-text">Title *</span>
-                </label>
-                <input
+              <div className="space-y-2">
+                <Label htmlFor="title">Title *</Label>
+                <Input
+                  id="title"
                   type="text"
                   placeholder="Enter link title"
-                  className={`input input-bordered ${errors.title ? 'input-error' : ''}`}
+                  className={errors.title ? 'border-destructive' : ''}
                   {...register('title')}
                 />
                 {errors.title && (
-                  <label className="label">
-                    <span className="label-text-alt text-error">{errors.title.message}</span>
-                  </label>
+                  <p className="text-sm text-destructive">{errors.title.message}</p>
                 )}
               </div>
 
-              <div className="form-control">
-                <label className="label">
-                  <span className="label-text">Category *</span>
-                </label>
+              <div className="space-y-2">
+                <Label htmlFor="category">Category *</Label>
                 <select
-                  className={`select select-bordered ${errors.category ? 'select-error' : ''}`}
+                  className={`flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${errors.category ? 'border-destructive' : ''}`}
                   {...register('category')}
                 >
                   <option value="internal">Internal</option>
                   <option value="external">External</option>
                 </select>
                 {errors.category && (
-                  <label className="label">
-                    <span className="label-text-alt text-error">{errors.category.message}</span>
-                  </label>
+                  <p className="text-sm text-destructive">{errors.category.message}</p>
                 )}
               </div>
             </div>
 
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text">URL *</span>
-              </label>
-              <input
+            <div className="space-y-2">
+              <Label htmlFor="url">URL *</Label>
+              <Input
+                id="url"
                 type="url"
                 placeholder="https://example.com"
-                className={`input input-bordered ${errors.url ? 'input-error' : ''}`}
+                className={errors.url ? 'border-destructive' : ''}
                 {...register('url')}
               />
               {errors.url && (
-                <label className="label">
-                  <span className="label-text-alt text-error">{errors.url.message}</span>
-                </label>
+                <p className="text-sm text-destructive">{errors.url.message}</p>
               )}
             </div>
 
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text">Description *</span>
-              </label>
-              <textarea
+            <div className="space-y-2">
+              <Label htmlFor="description">Description *</Label>
+              <Textarea
+                id="description"
                 placeholder="Enter a brief description of this link"
-                className={`textarea textarea-bordered h-20 ${errors.description ? 'textarea-error' : ''}`}
+                className={`h-20 ${errors.description ? 'border-destructive' : ''}`}
                 {...register('description')}
               />
               {errors.description && (
-                <label className="label">
-                  <span className="label-text-alt text-error">{errors.description.message}</span>
-                </label>
+                <p className="text-sm text-destructive">{errors.description.message}</p>
               )}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="form-control">
-                <label className="label">
-                  <span className="label-text">Icon (optional)</span>
-                </label>
-                <input
+              <div className="space-y-2">
+                <Label htmlFor="icon">Icon (optional)</Label>
+                <Input
+                  id="icon"
                   type="text"
                   placeholder="Icon name or emoji"
-                  className="input input-bordered"
                   {...register('icon')}
                 />
-                <label className="label">
-                  <span className="label-text-alt">Use emoji or icon name</span>
-                </label>
+                <p className="text-sm text-muted-foreground">Use emoji or icon name</p>
               </div>
 
-              <div className="form-control">
-                <label className="label">
-                  <span className="label-text">Favicon URL (optional)</span>
-                </label>
-                <input
+              <div className="space-y-2">
+                <Label htmlFor="favicon">Favicon URL (optional)</Label>
+                <Input
+                  id="favicon"
                   type="url"
                   placeholder="https://example.com/favicon.ico"
-                  className={`input input-bordered ${errors.favicon ? 'input-error' : ''}`}
+                  className={errors.favicon ? 'border-destructive' : ''}
                   {...register('favicon')}
                 />
                 {errors.favicon && (
-                  <label className="label">
-                    <span className="label-text-alt text-error">{errors.favicon.message}</span>
-                  </label>
+                  <p className="text-sm text-destructive">{errors.favicon.message}</p>
                 )}
               </div>
             </div>
 
-            <div className="form-control">
-              <label className="label cursor-pointer">
-                <span className="label-text">Active</span>
-                <input
-                  type="checkbox"
-                  className="toggle toggle-primary"
-                  {...register('isActive')}
-                />
-              </label>
-              <label className="label">
-                <span className="label-text-alt">Inactive links won't be displayed to users</span>
-              </label>
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                id="isActive"
+                className="sr-only"
+                {...register('isActive')}
+              />
+              <Switch
+                checked={link?.isActive ?? true}
+                onCheckedChange={(checked) => {
+                  const event = { target: { name: 'isActive', checked } };
+                  register('isActive').onChange(event);
+                }}
+              />
+              <Label htmlFor="isActive" className="text-sm font-medium">
+                Active
+              </Label>
             </div>
-
-            <div className="card-actions justify-end pt-4">
-              <button
-                type="button"
-                className="btn btn-ghost"
-                onClick={onCancel}
-                disabled={isLoading}
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className={`btn btn-primary ${isLoading ? 'loading' : ''}`}
-                disabled={isLoading}
-              >
-                {isLoading ? 'Saving...' : isEditing ? 'Update Link' : 'Create Link'}
-              </button>
-            </div>
+            <p className="text-sm text-muted-foreground">
+              Inactive links won't be displayed to users
+            </p>
           </form>
-        </div>
-      </div>
-    </div>
+
+        <DialogFooter className="pt-4">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onCancel}
+            disabled={isLoading}
+          >
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            disabled={isLoading}
+            onClick={handleSubmit(onSubmit)}
+          >
+            {isLoading ? 'Saving...' : isEditing ? 'Update Link' : 'Create Link'}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

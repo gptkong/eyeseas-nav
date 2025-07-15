@@ -7,6 +7,8 @@ import { SearchAndFilter } from './SearchAndFilter';
 import { StatsCards } from './StatsCards';
 import { Settings, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export function NavigationDashboard() {
   const {
@@ -37,40 +39,45 @@ export function NavigationDashboard() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-base-200 p-4">
+      <div className="min-h-screen bg-background p-4">
         <div className="container mx-auto">
-          <div className="alert alert-error">
-            <span>Error: {error}</span>
-            <button className="btn btn-sm" onClick={handleRefresh}>
-              Retry
-            </button>
-          </div>
+          <Alert variant="destructive">
+            <AlertDescription className="flex items-center justify-between">
+              <span>Error: {error}</span>
+              <Button size="sm" onClick={handleRefresh}>
+                Retry
+              </Button>
+            </AlertDescription>
+          </Alert>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-base-200">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="navbar bg-base-100 shadow-sm border-b border-base-300">
-        <div className="container mx-auto">
-          <div className="flex-1">
+      <div className="border-b bg-card shadow-sm">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
             <h1 className="text-xl font-bold">EyeSeas Navigation</h1>
-          </div>
-          <div className="flex-none gap-2">
-            <button
-              className="btn btn-ghost btn-sm"
-              onClick={handleRefresh}
-              disabled={isLoading}
-            >
-              <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
-              Refresh
-            </button>
-            <Link href="/admin" className="btn btn-ghost btn-sm">
-              <Settings className="w-4 h-4" />
-              Admin
-            </Link>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleRefresh}
+                disabled={isLoading}
+              >
+                <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+                Refresh
+              </Button>
+              <Button variant="ghost" size="sm" asChild>
+                <Link href="/admin?redirect=/">
+                  <Settings className="w-4 h-4 mr-2" />
+                  Admin
+                </Link>
+              </Button>
+            </div>
           </div>
         </div>
       </div>
@@ -91,15 +98,13 @@ export function NavigationDashboard() {
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {[...Array(8)].map((_, i) => (
-              <div key={i} className="card bg-base-100 shadow-md animate-pulse">
-                <div className="card-body p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="w-4 h-4 bg-base-300 rounded"></div>
-                    <div className="w-24 h-4 bg-base-300 rounded"></div>
-                  </div>
-                  <div className="w-full h-8 bg-base-300 rounded mb-3"></div>
-                  <div className="w-20 h-3 bg-base-300 rounded"></div>
+              <div key={i} className="bg-card border rounded-lg shadow-sm animate-pulse p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-4 h-4 bg-muted rounded"></div>
+                  <div className="w-24 h-4 bg-muted rounded"></div>
                 </div>
+                <div className="w-full h-8 bg-muted rounded mb-3"></div>
+                <div className="w-20 h-3 bg-muted rounded"></div>
               </div>
             ))}
           </div>
@@ -111,7 +116,7 @@ export function NavigationDashboard() {
           </div>
         ) : (
           <div className="text-center py-12">
-            <div className="text-base-content/60 mb-4">
+            <div className="text-muted-foreground mb-4">
               <svg
                 className="w-16 h-16 mx-auto mb-4"
                 fill="none"
@@ -125,16 +130,18 @@ export function NavigationDashboard() {
                   d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                 />
               </svg>
-              <h3 className="text-lg font-semibold mb-2">No navigation links found</h3>
+              <h3 className="text-lg font-semibold mb-2 text-foreground">No navigation links found</h3>
               <p className="text-sm">
                 {currentCategory === 'all'
                   ? 'No navigation links have been added yet.'
                   : `No ${currentCategory} navigation links found.`}
               </p>
             </div>
-            <Link href="/admin" className="btn btn-primary">
-              Add Navigation Links
-            </Link>
+            <Button asChild>
+              <Link href="/admin?redirect=/">
+                Add Navigation Links
+              </Link>
+            </Button>
           </div>
         )}
       </div>
