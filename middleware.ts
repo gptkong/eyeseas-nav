@@ -4,15 +4,9 @@ import type { NextRequest } from 'next/server';
 export function middleware(request: NextRequest) {
   // Only apply middleware to admin routes
   if (request.nextUrl.pathname.startsWith('/admin')) {
-    // Get the token from cookies or headers
-    const token = request.cookies.get('admin_token')?.value || 
-                  request.headers.get('authorization')?.replace('Bearer ', '');
-    
-    // If no token and trying to access admin (but not the login page itself)
-    if (!token && request.nextUrl.pathname === '/admin') {
-      // Allow access to admin page (it handles login/logout internally)
-      return NextResponse.next();
-    }
+    // Get the token from localStorage (we'll check this on the client side)
+    // For now, let the client-side handle the redirect
+    return NextResponse.next();
   }
 
   return NextResponse.next();

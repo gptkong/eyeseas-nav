@@ -68,7 +68,7 @@ export function NavigationDashboard() {
                 Refresh
               </Button>
               <Button variant="ghost" size="sm" asChild>
-                <Link href="/admin?redirect=/">
+                <Link href="/login?redirect=/admin">
                   <Settings className="w-4 h-4 mr-2" />
                   Admin
                 </Link>
@@ -131,7 +131,7 @@ export function NavigationDashboard() {
               </p>
             </div>
             <Button asChild>
-              <Link href="/admin?redirect=/">
+              <Link href="/login?redirect=/admin">
                 Add Navigation Links
               </Link>
             </Button>
