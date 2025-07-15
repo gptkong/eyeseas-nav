@@ -1,23 +1,17 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useNavigation } from '@/lib/hooks/useNavigation';
-import { NavigationCard } from './NavigationCard';
-import { SearchAndFilter } from './SearchAndFilter';
-import { NetworkModeToggle } from './NetworkModeToggle';
-import { Settings, RefreshCw } from 'lucide-react';
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useNavigation } from "@/lib/hooks/useNavigation";
+import { NavigationCard } from "./NavigationCard";
+import { SearchAndFilter } from "./SearchAndFilter";
+import { NetworkModeToggle } from "./NetworkModeToggle";
+import { Settings, RefreshCw } from "lucide-react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export function NavigationDashboard() {
-  const {
-    filteredLinks,
-    isLoading,
-    error,
-    fetchLinks,
-    filterLinks,
-  } = useNavigation();
+  const { filteredLinks, isLoading, error, fetchLinks, filterLinks } =
+    useNavigation();
 
   const handleSearch = (query: string) => {
     filterLinks({ query });
@@ -65,7 +59,11 @@ export function NavigationDashboard() {
                 <NetworkModeToggle size="sm" showLabel={false} />
               </div>
               <div className="xs:hidden">
-                <NetworkModeToggle size="sm" showLabel={false} className="scale-90" />
+                <NetworkModeToggle
+                  size="sm"
+                  showLabel={false}
+                  className="scale-90"
+                />
               </div>
 
               {/* Refresh Button */}
@@ -77,7 +75,11 @@ export function NavigationDashboard() {
                 className="px-2 sm:px-3"
                 title="Refresh"
               >
-                <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''} ${isLoading ? '' : 'sm:mr-2'}`} />
+                <RefreshCw
+                  className={`w-4 h-4 ${isLoading ? "animate-spin" : ""} ${
+                    isLoading ? "" : "sm:mr-2"
+                  }`}
+                />
                 <span className="hidden sm:inline">Refresh</span>
               </Button>
 
@@ -102,15 +104,16 @@ export function NavigationDashboard() {
       {/* Main Content */}
       <div className="container mx-auto px-3 sm:px-4 py-4">
         {/* Search and Filter */}
-        <SearchAndFilter
-          onSearch={handleSearch}
-        />
+        <SearchAndFilter onSearch={handleSearch} />
 
         {/* Navigation Links Grid */}
         {isLoading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
             {[...Array(8)].map((_, i) => (
-              <div key={i} className="bg-card border rounded-lg shadow-sm animate-pulse p-3 sm:p-4">
+              <div
+                key={i}
+                className="bg-card border rounded-lg shadow-sm animate-pulse p-3 sm:p-4"
+              >
                 <div className="flex items-center gap-2 mb-2">
                   <div className="w-4 h-4 bg-muted rounded"></div>
                   <div className="w-24 h-4 bg-muted rounded"></div>
@@ -142,15 +145,15 @@ export function NavigationDashboard() {
                   d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                 />
               </svg>
-              <h3 className="text-base sm:text-lg font-semibold mb-2 text-foreground">No navigation links found</h3>
+              <h3 className="text-base sm:text-lg font-semibold mb-2 text-foreground">
+                No navigation links found
+              </h3>
               <p className="text-sm sm:text-base max-w-md mx-auto">
                 No navigation links have been added yet.
               </p>
             </div>
             <Button asChild size="sm" className="sm:size-default">
-              <Link href="/login?redirect=/admin">
-                Add Navigation Links
-              </Link>
+              <Link href="/login?redirect=/admin">Add Navigation Links</Link>
             </Button>
           </div>
         )}

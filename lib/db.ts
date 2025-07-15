@@ -124,8 +124,8 @@ export class DatabaseService {
       
       return {
         totalLinks: links.length,
-        internalLinks: links.filter(link => link.category === 'internal').length,
-        externalLinks: links.filter(link => link.category === 'external').length,
+        internalLinks: links.length, // All links have internal URLs
+        externalLinks: links.length, // All links have external URLs
         activeLinks: links.filter(link => link.isActive).length,
         inactiveLinks: links.filter(link => !link.isActive).length,
       };

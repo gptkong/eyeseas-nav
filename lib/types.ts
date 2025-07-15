@@ -47,6 +47,8 @@ export type NetworkMode = 'internal' | 'external';
 
 export interface DashboardStats {
   totalLinks: number;
+  internalLinks: number;
+  externalLinks: number;
   activeLinks: number;
   inactiveLinks: number;
 }
