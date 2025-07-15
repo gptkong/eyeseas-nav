@@ -22,7 +22,8 @@ export interface CreateNavigationLinkData {
   isActive?: boolean;
 }
 
-export interface UpdateNavigationLinkData extends Partial<CreateNavigationLinkData> {
+export interface UpdateNavigationLinkData
+  extends Partial<CreateNavigationLinkData> {
   id: string;
 }
 
@@ -31,7 +32,7 @@ export interface AdminSession {
   expiresAt: number;
 }
 
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T> {
   success: boolean;
   data?: T;
   error?: string;
@@ -43,7 +44,7 @@ export interface SearchFilters {
   isActive?: boolean;
 }
 
-export type NetworkMode = 'internal' | 'external';
+export type NetworkMode = "internal" | "external";
 
 export interface DashboardStats {
   totalLinks: number;
