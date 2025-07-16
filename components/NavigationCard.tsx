@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { NavigationLink } from '@/lib/types';
-import { ExternalLink, Globe, Building, AlertCircle } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
-import { useNetworkMode } from '@/lib/contexts/NetworkModeContext';
-import Image from 'next/image';
+import { NavigationLink } from "@/lib/types";
+import { ExternalLink, Globe, Building, AlertCircle } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+import { useNetworkMode } from "@/lib/contexts/NetworkModeContext";
+import Image from "next/image";
 
 interface NavigationCardProps {
   link: NavigationLink;
@@ -16,18 +16,19 @@ interface NavigationCardProps {
 export function NavigationCard({ link, onClick }: NavigationCardProps) {
   const { networkMode } = useNetworkMode();
 
-  const currentUrl = networkMode === 'internal' ? link.internalUrl : link.externalUrl;
+  const currentUrl =
+    networkMode === "internal" ? link.internalUrl : link.externalUrl;
 
   const handleClick = () => {
     if (onClick) {
       onClick();
     } else {
-      window.open(currentUrl, '_blank', 'noopener,noreferrer');
+      window.open(currentUrl, "_blank", "noopener,noreferrer");
     }
   };
 
   const getNetworkIcon = () => {
-    return networkMode === 'internal' ? (
+    return networkMode === "internal" ? (
       <Building className="w-4 h-4 text-blue-600 dark:text-blue-400" />
     ) : (
       <Globe className="w-4 h-4 text-green-600 dark:text-green-400" />
@@ -35,7 +36,7 @@ export function NavigationCard({ link, onClick }: NavigationCardProps) {
   };
 
   const getNetworkBadge = () => {
-    return networkMode === 'internal' ? (
+    return networkMode === "internal" ? (
       <Badge
         variant="default"
         className="text-xs bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 border-blue-200 dark:border-blue-800"
@@ -55,6 +56,7 @@ export function NavigationCard({ link, onClick }: NavigationCardProps) {
   return (
     <Card
       className={cn(
+        "py-0",
         "group cursor-pointer transition-all duration-300 ease-out",
         "hover:shadow-xl hover:shadow-black/5 dark:hover:shadow-black/20",
         "hover:border-primary/20 dark:hover:border-primary/30",
@@ -72,15 +74,15 @@ export function NavigationCard({ link, onClick }: NavigationCardProps) {
           <div className="flex items-center gap-3 min-w-0 flex-1">
             <div className="relative flex-shrink-0">
               {link.favicon ? (
-                <div className="relative w-5 h-5">
+                <div className="relative">
                   <Image
                     src={link.favicon}
                     alt=""
-                    width={20}
-                    height={20}
-                    className="w-5 h-5 rounded-sm ring-1 ring-border/20 group-hover:ring-primary/30 transition-all duration-200 object-contain"
+                    width={40}
+                    height={40}
+                    className="rounded-sm ring-1 ring-border/20 group-hover:ring-primary/30 transition-all duration-200 object-contain"
                     onError={(e) => {
-                      e.currentTarget.style.display = 'none';
+                      e.currentTarget.style.display = "none";
                     }}
                     unoptimized
                   />
@@ -98,9 +100,7 @@ export function NavigationCard({ link, onClick }: NavigationCardProps) {
           </div>
 
           <div className="flex items-center gap-2 flex-shrink-0">
-            <div className="hidden xs:block">
-              {getNetworkBadge()}
-            </div>
+            <div className="hidden xs:block">{getNetworkBadge()}</div>
             <div className="p-1 rounded-full bg-muted/30 group-hover:bg-muted/60 transition-colors duration-200">
               <ExternalLink className="w-3 h-3 text-muted-foreground group-hover:text-foreground transition-colors duration-200" />
             </div>
@@ -123,9 +123,7 @@ export function NavigationCard({ link, onClick }: NavigationCardProps) {
           </div>
 
           <div className="flex items-center gap-2 flex-shrink-0">
-            <div className="xs:hidden">
-              {getNetworkBadge()}
-            </div>
+            <div className="xs:hidden">{getNetworkBadge()}</div>
             {!link.isActive && (
               <Badge
                 variant="outline"
