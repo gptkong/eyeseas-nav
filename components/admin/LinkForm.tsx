@@ -2,22 +2,15 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect } from "react";
 import {
   navigationLinkSchema,
   NavigationLinkFormData,
 } from "@/lib/validations";
 import { NavigationLink } from "@/lib/types";
-import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -49,28 +42,49 @@ export function LinkForm({
     register,
     handleSubmit,
     formState: { errors },
+    reset,
+    setValue,
+    watch,
   } = useForm<NavigationLinkFormData>({
     resolver: zodResolver(navigationLinkSchema),
-    defaultValues: link
-      ? {
-          title: link.title,
-          internalUrl: link.internalUrl,
-          externalUrl: link.externalUrl,
-          description: link.description,
-          icon: link.icon || "",
-          favicon: link.favicon || "",
-          isActive: link.isActive || true ,
-        }
-      : {
-          title: "",
-          internalUrl: "",
-          externalUrl: "",
-          description: "",
-          icon: "",
-          favicon: "",
-          isActive: true,
-        },
+    defaultValues: {
+      title: "",
+      internalUrl: "",
+      externalUrl: "",
+      description: "",
+      icon: "",
+      favicon: "",
+      isActive: true,
+    },
   });
+
+  // Watch the isActive field for Switch component
+  const isActiveValue = watch("isActive");
+
+  // Reset form when link prop changes
+  useEffect(() => {
+    if (link) {
+      reset({
+        title: link.title,
+        internalUrl: link.internalUrl,
+        externalUrl: link.externalUrl,
+        description: link.description,
+        icon: link.icon || "",
+        favicon: link.favicon || "",
+        isActive: link.isActive ?? true,
+      });
+    } else {
+      reset({
+        title: "",
+        internalUrl: "",
+        externalUrl: "",
+        description: "",
+        icon: "",
+        favicon: "",
+        isActive: true,
+      });
+    }
+  }, [link, reset]);
 
   return (
     <Dialog open={open} onOpenChange={onCancel}>
@@ -181,17 +195,10 @@ export function LinkForm({
           </div>
 
           <div className="flex items-center space-x-2">
-            <input
-              type="checkbox"
-              id="isActive"
-              className="sr-only"
-              {...register("isActive")}
-            />
             <Switch
-              checked={link?.isActive ?? true}
+              checked={isActiveValue}
               onCheckedChange={(checked) => {
-                const event = { target: { name: "isActive", checked } };
-                register("isActive").onChange(event);
+                setValue("isActive", checked);
               }}
             />
             <Label htmlFor="isActive" className="text-sm font-medium">
