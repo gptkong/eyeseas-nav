@@ -30,7 +30,7 @@ export function useNavigation() {
       }
 
       const response = await fetch(`/api/links?${params.toString()}`);
-      const data: ApiResponse = await response.json();
+      const data = await response.json();
 
       if (data.success) {
         setLinks(data.data || []);
@@ -89,16 +89,21 @@ export function useNavigation() {
     linkData: any
   ): Promise<{ success: boolean; error?: string }> => {
     try {
+      const authHeaders = getAuthHeaders();
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+      if (authHeaders.Authorization) {
+        headers.Authorization = authHeaders.Authorization;
+      }
+
       const response = await fetch("/api/links", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...getAuthHeaders(),
-        },
+        headers,
         body: JSON.stringify(linkData),
       });
 
-      const data: ApiResponse = await response.json();
+      const data = await response.json();
 
       if (data.success) {
         await fetchLinks();
@@ -121,16 +126,21 @@ export function useNavigation() {
     linkData: any
   ): Promise<{ success: boolean; error?: string }> => {
     try {
+      const authHeaders = getAuthHeaders();
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+      if (authHeaders.Authorization) {
+        headers.Authorization = authHeaders.Authorization;
+      }
+
       const response = await fetch(`/api/links/${id}`, {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          ...getAuthHeaders(),
-        },
+        headers,
         body: JSON.stringify(linkData),
       });
 
-      const data: ApiResponse = await response.json();
+      const data = await response.json();
 
       if (data.success) {
         await fetchLinks();
@@ -152,12 +162,18 @@ export function useNavigation() {
     id: string
   ): Promise<{ success: boolean; error?: string }> => {
     try {
+      const authHeaders = getAuthHeaders();
+      const headers: Record<string, string> = {};
+      if (authHeaders.Authorization) {
+        headers.Authorization = authHeaders.Authorization;
+      }
+
       const response = await fetch(`/api/links/${id}`, {
         method: "DELETE",
-        headers: getAuthHeaders(),
+        headers,
       });
 
-      const data: ApiResponse = await response.json();
+      const data = await response.json();
 
       if (data.success) {
         await fetchLinks();

@@ -40,7 +40,7 @@ export function useAuth() {
       });
 
       if (response.ok) {
-        const data: ApiResponse = await response.json();
+        const data = await response.json();
         if (data.success) {
           setAuthState({
             isAuthenticated: true,
@@ -84,7 +84,7 @@ export function useAuth() {
         body: JSON.stringify({ password }),
       });
 
-      const data: ApiResponse = await response.json();
+      const data = await response.json();
 
       if (data.success && data.data?.session) {
         localStorage.setItem('admin_session', data.data.session);
