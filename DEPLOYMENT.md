@@ -1,142 +1,142 @@
-# EyeSeas Navigation - Deployment Guide
+# ENav - 部署指南
 
-This guide will help you deploy the EyeSeas Navigation application to Vercel with Redis database.
+本指南将帮助您将 ENav 应用程序部署到 Vercel 并配置 Redis 数据库。
 
-## Prerequisites
+## 前置要求
 
-1. **Vercel Account**: Sign up at [vercel.com](https://vercel.com)
-2. **GitHub Repository**: Push your code to a GitHub repository
-3. **Redis Database**: Redis Cloud account or any Redis provider
-4. **Vercel CLI** (optional): Install with `npm i -g vercel`
+1. **Vercel 账户**：在 [vercel.com](https://vercel.com) 注册账户
+2. **GitHub 仓库**：将您的代码推送到 GitHub 仓库
+3. **Redis 数据库**：Redis Cloud 账户或任何 Redis 提供商
+4. **Vercel CLI**（可选）：使用 `npm i -g vercel` 安装
 
-## Step 1: Set Up Redis Database
+## 步骤 1：设置 Redis 数据库
 
-### Option A: Redis Cloud (Recommended)
+### 选项 A：Redis Cloud（推荐）
 
-1. Go to [Redis Cloud](https://redis.com/try-free/)
-2. Sign up for a free account
-3. Create a new database
-4. Choose your preferred region
-5. Get your Redis connection URL in the format:
+1. 访问 [Redis Cloud](https://redis.com/try-free/)
+2. 注册免费账户
+3. 创建新数据库
+4. 选择您偏好的区域
+5. 获取 Redis 连接 URL，格式如下：
    ```
    redis://default:password@host:port
    ```
 
-### Option B: Other Redis Providers
+### 选项 B：其他 Redis 提供商
 
-You can use any Redis provider like:
+您可以使用任何 Redis 提供商，例如：
 - Upstash Redis
 - AWS ElastiCache
 - Railway Redis
-- Self-hosted Redis
+- 自托管 Redis
 
-## Step 2: Deploy to Vercel
+## 步骤 2：部署到 Vercel
 
-### Option A: Deploy via Vercel Dashboard (Recommended)
+### 选项 A：通过 Vercel 控制台部署（推荐）
 
-1. Go to [Vercel Dashboard](https://vercel.com/dashboard)
-2. Click "New Project"
-3. Import your GitHub repository
-4. Vercel will automatically detect it's a Next.js project
-5. Configure environment variables (see Step 3)
-6. Click "Deploy"
+1. 访问 [Vercel 控制台](https://vercel.com/dashboard)
+2. 点击"New Project"
+3. 导入您的 GitHub 仓库
+4. Vercel 将自动检测这是一个 Next.js 项目
+5. 配置环境变量（参见步骤 3）
+6. 点击"Deploy"
 
-### Option B: Deploy via Vercel CLI
+### 选项 B：通过 Vercel CLI 部署
 
-1. Install Vercel CLI: `npm i -g vercel`
-2. Login: `vercel login`
-3. In your project directory: `vercel`
-4. Follow the prompts to link your project
-5. Configure environment variables via dashboard
+1. 安装 Vercel CLI：`npm i -g vercel`
+2. 登录：`vercel login`
+3. 在项目目录中：`vercel`
+4. 按照提示链接您的项目
+5. 通过控制台配置环境变量
 
-## Step 3: Configure Environment Variables
+## 步骤 3：配置环境变量
 
-In your Vercel project dashboard, go to Settings > Environment Variables and add:
+在您的 Vercel 项目控制台中，转到 Settings > Environment Variables 并添加：
 
-### Required Variables
+### 必需变量
 
-| Variable | Value | Description |
+| 变量 | 值 | 描述 |
 |----------|-------|-------------|
-| `REDIS_URL` | `redis://default:password@host:port` | From your Redis provider |
-| `ADMIN_PASSWORD` | `your_secure_password` | Choose a strong password |
+| `REDIS_URL` | `redis://default:password@host:port` | 来自您的 Redis 提供商 |
+| `ADMIN_PASSWORD` | `your_secure_password` | 选择一个强密码 |
 
-### Optional Variables
+### 可选变量
 
-| Variable | Value | Description |
+| 变量 | 值 | 描述 |
 |----------|-------|-------------|
-| `NEXT_PUBLIC_APP_NAME` | `EyeSeas Navigation` | App name (already set) |
-| `NEXT_PUBLIC_APP_DESCRIPTION` | `Internal and External Navigation Dashboard` | App description (already set) |
+| `NEXT_PUBLIC_APP_NAME` | `ENav` | 应用名称（已设置） |
+| `NEXT_PUBLIC_APP_DESCRIPTION` | `内外网导航仪表板` | 应用描述（已设置） |
 
-## Step 4: Verify Deployment
+## 步骤 4：验证部署
 
-1. Wait for deployment to complete
-2. Visit your deployed URL
-3. Test the navigation dashboard
-4. Go to `/admin` and test admin login
-5. Create a few test navigation links
+1. 等待部署完成
+2. 访问您的部署 URL
+3. 测试导航仪表板
+4. 访问 `/admin` 并测试管理员登录
+5. 创建一些测试导航链接
 
-## Step 5: Domain Configuration (Optional)
+## 步骤 5：域名配置（可选）
 
-1. In Vercel Dashboard, go to your project
-2. Navigate to Settings > Domains
-3. Add your custom domain
-4. Follow DNS configuration instructions
+1. 在 Vercel 控制台中，转到您的项目
+2. 导航到 Settings > Domains
+3. 添加您的自定义域名
+4. 按照 DNS 配置说明操作
 
-## Troubleshooting
+## 故障排除
 
-### Common Issues
+### 常见问题
 
-1. **Environment Variables Not Working**
-   - Ensure all required variables are set
-   - Redeploy after adding variables
-   - Check variable names match exactly
+1. **环境变量不工作**
+   - 确保所有必需变量都已设置
+   - 添加变量后重新部署
+   - 检查变量名称是否完全匹配
 
-2. **Redis Database Connection Issues**
-   - Verify REDIS_URL is correct and accessible
-   - Check Redis database is running and accepting connections
-   - Ensure Redis credentials are valid
+2. **Redis 数据库连接问题**
+   - 验证 REDIS_URL 是否正确且可访问
+   - 检查 Redis 数据库是否正在运行并接受连接
+   - 确保 Redis 凭据有效
 
-3. **Admin Login Not Working**
-   - Check ADMIN_PASSWORD environment variable
-   - Verify JWT_SECRET is set
-   - Clear browser cache and try again
+3. **管理员登录不工作**
+   - 检查 ADMIN_PASSWORD 环境变量
+   - 验证 JWT_SECRET 是否已设置
+   - 清除浏览器缓存并重试
 
-4. **Build Failures**
-   - Check build logs in Vercel dashboard
-   - Ensure all dependencies are in package.json
-   - Verify TypeScript types are correct
+4. **构建失败**
+   - 检查 Vercel 控制台中的构建日志
+   - 确保所有依赖项都在 package.json 中
+   - 验证 TypeScript 类型是否正确
 
-### Getting Help
+### 获取帮助
 
-- Check Vercel deployment logs
-- Review browser console for errors
-- Ensure all API routes are working correctly
+- 检查 Vercel 部署日志
+- 查看浏览器控制台错误
+- 确保所有 API 路由正常工作
 
-## Security Considerations
+## 安全考虑
 
-1. **Strong Admin Password**: Use a complex password for admin access
-2. **Environment Variables**: Never commit sensitive data to your repository
-3. **HTTPS**: Vercel provides HTTPS by default
-4. **Regular Updates**: Keep dependencies updated
+1. **强管理员密码**：为管理员访问使用复杂密码
+2. **环境变量**：永远不要将敏感数据提交到您的仓库
+3. **HTTPS**：Vercel 默认提供 HTTPS
+4. **定期更新**：保持依赖项更新
 
-## Backup and Maintenance
+## 备份和维护
 
-1. **Data Backup**: Redis Cloud provides automatic backups (check your provider's backup options)
-2. **Monitoring**: Use Vercel Analytics to monitor performance
-3. **Updates**: Regularly update dependencies and redeploy
+1. **数据备份**：Redis Cloud 提供自动备份（检查您的提供商的备份选项）
+2. **监控**：使用 Vercel Analytics 监控性能
+3. **更新**：定期更新依赖项并重新部署
 
-## Next Steps
+## 后续步骤
 
-After successful deployment:
+成功部署后：
 
-1. Add your first navigation links via the admin panel
-2. Customize the app name and description if needed
-3. Set up monitoring and analytics
-4. Consider adding more themes or customizations
-5. Train users on how to use the navigation dashboard
+1. 通过管理面板添加您的第一个导航链接
+2. 根据需要自定义应用名称和描述
+3. 设置监控和分析
+4. 考虑添加更多主题或自定义功能
+5. 培训用户如何使用导航仪表板
 
-## Support
+## 支持
 
-For issues specific to this application, check the README.md file or create an issue in the repository.
+对于此应用程序的特定问题，请查看 README.md 文件或在仓库中创建问题。
 
-For Vercel-specific issues, consult the [Vercel Documentation](https://vercel.com/docs).
+对于 Vercel 特定问题，请参考 [Vercel 文档](https://vercel.com/docs)。
