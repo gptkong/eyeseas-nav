@@ -7,14 +7,14 @@ export async function GET(request: NextRequest) {
   try {
     const stats = await DatabaseService.getDashboardStats();
 
-    return NextResponse.json<ApiResponse>({
+    return NextResponse.json({
       success: true,
       data: stats,
     });
 
   } catch (error) {
     console.error('Error fetching stats:', error);
-    return NextResponse.json<ApiResponse>({
+    return NextResponse.json({
       success: false,
       error: 'Internal server error',
       message: 'Failed to fetch dashboard statistics',

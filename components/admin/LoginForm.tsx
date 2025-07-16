@@ -117,7 +117,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
           </div>
 
           <div className="text-center text-sm text-muted-foreground">
-            <p>Contact your administrator if you've forgotten the password.</p>
+            <p>Contact your administrator if you have forgotten the password.</p>
           </div>
         </CardContent>
       </Card>

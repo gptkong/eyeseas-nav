@@ -1,18 +1,32 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useAuth } from '@/lib/hooks/useAuth';
-import { useNavigation } from '@/lib/hooks/useNavigation';
-import { NavigationLink } from '@/lib/types';
-import { NavigationLinkFormData } from '@/lib/validations';
-import { LinkForm } from './LinkForm';
-import { Plus, Edit, Trash2, LogOut, Home, ExternalLink } from 'lucide-react';
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
+import { useState } from "react";
+import { useAuth } from "@/lib/hooks/useAuth";
+import { useNavigation } from "@/lib/hooks/useNavigation";
+import { NavigationLink } from "@/lib/types";
+import { NavigationLinkFormData } from "@/lib/validations";
+import { LinkForm } from "./LinkForm";
+import { Plus, Edit, Trash2, LogOut, Home, ExternalLink } from "lucide-react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 
 export function AdminDashboard() {
   const { logout } = useAuth();
@@ -24,6 +38,7 @@ export function AdminDashboard() {
     updateLink,
     deleteLink,
     fetchLinks,
+    fetchStats,
   } = useNavigation();
 
   const [showForm, setShowForm] = useState(false);
@@ -39,7 +54,7 @@ export function AdminDashboard() {
       if (result.success) {
         setShowForm(false);
       } else {
-        alert(result.error || 'Failed to create link');
+        alert(result.error || "Failed to create link");
       }
     } finally {
       setIsSubmitting(false);
@@ -48,14 +63,14 @@ export function AdminDashboard() {
 
   const handleUpdateLink = async (data: NavigationLinkFormData) => {
     if (!editingLink) return;
-    
+
     setIsSubmitting(true);
     try {
       const result = await updateLink(editingLink.id, data);
       if (result.success) {
         setEditingLink(null);
       } else {
-        alert(result.error || 'Failed to update link');
+        alert(result.error || "Failed to update link");
       }
     } finally {
       setIsSubmitting(false);
@@ -67,7 +82,7 @@ export function AdminDashboard() {
     if (result.success) {
       setDeleteConfirm(null);
     } else {
-      alert(result.error || 'Failed to delete link');
+      alert(result.error || "Failed to delete link");
     }
   };
 
@@ -86,7 +101,13 @@ export function AdminDashboard() {
         <div className="container mx-auto">
           <div className="alert alert-error">
             <span>Error: {error}</span>
-            <button className="btn btn-sm" onClick={() => { fetchLinks(); fetchStats(); }}>
+            <button
+              className="btn btn-sm"
+              onClick={() => {
+                fetchLinks();
+                fetchStats();
+              }}
+            >
               Retry
             </button>
           </div>
@@ -109,11 +130,7 @@ export function AdminDashboard() {
                   Home
                 </Link>
               </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleLogout}
-              >
+              <Button variant="ghost" size="sm" onClick={handleLogout}>
                 <LogOut className="w-4 h-4 mr-2" />
                 Logout
               </Button>
@@ -129,10 +146,7 @@ export function AdminDashboard() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle>Navigation Links</CardTitle>
-              <Button
-                size="sm"
-                onClick={() => setShowForm(true)}
-              >
+              <Button size="sm" onClick={() => setShowForm(true)}>
                 <Plus className="w-4 h-4 mr-2" />
                 Add Link
               </Button>
@@ -154,11 +168,21 @@ export function AdminDashboard() {
                   {isLoading ? (
                     [...Array(5)].map((_, i) => (
                       <TableRow key={i}>
-                        <TableCell><div className="w-32 h-4 bg-muted rounded animate-pulse"></div></TableCell>
-                        <TableCell><div className="w-48 h-4 bg-muted rounded animate-pulse"></div></TableCell>
-                        <TableCell><div className="w-48 h-4 bg-muted rounded animate-pulse"></div></TableCell>
-                        <TableCell><div className="w-16 h-4 bg-muted rounded animate-pulse"></div></TableCell>
-                        <TableCell><div className="w-24 h-4 bg-muted rounded animate-pulse"></div></TableCell>
+                        <TableCell>
+                          <div className="w-32 h-4 bg-muted rounded animate-pulse"></div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="w-48 h-4 bg-muted rounded animate-pulse"></div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="w-48 h-4 bg-muted rounded animate-pulse"></div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="w-16 h-4 bg-muted rounded animate-pulse"></div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="w-24 h-4 bg-muted rounded animate-pulse"></div>
+                        </TableCell>
                       </TableRow>
                     ))
                   ) : links.length > 0 ? (
@@ -167,9 +191,13 @@ export function AdminDashboard() {
                         <TableCell>
                           <div className="flex items-center gap-2">
                             {link.favicon ? (
-                              <img src={link.favicon} alt="" className="w-4 h-4" />
+                              <img
+                                src={link.favicon}
+                                alt=""
+                                className="w-4 h-4"
+                              />
                             ) : (
-                              <span>{link.icon || '🔗'}</span>
+                              <span>{link.icon || "🔗"}</span>
                             )}
                             <span className="font-medium">{link.title}</span>
                           </div>
@@ -197,8 +225,10 @@ export function AdminDashboard() {
                           </a>
                         </TableCell>
                         <TableCell>
-                          <Badge variant={link.isActive ? 'default' : 'destructive'}>
-                            {link.isActive ? 'Active' : 'Inactive'}
+                          <Badge
+                            variant={link.isActive ? "default" : "destructive"}
+                          >
+                            {link.isActive ? "Active" : "Inactive"}
                           </Badge>
                         </TableCell>
                         <TableCell>
@@ -227,10 +257,7 @@ export function AdminDashboard() {
                       <TableCell colSpan={5} className="text-center py-8">
                         <div className="text-muted-foreground">
                           <p className="mb-2">No navigation links found</p>
-                          <Button
-                            size="sm"
-                            onClick={() => setShowForm(true)}
-                          >
+                          <Button size="sm" onClick={() => setShowForm(true)}>
                             Add your first link
                           </Button>
                         </div>
@@ -257,19 +284,20 @@ export function AdminDashboard() {
       />
 
       {/* Delete Confirmation Modal */}
-      <Dialog open={!!deleteConfirm} onOpenChange={() => setDeleteConfirm(null)}>
+      <Dialog
+        open={!!deleteConfirm}
+        onOpenChange={() => setDeleteConfirm(null)}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Confirm Delete</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete this navigation link? This action cannot be undone.
+              Are you sure you want to delete this navigation link? This action
+              cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setDeleteConfirm(null)}
-            >
+            <Button variant="outline" onClick={() => setDeleteConfirm(null)}>
               Cancel
             </Button>
             <Button
@@ -291,7 +319,8 @@ export function AdminDashboard() {
             </div>
             <DialogTitle>Confirm Logout</DialogTitle>
             <DialogDescription>
-              Are you sure you want to logout? You will be redirected to the home page.
+              Are you sure you want to logout? You will be redirected to the
+              home page.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>

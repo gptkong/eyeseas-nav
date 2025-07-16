@@ -7,14 +7,14 @@ export async function GET(request: NextRequest) {
     const session = AuthService.getSessionFromHeaders(request.headers);
 
     if (!session || !AuthService.isSessionValid(session)) {
-      return NextResponse.json<ApiResponse>({
+      return NextResponse.json({
         success: false,
         error: 'Unauthorized',
         message: 'Invalid or expired session',
       }, { status: 401 });
     }
 
-    return NextResponse.json<ApiResponse>({
+    return NextResponse.json({
       success: true,
       data: {
         isAuthenticated: true,
@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
 
   } catch (error) {
     console.error('Session verification error:', error);
-    return NextResponse.json<ApiResponse>({
+    return NextResponse.json({
       success: false,
       error: 'Internal server error',
       message: 'An unexpected error occurred',

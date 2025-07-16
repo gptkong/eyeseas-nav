@@ -54,7 +54,7 @@ export async function POST() {
       createdLinks.push(link);
     }
 
-    return NextResponse.json<ApiResponse>({
+    return NextResponse.json({
       success: true,
       data: createdLinks,
       message: `Created ${createdLinks.length} test links`,
@@ -62,7 +62,7 @@ export async function POST() {
 
   } catch (error) {
     console.error('Error creating test data:', error);
-    return NextResponse.json<ApiResponse>({
+    return NextResponse.json({
       success: false,
       error: 'Internal server error',
       message: 'Failed to create test data',
@@ -80,14 +80,14 @@ export async function DELETE() {
       await DatabaseService.deleteLink(link.id);
     }
 
-    return NextResponse.json<ApiResponse>({
+    return NextResponse.json({
       success: true,
       message: `Deleted ${links.length} links`,
     });
 
   } catch (error) {
     console.error('Error deleting test data:', error);
-    return NextResponse.json<ApiResponse>({
+    return NextResponse.json({
       success: false,
       error: 'Internal server error',
       message: 'Failed to delete test data',
