@@ -6,6 +6,7 @@ import { useNavigation } from "@/lib/hooks/useNavigation";
 import { NavigationLink } from "@/lib/types";
 import { NavigationLinkFormData } from "@/lib/validations";
 import { LinkForm } from "./LinkForm";
+import { ThemeToggle } from "../ThemeToggle";
 import { Plus, Edit, Trash2, LogOut, Home, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -124,6 +125,7 @@ export function AdminDashboard() {
           <div className="flex items-center justify-between">
             <h1 className="text-xl font-bold">Admin Dashboard</h1>
             <div className="flex items-center gap-2">
+              <ThemeToggle variant="ghost" size="sm" />
               <Button variant="ghost" size="sm" asChild>
                 <Link href="/">
                   <Home className="w-4 h-4 mr-2" />

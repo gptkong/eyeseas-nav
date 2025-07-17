@@ -4,6 +4,7 @@ import { useNavigation } from "@/lib/hooks/useNavigation";
 import { NavigationCard } from "./NavigationCard";
 import { SearchAndFilter } from "./SearchAndFilter";
 import { NetworkModeToggle } from "./NetworkModeToggle";
+import { ThemeToggle } from "./ThemeToggle";
 import { Settings, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -65,6 +66,13 @@ export function NavigationDashboard() {
                   className="scale-90"
                 />
               </div>
+
+              {/* Theme Toggle */}
+              <ThemeToggle
+                variant="ghost"
+                size="sm"
+                className="px-2 sm:px-3"
+              />
 
               {/* Refresh Button */}
               <Button
