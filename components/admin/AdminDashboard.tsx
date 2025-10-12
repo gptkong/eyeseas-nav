@@ -7,27 +7,21 @@ import { NavigationLink } from "@/lib/types";
 import { NavigationLinkFormData } from "@/lib/validations";
 import { LinkForm } from "./LinkForm";
 import { ThemeToggle } from "../ThemeToggle";
-import { Plus, Edit, Trash2, LogOut, Home, ExternalLink } from "lucide-react";
+import {
+  Plus,
+  Edit,
+  Trash2,
+  LogOut,
+  Home,
+  ExternalLink,
+  Search,
+  Filter,
+  RefreshCw,
+  LayoutGrid,
+} from "lucide-react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
+import { motion, AnimatePresence } from "framer-motion";
+import { cn } from "@/lib/utils";
 
 export function AdminDashboard() {
   const { logout } = useAuth();
@@ -39,7 +33,6 @@ export function AdminDashboard() {
     updateLink,
     deleteLink,
     fetchLinks,
-    fetchStats,
   } = useNavigation();
 
   const [showForm, setShowForm] = useState(false);
@@ -47,6 +40,7 @@ export function AdminDashboard() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const handleCreateLink = async (data: NavigationLinkFormData) => {
     setIsSubmitting(true);
@@ -87,190 +81,303 @@ export function AdminDashboard() {
     }
   };
 
-  const handleLogout = () => {
-    setShowLogoutConfirm(true);
-  };
-
   const confirmLogout = () => {
     setShowLogoutConfirm(false);
     logout();
   };
 
+  const filteredLinks = links.filter((link) =>
+    link.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   if (error) {
     return (
-      <div className="min-h-screen bg-base-200 p-4">
-        <div className="container mx-auto">
-          <div className="alert alert-error">
-            <span>Error: {error}</span>
-            <button
-              className="btn btn-sm"
-              onClick={() => {
-                fetchLinks();
-                fetchStats();
-              }}
+      <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-pink-50 dark:from-gray-900 dark:via-gray-800 dark:to-red-950 flex items-center justify-center p-4">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="max-w-md w-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl border border-red-200 dark:border-red-800 shadow-xl p-6 text-center"
+        >
+          <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg
+              className="w-8 h-8 text-red-600 dark:text-red-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
             >
-              Retry
-            </button>
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+              />
+            </svg>
           </div>
-        </div>
+          <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
+            加载失败
+          </h3>
+          <p className="text-gray-600 dark:text-gray-300 mb-4">{error}</p>
+          <button
+            onClick={fetchLinks}
+            className="px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors duration-200"
+          >
+            重试
+          </button>
+        </motion.div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       {/* Header */}
-      <div className="border-b bg-card shadow-sm">
+      <motion.header
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+        className="sticky top-0 z-50 backdrop-blur-xl bg-white/70 dark:bg-gray-900/70 border-b border-gray-200/50 dark:border-gray-700/50 shadow-lg"
+      >
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <h1 className="text-xl font-bold">Admin Dashboard</h1>
-            <div className="flex items-center gap-2">
-              <ThemeToggle variant="ghost" size="sm" />
-              <Button variant="ghost" size="sm" asChild>
-                <Link href="/">
-                  <Home className="w-4 h-4 mr-2" />
-                  Home
-                </Link>
-              </Button>
-              <Button variant="ghost" size="sm" onClick={handleLogout}>
-                <LogOut className="w-4 h-4 mr-2" />
-                Logout
-              </Button>
+            {/* Logo */}
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              className="flex items-center gap-3"
+            >
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center shadow-lg">
+                <LayoutGrid className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 dark:from-indigo-400 dark:via-purple-400 dark:to-pink-400 bg-clip-text text-transparent">
+                  管理后台
+                </h1>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  导航链接管理系统
+                </p>
+              </div>
+            </motion.div>
+
+            {/* Actions */}
+            <div className="flex items-center gap-2 sm:gap-3">
+              <ThemeToggle />
+
+              <Link href="/">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="px-3 sm:px-4 py-2 rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700 transition-colors duration-200 flex items-center gap-2"
+                >
+                  <Home className="w-4 h-4 text-gray-600 dark:text-gray-300" />
+                  <span className="hidden sm:inline text-sm font-medium text-gray-700 dark:text-gray-300">
+                    首页
+                  </span>
+                </motion.button>
+              </Link>
+
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setShowLogoutConfirm(true)}
+                className="px-3 sm:px-4 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white transition-colors duration-200 flex items-center gap-2"
+              >
+                <LogOut className="w-4 h-4" />
+                <span className="hidden sm:inline text-sm font-medium">
+                  退出
+                </span>
+              </motion.button>
             </div>
           </div>
         </div>
-      </div>
+      </motion.header>
 
       {/* Main Content */}
-      <div className="container mx-auto p-4 space-y-6">
-        {/* Navigation Links Management */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle>Navigation Links</CardTitle>
-              <Button size="sm" onClick={() => setShowForm(true)}>
-                <Plus className="w-4 h-4 mr-2" />
-                Add Link
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent className="p-0">
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Title</TableHead>
-                    <TableHead>Internal URL</TableHead>
-                    <TableHead>External URL</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {isLoading ? (
-                    [...Array(5)].map((_, i) => (
-                      <TableRow key={i}>
-                        <TableCell>
-                          <div className="w-32 h-4 bg-muted rounded animate-pulse"></div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="w-48 h-4 bg-muted rounded animate-pulse"></div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="w-48 h-4 bg-muted rounded animate-pulse"></div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="w-16 h-4 bg-muted rounded animate-pulse"></div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="w-24 h-4 bg-muted rounded animate-pulse"></div>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  ) : links.length > 0 ? (
-                    links.map((link) => (
-                      <TableRow key={link.id}>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            {link.favicon ? (
-                              <img
-                                src={link.favicon}
-                                alt=""
-                                className="w-4 h-4"
-                              />
-                            ) : (
-                              <span>{link.icon || "🔗"}</span>
-                            )}
-                            <span className="font-medium">{link.title}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <a
-                            href={link.internalUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-primary hover:underline flex items-center gap-1 text-sm"
-                          >
-                            {new URL(link.internalUrl).hostname}
-                            <ExternalLink className="w-3 h-3" />
-                          </a>
-                        </TableCell>
-                        <TableCell>
-                          <a
-                            href={link.externalUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-primary hover:underline flex items-center gap-1 text-sm"
-                          >
-                            {new URL(link.externalUrl).hostname}
-                            <ExternalLink className="w-3 h-3" />
-                          </a>
-                        </TableCell>
-                        <TableCell>
-                          <Badge
-                            variant={link.isActive ? "default" : "destructive"}
-                          >
-                            {link.isActive ? "Active" : "Inactive"}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex gap-1">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => setEditingLink(link)}
-                            >
-                              <Edit className="w-3 h-3" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => setDeleteConfirm(link.id)}
-                              className="text-destructive hover:text-destructive"
-                            >
-                              <Trash2 className="w-3 h-3" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={5} className="text-center py-8">
-                        <div className="text-muted-foreground">
-                          <p className="mb-2">No navigation links found</p>
-                          <Button size="sm" onClick={() => setShowForm(true)}>
-                            Add your first link
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="container mx-auto px-4 py-8">
+        {/* Actions Bar */}
+        <div className="mb-6 flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
+          {/* Search */}
+          <div className="relative flex-1 max-w-md">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <input
+              type="text"
+              placeholder="搜索链接..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full h-12 pl-12 pr-4 rounded-xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all duration-200"
+            />
+          </div>
+
+          {/* Add Button */}
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setShowForm(true)}
+            className="px-4 py-3 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 hover:from-indigo-600 hover:via-purple-600 hover:to-pink-600 text-white font-medium shadow-lg transition-all duration-200 flex items-center gap-2"
+          >
+            <Plus className="w-5 h-5" />
+            <span>添加链接</span>
+          </motion.button>
+        </div>
+
+        {/* Links Grid */}
+        <AnimatePresence mode="wait">
+          {isLoading ? (
+            <motion.div
+              key="loading"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="grid grid-cols-1 lg:grid-cols-2 gap-4"
+            >
+              {[...Array(6)].map((_, i) => (
+                <div
+                  key={i}
+                  className="h-32 rounded-2xl bg-gray-200 dark:bg-gray-800 animate-pulse"
+                />
+              ))}
+            </motion.div>
+          ) : filteredLinks.length > 0 ? (
+            <motion.div
+              key="links"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="grid grid-cols-1 lg:grid-cols-2 gap-4"
+            >
+              {filteredLinks.map((link, index) => (
+                <motion.div
+                  key={link.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: index * 0.05 }}
+                  className="group relative bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl border border-gray-200/50 dark:border-gray-700/50 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden"
+                >
+                  {/* Status Indicator */}
+                  <div
+                    className={cn(
+                      "absolute top-0 left-0 right-0 h-1",
+                      link.isActive
+                        ? "bg-gradient-to-r from-green-500 to-emerald-500"
+                        : "bg-gradient-to-r from-gray-400 to-gray-500"
+                    )}
+                  />
+
+                  <div className="p-5">
+                    {/* Header */}
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-lg font-bold text-gray-900 dark:text-white truncate mb-1">
+                          {link.title}
+                        </h3>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
+                          {link.description}
+                        </p>
+                      </div>
+
+                      {/* Actions */}
+                      <div className="flex items-center gap-1 ml-3">
+                        <motion.button
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.9 }}
+                          onClick={() => setEditingLink(link)}
+                          className="p-2 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 hover:bg-indigo-200 dark:hover:bg-indigo-900/50 transition-colors duration-200"
+                          title="编辑"
+                        >
+                          <Edit className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                        </motion.button>
+                        <motion.button
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.9 }}
+                          onClick={() => setDeleteConfirm(link.id)}
+                          className="p-2 rounded-lg bg-red-100 dark:bg-red-900/30 hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors duration-200"
+                          title="删除"
+                        >
+                          <Trash2 className="w-4 h-4 text-red-600 dark:text-red-400" />
+                        </motion.button>
+                      </div>
+                    </div>
+
+                    {/* URLs */}
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-medium text-blue-600 dark:text-blue-400 px-2 py-1 rounded bg-blue-50 dark:bg-blue-900/30">
+                          内网
+                        </span>
+                        <a
+                          href={link.internalUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 truncate flex items-center gap-1 font-mono"
+                        >
+                          {new URL(link.internalUrl).hostname}
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-medium text-green-600 dark:text-green-400 px-2 py-1 rounded bg-green-50 dark:bg-green-900/30">
+                          外网
+                        </span>
+                        <a
+                          href={link.externalUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 truncate flex items-center gap-1 font-mono"
+                        >
+                          {new URL(link.externalUrl).hostname}
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
+                      </div>
+                    </div>
+
+                    {/* Status */}
+                    <div className="mt-3 pt-3 border-t border-gray-200/50 dark:border-gray-700/50">
+                      <div className="flex items-center justify-between">
+                        <span
+                          className={cn(
+                            "text-xs font-medium px-2 py-1 rounded",
+                            link.isActive
+                              ? "text-green-700 dark:text-green-300 bg-green-100 dark:bg-green-900/30"
+                              : "text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800"
+                          )}
+                        >
+                          {link.isActive ? "✓ 已激活" : "○ 未激活"}
+                        </span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                          ID: {link.id.slice(0, 8)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
+          ) : (
+            <motion.div
+              key="empty"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              className="text-center py-16"
+            >
+              <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 rounded-3xl flex items-center justify-center">
+                <LayoutGrid className="w-12 h-12 text-gray-400 dark:text-gray-500" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">
+                暂无导航链接
+              </h3>
+              <p className="text-gray-600 dark:text-gray-300 mb-6">
+                点击添加按钮创建您的第一个导航链接
+              </p>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setShowForm(true)}
+                className="px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white font-medium shadow-lg transition-all duration-200"
+              >
+                添加导航链接
+              </motion.button>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Create/Edit Form Modal */}
@@ -286,63 +393,98 @@ export function AdminDashboard() {
       />
 
       {/* Delete Confirmation Modal */}
-      <Dialog
-        open={!!deleteConfirm}
-        onOpenChange={() => setDeleteConfirm(null)}
-      >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Confirm Delete</DialogTitle>
-            <DialogDescription>
-              Are you sure you want to delete this navigation link? This action
-              cannot be undone.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteConfirm(null)}>
-              Cancel
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={() => handleDeleteLink(deleteConfirm!)}
+      <AnimatePresence>
+        {deleteConfirm && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+            onClick={() => setDeleteConfirm(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-6 max-w-sm w-full"
             >
-              Delete
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+              <div className="text-center">
+                <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Trash2 className="w-8 h-8 text-red-600 dark:text-red-400" />
+                </div>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
+                  确认删除
+                </h3>
+                <p className="text-gray-600 dark:text-gray-300 mb-6">
+                  确定要删除这个导航链接吗？此操作无法撤销。
+                </p>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setDeleteConfirm(null)}
+                    className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
+                  >
+                    取消
+                  </button>
+                  <button
+                    onClick={() => handleDeleteLink(deleteConfirm)}
+                    className="flex-1 px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-medium transition-colors duration-200"
+                  >
+                    删除
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Logout Confirmation Modal */}
-      <Dialog open={showLogoutConfirm} onOpenChange={setShowLogoutConfirm}>
-        <DialogContent>
-          <DialogHeader>
-            <div className="mx-auto w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mb-4">
-              <LogOut className="w-8 h-8 text-orange-600" />
-            </div>
-            <DialogTitle>Confirm Logout</DialogTitle>
-            <DialogDescription>
-              Are you sure you want to logout? You will be redirected to the
-              home page.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setShowLogoutConfirm(false)}
+      <AnimatePresence>
+        {showLogoutConfirm && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+            onClick={() => setShowLogoutConfirm(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-6 max-w-sm w-full"
             >
-              Cancel
-            </Button>
-            <Button
-              variant="default"
-              onClick={confirmLogout}
-              className="bg-orange-600 hover:bg-orange-700"
-            >
-              <LogOut className="w-4 h-4 mr-2" />
-              Logout
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+              <div className="text-center">
+                <div className="w-16 h-16 bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <LogOut className="w-8 h-8 text-orange-600 dark:text-orange-400" />
+                </div>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
+                  确认退出
+                </h3>
+                <p className="text-gray-600 dark:text-gray-300 mb-6">
+                  确定要退出登录吗？您将被重定向到首页。
+                </p>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setShowLogoutConfirm(false)}
+                    className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
+                  >
+                    取消
+                  </button>
+                  <button
+                    onClick={confirmLogout}
+                    className="flex-1 px-4 py-2.5 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-medium transition-colors duration-200"
+                  >
+                    退出
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

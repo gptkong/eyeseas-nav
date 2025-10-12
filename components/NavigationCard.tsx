@@ -1,20 +1,22 @@
 "use client";
 
 import { NavigationLink } from "@/lib/types";
-import { ExternalLink, Globe, Building, AlertCircle } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { ExternalLink, Globe, Building, AlertCircle, ArrowUpRight } from "lucide-react";
+import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useNetworkMode } from "@/lib/contexts/NetworkModeContext";
 import Image from "next/image";
+import { useState } from "react";
 
 interface NavigationCardProps {
   link: NavigationLink;
   onClick?: () => void;
+  index?: number;
 }
 
-export function NavigationCard({ link, onClick }: NavigationCardProps) {
+export function NavigationCard({ link, onClick, index = 0 }: NavigationCardProps) {
   const { networkMode } = useNetworkMode();
+  const [isHovered, setIsHovered] = useState(false);
 
   const currentUrl =
     networkMode === "internal" ? link.internalUrl : link.externalUrl;
@@ -29,113 +31,138 @@ export function NavigationCard({ link, onClick }: NavigationCardProps) {
 
   const getNetworkIcon = () => {
     return networkMode === "internal" ? (
-      <Building className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+      <Building className="w-5 h-5 text-blue-500 dark:text-blue-400" />
     ) : (
-      <Globe className="w-4 h-4 text-green-600 dark:text-green-400" />
+      <Globe className="w-5 h-5 text-green-500 dark:text-green-400" />
     );
   };
 
-  const getNetworkBadge = () => {
-    return networkMode === "internal" ? (
-      <Badge
-        variant="default"
-        className="text-xs bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 border-blue-200 dark:border-blue-800"
-      >
-        Internal
-      </Badge>
-    ) : (
-      <Badge
-        variant="secondary"
-        className="text-xs bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 border-green-200 dark:border-green-800"
-      >
-        External
-      </Badge>
-    );
+  const getNetworkColor = () => {
+    return networkMode === "internal"
+      ? "from-blue-500/10 to-blue-600/10 dark:from-blue-500/20 dark:to-blue-600/20"
+      : "from-green-500/10 to-green-600/10 dark:from-green-500/20 dark:to-green-600/20";
   };
 
   return (
-    <Card
-      className={cn(
-        "py-0",
-        "group cursor-pointer transition-all duration-300 ease-out",
-        "hover:shadow-xl hover:shadow-black/5 dark:hover:shadow-black/20",
-        "hover:border-primary/20 dark:hover:border-primary/30",
-        "active:scale-[0.98] sm:hover:scale-[1.02]",
-        "transform-gpu will-change-transform",
-        "bg-gradient-to-br from-card to-card/80",
-        "border-border/50 hover:border-border",
-        !link.isActive && "opacity-60 hover:opacity-80"
-      )}
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, delay: index * 0.05 }}
+      whileHover={{ y: -8 }}
+      onHoverStart={() => setIsHovered(true)}
+      onHoverEnd={() => setIsHovered(false)}
       onClick={handleClick}
+      className={cn(
+        "group relative cursor-pointer rounded-2xl overflow-hidden",
+        "bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl",
+        "border border-gray-200/50 dark:border-gray-700/50",
+        "shadow-lg hover:shadow-2xl",
+        "transition-all duration-500 ease-out",
+        "transform-gpu will-change-transform",
+        !link.isActive && "opacity-60 hover:opacity-90"
+      )}
     >
-      <CardContent className="p-4 sm:p-5 space-y-3">
+      {/* Gradient Background */}
+      <div
+        className={cn(
+          "absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-100 transition-opacity duration-500",
+          getNetworkColor()
+        )}
+      />
+
+      {/* Shine Effect */}
+      <motion.div
+        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+        initial={{ x: "-100%" }}
+        animate={isHovered ? { x: "100%" } : { x: "-100%" }}
+        transition={{ duration: 0.8, ease: "easeInOut" }}
+      />
+
+      {/* Content */}
+      <div className="relative p-5 sm:p-6 space-y-4">
         {/* Header Section */}
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0 flex-1">
-            <div className="relative flex-shrink-0">
+            {/* Icon/Favicon */}
+            <motion.div
+              className="relative flex-shrink-0"
+              whileHover={{ scale: 1.1, rotate: 5 }}
+              transition={{ type: "spring", stiffness: 300 }}
+            >
               {link.favicon ? (
-                <div className="relative">
+                <div className="relative w-12 h-12 rounded-xl overflow-hidden shadow-md ring-2 ring-white/50 dark:ring-gray-700/50">
                   <Image
                     src={link.favicon}
                     alt=""
-                    width={40}
-                    height={40}
-                    className="rounded-sm ring-1 ring-border/20 group-hover:ring-primary/30 transition-all duration-200 object-contain"
+                    width={48}
+                    height={48}
+                    className="object-contain p-1"
                     onError={(e) => {
                       e.currentTarget.style.display = "none";
                     }}
                     unoptimized
                   />
-                  <div className="absolute inset-0 bg-gradient-to-br from-transparent to-black/5 rounded-sm pointer-events-none" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent pointer-events-none" />
                 </div>
               ) : (
-                <div className="p-1 rounded-md bg-muted/50 group-hover:bg-muted transition-colors duration-200">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center shadow-md">
                   {getNetworkIcon()}
                 </div>
               )}
+            </motion.div>
+
+            {/* Title */}
+            <div className="flex-1 min-w-0">
+              <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white truncate mb-0.5">
+                {link.title}
+              </h3>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                  {networkMode === "internal" ? "内网" : "外网"}
+                </span>
+              </div>
             </div>
-            <h3 className="text-sm sm:text-base font-semibold truncate text-foreground group-hover:text-primary transition-colors duration-200">
-              {link.title}
-            </h3>
           </div>
 
-          <div className="flex items-center gap-2 flex-shrink-0">
-            <div className="hidden xs:block">{getNetworkBadge()}</div>
-            <div className="p-1 rounded-full bg-muted/30 group-hover:bg-muted/60 transition-colors duration-200">
-              <ExternalLink className="w-3 h-3 text-muted-foreground group-hover:text-foreground transition-colors duration-200" />
+          {/* Arrow Icon */}
+          <motion.div
+            className="flex-shrink-0"
+            animate={{ x: isHovered ? 4 : 0, y: isHovered ? -4 : 0 }}
+            transition={{ type: "spring", stiffness: 300 }}
+          >
+            <div className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center group-hover:bg-indigo-500 dark:group-hover:bg-indigo-500 transition-colors duration-300">
+              <ArrowUpRight className="w-4 h-4 text-gray-600 dark:text-gray-300 group-hover:text-white transition-colors duration-300" />
             </div>
-          </div>
+          </motion.div>
         </div>
 
-        {/* Description Section */}
-        <div className="space-y-2">
-          <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2 leading-relaxed">
-            {link.description}
-          </p>
-        </div>
+        {/* Description */}
+        <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2 leading-relaxed">
+          {link.description}
+        </p>
 
-        {/* Footer Section */}
-        <div className="flex items-center justify-between pt-1 border-t border-border/30">
+        {/* Footer */}
+        <div className="flex items-center justify-between pt-3 border-t border-gray-200/50 dark:border-gray-700/50">
           <div className="flex items-center gap-2 min-w-0 flex-1">
-            <span className="text-xs text-muted-foreground/80 truncate font-mono">
+            <ExternalLink className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
+            <span className="text-xs text-gray-500 dark:text-gray-400 truncate font-mono">
               {new URL(currentUrl).hostname}
             </span>
           </div>
 
-          <div className="flex items-center gap-2 flex-shrink-0">
-            <div className="xs:hidden">{getNetworkBadge()}</div>
-            {!link.isActive && (
-              <Badge
-                variant="outline"
-                className="text-xs bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-900/20 dark:text-orange-300 dark:border-orange-800/50"
-              >
-                <AlertCircle className="w-3 h-3 mr-1" />
-                Inactive
-              </Badge>
-            )}
-          </div>
+          {!link.isActive && (
+            <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-amber-100 dark:bg-amber-900/30">
+              <AlertCircle className="w-3 h-3 text-amber-600 dark:text-amber-400" />
+              <span className="text-xs font-medium text-amber-600 dark:text-amber-400">
+                未激活
+              </span>
+            </div>
+          )}
         </div>
-      </CardContent>
-    </Card>
+      </div>
+
+      {/* Bottom Glow */}
+      <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+    </motion.div>
   );
 }

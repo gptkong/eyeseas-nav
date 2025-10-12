@@ -1,84 +1,62 @@
-'use client';
+"use client";
 
-import { useNetworkMode } from '@/lib/contexts/NetworkModeContext';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Globe, Building, ToggleLeft, ToggleRight } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { useNetworkMode } from "@/lib/contexts/NetworkModeContext";
+import { Globe, Building } from "lucide-react";
+import { motion } from "framer-motion";
+import { cn } from "@/lib/utils";
 
 interface NetworkModeToggleProps {
   className?: string;
-  showLabel?: boolean;
-  size?: 'sm' | 'md' | 'lg';
 }
 
-export function NetworkModeToggle({ 
-  className, 
-  showLabel = true, 
-  size = 'md' 
-}: NetworkModeToggleProps) {
+export function NetworkModeToggle({ className }: NetworkModeToggleProps) {
   const { networkMode, toggleNetworkMode } = useNetworkMode();
 
-  const isInternal = networkMode === 'internal';
-  
-  const sizeClasses = {
-    sm: 'h-8 px-3 text-xs',
-    md: 'h-10 px-4 text-sm',
-    lg: 'h-12 px-6 text-base'
-  };
-
-  const iconSizes = {
-    sm: 'w-3 h-3',
-    md: 'w-4 h-4',
-    lg: 'w-5 h-5'
-  };
+  const isInternal = networkMode === "internal";
 
   return (
-    <div className={cn('flex items-center gap-2', className)}>
-      {showLabel && (
-        <Badge
-          variant={isInternal ? 'default' : 'secondary'}
-          className="text-xs hidden sm:inline-flex"
-        >
-          {isInternal ? 'Internal' : 'External'}
-        </Badge>
+    <motion.button
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+      onClick={toggleNetworkMode}
+      className={cn(
+        "relative px-4 py-2 rounded-xl",
+        "bg-gray-100 dark:bg-gray-800",
+        "hover:bg-gray-200 dark:hover:bg-gray-700",
+        "border border-gray-200 dark:border-gray-700",
+        "transition-colors duration-200",
+        "flex items-center gap-2",
+        className
       )}
-
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={toggleNetworkMode}
-        className={cn(
-          'flex items-center gap-1 sm:gap-2 transition-all duration-200 min-w-0',
-          sizeClasses[size],
-          isInternal
-            ? 'border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100'
-            : 'border-green-200 bg-green-50 text-green-700 hover:bg-green-100'
-        )}
-        title={`Switch to ${isInternal ? 'External' : 'Internal'} Network`}
+      title={`切换到${isInternal ? "外网" : "内网"}模式`}
+    >
+      {/* Icon Container */}
+      <motion.div
+        className="relative w-5 h-5"
+        animate={{ rotate: isInternal ? 0 : 180 }}
+        transition={{ type: "spring", stiffness: 200 }}
       >
         {isInternal ? (
-          <Building className={iconSizes[size]} />
+          <Building className="w-5 h-5 text-blue-600 dark:text-blue-400" />
         ) : (
-          <Globe className={iconSizes[size]} />
+          <Globe className="w-5 h-5 text-green-600 dark:text-green-400" />
         )}
+      </motion.div>
 
-        {showLabel && (
-          <>
-            <span className="hidden md:inline text-xs sm:text-sm">
-              {isInternal ? 'Internal' : 'External'}
-            </span>
-            <span className="hidden sm:inline md:hidden text-xs">
-              {isInternal ? 'Int' : 'Ext'}
-            </span>
-            {isInternal ? (
-              <ToggleLeft className={cn(iconSizes[size], 'hidden sm:inline')} />
-            ) : (
-              <ToggleRight className={cn(iconSizes[size], 'hidden sm:inline')} />
-            )}
-          </>
+      {/* Label */}
+      <span className="hidden sm:inline text-sm font-medium text-gray-700 dark:text-gray-300">
+        {isInternal ? "内网" : "外网"}
+      </span>
+
+      {/* Indicator */}
+      <div
+        className={cn(
+          "absolute bottom-0 left-0 right-0 h-0.5 rounded-full transition-colors duration-200",
+          isInternal
+            ? "bg-blue-500"
+            : "bg-green-500"
         )}
-      </Button>
-    </div>
+      />
+    </motion.button>
   );
 }
