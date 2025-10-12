@@ -8,18 +8,9 @@ import {
   NavigationLinkFormData,
 } from "@/lib/validations";
 import { NavigationLink } from "@/lib/types";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
+import { X, Link as LinkIcon, Globe, Building, Image, Tag, Check } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { cn } from "@/lib/utils";
 
 interface LinkFormProps {
   link?: NavigationLink;
@@ -58,10 +49,8 @@ export function LinkForm({
     },
   });
 
-  // Watch the isActive field for Switch component
   const isActiveValue = watch("isActive");
 
-  // Reset form when link prop changes
   useEffect(() => {
     if (link) {
       reset({
@@ -86,152 +75,299 @@ export function LinkForm({
     }
   }, [link, reset]);
 
+  if (!open) return null;
+
   return (
-    <Dialog open={open} onOpenChange={onCancel}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>
-            {isEditing ? "Edit Navigation Link" : "Add New Navigation Link"}
-          </DialogTitle>
-        </DialogHeader>
-
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="title">Title *</Label>
-              <Input
-                id="title"
-                type="text"
-                placeholder="Enter link title"
-                className={errors.title ? "border-destructive" : ""}
-                {...register("title")}
-              />
-              {errors.title && (
-                <p className="text-sm text-destructive">
-                  {errors.title.message}
-                </p>
-              )}
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="internalUrl">Internal URL *</Label>
-            <Input
-              id="internalUrl"
-              type="url"
-              placeholder="https://internal.example.com"
-              className={errors.internalUrl ? "border-destructive" : ""}
-              {...register("internalUrl")}
-            />
-            {errors.internalUrl && (
-              <p className="text-sm text-destructive">
-                {errors.internalUrl.message}
-              </p>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="externalUrl">External URL *</Label>
-            <Input
-              id="externalUrl"
-              type="url"
-              placeholder="https://external.example.com"
-              className={errors.externalUrl ? "border-destructive" : ""}
-              {...register("externalUrl")}
-            />
-            {errors.externalUrl && (
-              <p className="text-sm text-destructive">
-                {errors.externalUrl.message}
-              </p>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="description">Description *</Label>
-            <Textarea
-              id="description"
-              placeholder="Enter a brief description of this link"
-              className={`h-20 ${
-                errors.description ? "border-destructive" : ""
-              }`}
-              {...register("description")}
-            />
-            {errors.description && (
-              <p className="text-sm text-destructive">
-                {errors.description.message}
-              </p>
-            )}
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="icon">Icon (optional)</Label>
-              <Input
-                id="icon"
-                type="text"
-                placeholder="Icon name or emoji"
-                {...register("icon")}
-              />
-              <p className="text-sm text-muted-foreground">
-                Use emoji or icon name
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="favicon">Favicon URL (optional)</Label>
-              <Input
-                id="favicon"
-                type="url"
-                placeholder="https://example.com/favicon.ico"
-                className={errors.favicon ? "border-destructive" : ""}
-                {...register("favicon")}
-              />
-              {errors.favicon && (
-                <p className="text-sm text-destructive">
-                  {errors.favicon.message}
-                </p>
-              )}
-            </div>
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <Switch
-              checked={isActiveValue}
-              onCheckedChange={(checked) => {
-                setValue("isActive", checked);
-              }}
-            />
-            <Label htmlFor="isActive" className="text-sm font-medium">
-              Active
-            </Label>
-          </div>
-          <p className="text-sm text-muted-foreground">
-            Inactive links won&apos;t be displayed to users
-          </p>
-        </form>
-
-        <DialogFooter className="pt-4">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onCancel}
-            disabled={isLoading}
+    <AnimatePresence>
+      {open && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+          onClick={onCancel}
+        >
+          <motion.div
+            initial={{ scale: 0.95, y: 20 }}
+            animate={{ scale: 1, y: 0 }}
+            exit={{ scale: 0.95, y: 20 }}
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden"
           >
-            Cancel
-          </Button>
-          <Button
-            type="submit"
-            disabled={isLoading}
-            onClick={handleSubmit(onSubmit)}
-          >
-            {isLoading
-              ? "Saving..."
-              : isEditing
-              ? "Update Link"
-              : "Create Link"}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+            {/* Header */}
+            <div className="relative px-6 py-5 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-gray-800 dark:to-gray-800">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center">
+                    <LinkIcon className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                      {isEditing ? "编辑导航链接" : "添加导航链接"}
+                    </h2>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      {isEditing ? "修改链接信息" : "创建新的导航链接"}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={onCancel}
+                  className="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200"
+                  disabled={isLoading}
+                >
+                  <X className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                </button>
+              </div>
+            </div>
+
+            {/* Form Content */}
+            <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-6 overflow-y-auto max-h-[calc(90vh-180px)]">
+              {/* Title */}
+              <div className="space-y-2">
+                <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  <Tag className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                  标题 <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="输入链接标题"
+                  className={cn(
+                    "w-full h-12 px-4 rounded-xl",
+                    "bg-gray-50 dark:bg-gray-900/50",
+                    "border-2 transition-all duration-200",
+                    "text-gray-900 dark:text-white placeholder-gray-400",
+                    "focus:outline-none focus:ring-2 focus:ring-offset-2",
+                    errors.title
+                      ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
+                      : "border-gray-200 dark:border-gray-700 focus:border-indigo-500 focus:ring-indigo-500/20"
+                  )}
+                  {...register("title")}
+                />
+                {errors.title && (
+                  <p className="text-sm text-red-600 dark:text-red-400">
+                    {errors.title.message}
+                  </p>
+                )}
+              </div>
+
+              {/* URLs */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Internal URL */}
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    <Building className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                    内网地址 <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="url"
+                    placeholder="https://internal.example.com"
+                    className={cn(
+                      "w-full h-12 px-4 rounded-xl",
+                      "bg-gray-50 dark:bg-gray-900/50",
+                      "border-2 transition-all duration-200",
+                      "text-gray-900 dark:text-white placeholder-gray-400",
+                      "focus:outline-none focus:ring-2 focus:ring-offset-2",
+                      errors.internalUrl
+                        ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
+                        : "border-gray-200 dark:border-gray-700 focus:border-blue-500 focus:ring-blue-500/20"
+                    )}
+                    {...register("internalUrl")}
+                  />
+                  {errors.internalUrl && (
+                    <p className="text-sm text-red-600 dark:text-red-400">
+                      {errors.internalUrl.message}
+                    </p>
+                  )}
+                </div>
+
+                {/* External URL */}
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    <Globe className="w-4 h-4 text-green-600 dark:text-green-400" />
+                    外网地址 <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="url"
+                    placeholder="https://external.example.com"
+                    className={cn(
+                      "w-full h-12 px-4 rounded-xl",
+                      "bg-gray-50 dark:bg-gray-900/50",
+                      "border-2 transition-all duration-200",
+                      "text-gray-900 dark:text-white placeholder-gray-400",
+                      "focus:outline-none focus:ring-2 focus:ring-offset-2",
+                      errors.externalUrl
+                        ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
+                        : "border-gray-200 dark:border-gray-700 focus:border-green-500 focus:ring-green-500/20"
+                    )}
+                    {...register("externalUrl")}
+                  />
+                  {errors.externalUrl && (
+                    <p className="text-sm text-red-600 dark:text-red-400">
+                      {errors.externalUrl.message}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {/* Description */}
+              <div className="space-y-2">
+                <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  描述 <span className="text-red-500">*</span>
+                </label>
+                <textarea
+                  placeholder="输入链接的简短描述"
+                  rows={3}
+                  className={cn(
+                    "w-full px-4 py-3 rounded-xl",
+                    "bg-gray-50 dark:bg-gray-900/50",
+                    "border-2 transition-all duration-200",
+                    "text-gray-900 dark:text-white placeholder-gray-400",
+                    "focus:outline-none focus:ring-2 focus:ring-offset-2",
+                    "resize-none",
+                    errors.description
+                      ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
+                      : "border-gray-200 dark:border-gray-700 focus:border-indigo-500 focus:ring-indigo-500/20"
+                  )}
+                  {...register("description")}
+                />
+                {errors.description && (
+                  <p className="text-sm text-red-600 dark:text-red-400">
+                    {errors.description.message}
+                  </p>
+                )}
+              </div>
+
+              {/* Icon and Favicon */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    <span className="text-xl">🎨</span>
+                    图标 (可选)
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="输入 emoji 或图标名称"
+                    className="w-full h-12 px-4 rounded-xl bg-gray-50 dark:bg-gray-900/50 border-2 border-gray-200 dark:border-gray-700 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none transition-all duration-200"
+                    {...register("icon")}
+                  />
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    可以使用 emoji 或图标名称
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    <Image className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                    Favicon URL (可选)
+                  </label>
+                  <input
+                    type="url"
+                    placeholder="https://example.com/favicon.ico"
+                    className={cn(
+                      "w-full h-12 px-4 rounded-xl",
+                      "bg-gray-50 dark:bg-gray-900/50",
+                      "border-2 transition-all duration-200",
+                      "text-gray-900 dark:text-white placeholder-gray-400",
+                      "focus:outline-none focus:ring-2 focus:ring-offset-2",
+                      errors.favicon
+                        ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
+                        : "border-gray-200 dark:border-gray-700 focus:border-purple-500 focus:ring-purple-500/20"
+                    )}
+                    {...register("favicon")}
+                  />
+                  {errors.favicon && (
+                    <p className="text-sm text-red-600 dark:text-red-400">
+                      {errors.favicon.message}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {/* Active Status */}
+              <div className="flex items-center justify-between p-4 rounded-xl bg-gray-50 dark:bg-gray-900/50 border-2 border-gray-200 dark:border-gray-700">
+                <div className="flex items-center gap-3">
+                  <div className={cn(
+                    "w-10 h-10 rounded-lg flex items-center justify-center transition-colors duration-200",
+                    isActiveValue
+                      ? "bg-green-100 dark:bg-green-900/30"
+                      : "bg-gray-200 dark:bg-gray-700"
+                  )}>
+                    <Check className={cn(
+                      "w-5 h-5 transition-colors duration-200",
+                      isActiveValue
+                        ? "text-green-600 dark:text-green-400"
+                        : "text-gray-400"
+                    )} />
+                  </div>
+                  <div>
+                    <div className="text-sm font-semibold text-gray-900 dark:text-white">
+                      激活状态
+                    </div>
+                    <div className="text-xs text-gray-600 dark:text-gray-400">
+                      未激活的链接不会显示给用户
+                    </div>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setValue("isActive", !isActiveValue)}
+                  className={cn(
+                    "relative w-14 h-8 rounded-full transition-all duration-300",
+                    isActiveValue
+                      ? "bg-green-500"
+                      : "bg-gray-300 dark:bg-gray-600"
+                  )}
+                >
+                  <motion.div
+                    className="absolute top-1 left-1 w-6 h-6 bg-white rounded-full shadow-md"
+                    animate={{ x: isActiveValue ? 24 : 0 }}
+                    transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                  />
+                </button>
+              </div>
+            </form>
+
+            {/* Footer */}
+            <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/30">
+              <div className="flex gap-3 justify-end">
+                <button
+                  type="button"
+                  onClick={onCancel}
+                  disabled={isLoading}
+                  className="px-5 py-2.5 rounded-xl border-2 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200 disabled:opacity-50"
+                >
+                  取消
+                </button>
+                <button
+                  type="submit"
+                  onClick={handleSubmit(onSubmit)}
+                  disabled={isLoading}
+                  className={cn(
+                    "px-5 py-2.5 rounded-xl font-medium text-white transition-all duration-200 disabled:opacity-50",
+                    "bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600",
+                    "flex items-center gap-2"
+                  )}
+                >
+                  {isLoading && (
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                      className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full"
+                    />
+                  )}
+                  <span>
+                    {isLoading
+                      ? "保存中..."
+                      : isEditing
+                      ? "更新链接"
+                      : "创建链接"}
+                  </span>
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }

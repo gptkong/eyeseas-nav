@@ -15,7 +15,6 @@ import {
   Home,
   ExternalLink,
   Search,
-  Filter,
   RefreshCw,
   LayoutGrid,
 } from "lucide-react";
@@ -49,7 +48,7 @@ export function AdminDashboard() {
       if (result.success) {
         setShowForm(false);
       } else {
-        alert(result.error || "Failed to create link");
+        alert(result.error || "创建失败");
       }
     } finally {
       setIsSubmitting(false);
@@ -65,7 +64,7 @@ export function AdminDashboard() {
       if (result.success) {
         setEditingLink(null);
       } else {
-        alert(result.error || "Failed to update link");
+        alert(result.error || "更新失败");
       }
     } finally {
       setIsSubmitting(false);
@@ -77,7 +76,7 @@ export function AdminDashboard() {
     if (result.success) {
       setDeleteConfirm(null);
     } else {
-      alert(result.error || "Failed to delete link");
+      alert(result.error || "删除失败");
     }
   };
 
@@ -195,7 +194,7 @@ export function AdminDashboard() {
         {/* Actions Bar */}
         <div className="mb-6 flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
           {/* Search */}
-          <div className="relative flex-1 max-w-md">
+          <div className="relative flex-1 max-w-md w-full">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
             <input
               type="text"
@@ -211,173 +210,209 @@ export function AdminDashboard() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => setShowForm(true)}
-            className="px-4 py-3 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 hover:from-indigo-600 hover:via-purple-600 hover:to-pink-600 text-white font-medium shadow-lg transition-all duration-200 flex items-center gap-2"
+            className="w-full sm:w-auto px-5 py-3 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 hover:from-indigo-600 hover:via-purple-600 hover:to-pink-600 text-white font-medium shadow-lg transition-all duration-200 flex items-center justify-center gap-2"
           >
             <Plus className="w-5 h-5" />
             <span>添加链接</span>
           </motion.button>
         </div>
 
-        {/* Links Grid */}
-        <AnimatePresence mode="wait">
-          {isLoading ? (
-            <motion.div
-              key="loading"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="grid grid-cols-1 lg:grid-cols-2 gap-4"
-            >
-              {[...Array(6)].map((_, i) => (
-                <div
-                  key={i}
-                  className="h-32 rounded-2xl bg-gray-200 dark:bg-gray-800 animate-pulse"
-                />
-              ))}
-            </motion.div>
-          ) : filteredLinks.length > 0 ? (
-            <motion.div
-              key="links"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="grid grid-cols-1 lg:grid-cols-2 gap-4"
-            >
-              {filteredLinks.map((link, index) => (
-                <motion.div
-                  key={link.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, delay: index * 0.05 }}
-                  className="group relative bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl border border-gray-200/50 dark:border-gray-700/50 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden"
-                >
-                  {/* Status Indicator */}
-                  <div
-                    className={cn(
-                      "absolute top-0 left-0 right-0 h-1",
-                      link.isActive
-                        ? "bg-gradient-to-r from-green-500 to-emerald-500"
-                        : "bg-gradient-to-r from-gray-400 to-gray-500"
-                    )}
-                  />
-
-                  <div className="p-5">
-                    {/* Header */}
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex-1 min-w-0">
-                        <h3 className="text-lg font-bold text-gray-900 dark:text-white truncate mb-1">
-                          {link.title}
-                        </h3>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
-                          {link.description}
-                        </p>
-                      </div>
-
-                      {/* Actions */}
-                      <div className="flex items-center gap-1 ml-3">
-                        <motion.button
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.9 }}
-                          onClick={() => setEditingLink(link)}
-                          className="p-2 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 hover:bg-indigo-200 dark:hover:bg-indigo-900/50 transition-colors duration-200"
-                          title="编辑"
-                        >
-                          <Edit className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-                        </motion.button>
-                        <motion.button
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.9 }}
-                          onClick={() => setDeleteConfirm(link.id)}
-                          className="p-2 rounded-lg bg-red-100 dark:bg-red-900/30 hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors duration-200"
-                          title="删除"
-                        >
-                          <Trash2 className="w-4 h-4 text-red-600 dark:text-red-400" />
-                        </motion.button>
-                      </div>
-                    </div>
-
-                    {/* URLs */}
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs font-medium text-blue-600 dark:text-blue-400 px-2 py-1 rounded bg-blue-50 dark:bg-blue-900/30">
-                          内网
-                        </span>
+        {/* Table */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl border border-gray-200/50 dark:border-gray-700/50 shadow-xl overflow-hidden"
+        >
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-800 border-b border-gray-200 dark:border-gray-700">
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+                    标题
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider hidden lg:table-cell">
+                    内网地址
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider hidden lg:table-cell">
+                    外网地址
+                  </th>
+                  <th className="px-6 py-4 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+                    状态
+                  </th>
+                  <th className="px-6 py-4 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+                    操作
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                {isLoading ? (
+                  [...Array(5)].map((_, i) => (
+                    <tr key={i} className="animate-pulse">
+                      <td className="px-6 py-4">
+                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
+                      </td>
+                      <td className="px-6 py-4 hidden lg:table-cell">
+                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-48"></div>
+                      </td>
+                      <td className="px-6 py-4 hidden lg:table-cell">
+                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-48"></div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-16 mx-auto"></div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex gap-2 justify-center">
+                          <div className="h-8 w-8 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                          <div className="h-8 w-8 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                ) : filteredLinks.length > 0 ? (
+                  filteredLinks.map((link, index) => (
+                    <motion.tr
+                      key={link.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.2, delay: index * 0.05 }}
+                      className="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors duration-200"
+                    >
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-3">
+                          {link.favicon ? (
+                            <img
+                              src={link.favicon}
+                              alt=""
+                              className="w-8 h-8 rounded-lg"
+                              onError={(e) => {
+                                e.currentTarget.style.display = "none";
+                              }}
+                            />
+                          ) : link.icon ? (
+                            <span className="text-2xl">{link.icon}</span>
+                          ) : (
+                            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600" />
+                          )}
+                          <div className="min-w-0">
+                            <div className="text-sm font-semibold text-gray-900 dark:text-white truncate">
+                              {link.title}
+                            </div>
+                            <div className="text-xs text-gray-500 dark:text-gray-400 truncate lg:hidden">
+                              {link.description}
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 hidden lg:table-cell">
                         <a
                           href={link.internalUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-sm text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 truncate flex items-center gap-1 font-mono"
+                          className="text-sm text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1 font-mono"
                         >
                           {new URL(link.internalUrl).hostname}
                           <ExternalLink className="w-3 h-3" />
                         </a>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs font-medium text-green-600 dark:text-green-400 px-2 py-1 rounded bg-green-50 dark:bg-green-900/30">
-                          外网
-                        </span>
+                      </td>
+                      <td className="px-6 py-4 hidden lg:table-cell">
                         <a
                           href={link.externalUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-sm text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 truncate flex items-center gap-1 font-mono"
+                          className="text-sm text-green-600 dark:text-green-400 hover:underline flex items-center gap-1 font-mono"
                         >
                           {new URL(link.externalUrl).hostname}
                           <ExternalLink className="w-3 h-3" />
                         </a>
-                      </div>
-                    </div>
-
-                    {/* Status */}
-                    <div className="mt-3 pt-3 border-t border-gray-200/50 dark:border-gray-700/50">
-                      <div className="flex items-center justify-between">
+                      </td>
+                      <td className="px-6 py-4 text-center">
                         <span
                           className={cn(
-                            "text-xs font-medium px-2 py-1 rounded",
+                            "inline-flex px-3 py-1 text-xs font-semibold rounded-full",
                             link.isActive
-                              ? "text-green-700 dark:text-green-300 bg-green-100 dark:bg-green-900/30"
-                              : "text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800"
+                              ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
+                              : "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-400"
                           )}
                         >
-                          {link.isActive ? "✓ 已激活" : "○ 未激活"}
+                          {link.isActive ? "已激活" : "未激活"}
                         </span>
-                        <span className="text-xs text-gray-500 dark:text-gray-400">
-                          ID: {link.id.slice(0, 8)}
-                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex gap-2 justify-center">
+                          <motion.button
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}
+                            onClick={() => setEditingLink(link)}
+                            className="p-2 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 hover:bg-indigo-200 dark:hover:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 transition-colors duration-200"
+                            title="编辑"
+                          >
+                            <Edit className="w-4 h-4" />
+                          </motion.button>
+                          <motion.button
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}
+                            onClick={() => setDeleteConfirm(link.id)}
+                            className="p-2 rounded-lg bg-red-100 dark:bg-red-900/30 hover:bg-red-200 dark:hover:bg-red-900/50 text-red-600 dark:text-red-400 transition-colors duration-200"
+                            title="删除"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </motion.button>
+                        </div>
+                      </td>
+                    </motion.tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={5} className="px-6 py-16 text-center">
+                      <div className="flex flex-col items-center justify-center">
+                        <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mb-4">
+                          <LayoutGrid className="w-8 h-8 text-gray-400" />
+                        </div>
+                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                          暂无数据
+                        </h3>
+                        <p className="text-gray-600 dark:text-gray-400 mb-4">
+                          {searchQuery ? "没有找到匹配的链接" : "还没有添加任何链接"}
+                        </p>
+                        {!searchQuery && (
+                          <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => setShowForm(true)}
+                            className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white font-medium transition-all duration-200"
+                          >
+                            添加第一个链接
+                          </motion.button>
+                        )}
                       </div>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </motion.div>
-          ) : (
-            <motion.div
-              key="empty"
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              className="text-center py-16"
-            >
-              <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 rounded-3xl flex items-center justify-center">
-                <LayoutGrid className="w-12 h-12 text-gray-400 dark:text-gray-500" />
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Table Footer */}
+          {!isLoading && filteredLinks.length > 0 && (
+            <div className="px-6 py-4 bg-gray-50 dark:bg-gray-800/50 border-t border-gray-200 dark:border-gray-700">
+              <div className="flex items-center justify-between">
+                <div className="text-sm text-gray-600 dark:text-gray-400">
+                  共 <span className="font-semibold text-gray-900 dark:text-white">{filteredLinks.length}</span> 条记录
+                </div>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => fetchLinks()}
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 border border-gray-200 dark:border-gray-600 text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors duration-200"
+                >
+                  <RefreshCw className="w-4 h-4" />
+                  刷新
+                </motion.button>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">
-                暂无导航链接
-              </h3>
-              <p className="text-gray-600 dark:text-gray-300 mb-6">
-                点击添加按钮创建您的第一个导航链接
-              </p>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setShowForm(true)}
-                className="px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white font-medium shadow-lg transition-all duration-200"
-              >
-                添加导航链接
-              </motion.button>
-            </motion.div>
+            </div>
           )}
-        </AnimatePresence>
+        </motion.div>
       </div>
 
       {/* Create/Edit Form Modal */}
