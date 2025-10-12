@@ -4,7 +4,6 @@
 import { useState, useEffect } from "react";
 import {
   NavigationLink,
-  ApiResponse,
   SearchFilters,
   DashboardStats,
 } from "@/lib/types";
