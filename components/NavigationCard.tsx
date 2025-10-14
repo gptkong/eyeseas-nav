@@ -31,9 +31,9 @@ export function NavigationCard({ link, onClick, index = 0 }: NavigationCardProps
 
   const getNetworkIcon = () => {
     return networkMode === "internal" ? (
-      <Building className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+      <Building className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-600 dark:text-blue-400" />
     ) : (
-      <Globe className="w-4 h-4 text-green-600 dark:text-green-400" />
+      <Globe className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-600 dark:text-green-400" />
     );
   };
 
@@ -101,10 +101,10 @@ export function NavigationCard({ link, onClick, index = 0 }: NavigationCardProps
       />
 
       {/* Content */}
-      <div className="relative p-5 sm:p-6 space-y-4 z-10">
+      <div className="relative p-3 sm:p-5 lg:p-6 space-y-3 sm:space-y-4 z-10">
         {/* Header Section */}
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex items-center gap-3 min-w-0 flex-1">
+        <div className="flex items-start justify-between gap-2 sm:gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
             {/* Enhanced Icon/Favicon */}
             <motion.div
               className="relative flex-shrink-0"
@@ -112,7 +112,7 @@ export function NavigationCard({ link, onClick, index = 0 }: NavigationCardProps
               transition={{ type: "spring", stiffness: 400, damping: 10 }}
             >
               {link.favicon ? (
-                <div className="relative w-14 h-14 rounded-2xl overflow-hidden shadow-xl ring-2 ring-white/70 dark:ring-gray-600/70 bg-white/50 dark:bg-gray-700/50">
+                <div className="relative w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 rounded-xl sm:rounded-2xl overflow-hidden shadow-xl ring-2 ring-white/70 dark:ring-gray-600/70 bg-white/50 dark:bg-gray-700/50">
                   <Image
                     src={link.favicon}
                     alt=""
@@ -128,14 +128,14 @@ export function NavigationCard({ link, onClick, index = 0 }: NavigationCardProps
                   <div className="absolute inset-0 ring-1 ring-inset ring-black/5 dark:ring-white/10 rounded-2xl pointer-events-none" />
                 </div>
               ) : (
-                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center shadow-xl ring-2 ring-white/70 dark:ring-gray-600/70">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 rounded-xl sm:rounded-2xl bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center shadow-xl ring-2 ring-white/70 dark:ring-gray-600/70">
                   {getNetworkIcon()}
                 </div>
               )}
 
               {/* Icon Glow Effect */}
               <motion.div
-                className="absolute inset-0 rounded-2xl blur-xl opacity-0 group-hover:opacity-60 transition-opacity duration-500"
+                className="absolute inset-0 rounded-xl sm:rounded-2xl blur-xl opacity-0 group-hover:opacity-60 transition-opacity duration-500"
                 style={{
                   background: networkMode === "internal"
                     ? "radial-gradient(circle, rgba(59, 130, 246, 0.4) 0%, transparent 70%)"
@@ -146,21 +146,21 @@ export function NavigationCard({ link, onClick, index = 0 }: NavigationCardProps
 
             {/* Title with Badge */}
             <div className="flex-1 min-w-0">
-              <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white truncate mb-1 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors duration-300">
+              <h3 className="text-sm sm:text-base lg:text-lg font-bold text-gray-900 dark:text-white truncate mb-1 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors duration-300">
                 {link.title}
               </h3>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5">
                 <motion.span
                   className={cn(
-                    "inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full",
+                    "inline-flex items-center gap-0.5 sm:gap-1 text-[10px] sm:text-xs font-semibold px-1.5 sm:px-2 py-0.5 rounded-full whitespace-nowrap",
                     networkMode === "internal"
                       ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
                       : "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300"
                   )}
                   whileHover={{ scale: 1.05 }}
                 >
-                  {getNetworkIcon()}
-                  <span className="ml-0.5">{networkMode === "internal" ? "内网" : "外网"}</span>
+                  <span className="flex-shrink-0">{getNetworkIcon()}</span>
+                  <span className="hidden sm:inline">{networkMode === "internal" ? "内网" : "外网"}</span>
                 </motion.span>
               </div>
             </div>
@@ -176,15 +176,15 @@ export function NavigationCard({ link, onClick, index = 0 }: NavigationCardProps
             }}
             transition={{ type: "spring", stiffness: 400, damping: 15 }}
           >
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center group-hover:from-indigo-500 group-hover:to-purple-600 dark:group-hover:from-indigo-500 dark:group-hover:to-purple-600 transition-all duration-300 shadow-md group-hover:shadow-lg">
-              <ArrowUpRight className="w-5 h-5 text-gray-600 dark:text-gray-300 group-hover:text-white transition-colors duration-300" />
+            <div className="w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 rounded-lg sm:rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center group-hover:from-indigo-500 group-hover:to-purple-600 dark:group-hover:from-indigo-500 dark:group-hover:to-purple-600 transition-all duration-300 shadow-md group-hover:shadow-lg">
+              <ArrowUpRight className="w-4 h-4 sm:w-4.5 sm:h-4.5 lg:w-5 lg:h-5 text-gray-600 dark:text-gray-300 group-hover:text-white transition-colors duration-300" />
             </div>
           </motion.div>
         </div>
 
         {/* Enhanced Description */}
         <motion.p
-          className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2 leading-relaxed"
+          className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 line-clamp-2 leading-relaxed"
           initial={{ opacity: 0.8 }}
           whileHover={{ opacity: 1 }}
         >
@@ -192,22 +192,22 @@ export function NavigationCard({ link, onClick, index = 0 }: NavigationCardProps
         </motion.p>
 
         {/* Enhanced Footer */}
-        <div className="flex items-center justify-between pt-3 border-t border-gray-200/60 dark:border-gray-700/60">
-          <div className="flex items-center gap-2 min-w-0 flex-1 group/link">
-            <ExternalLink className="w-3.5 h-3.5 text-gray-400 group-hover/link:text-indigo-500 flex-shrink-0 transition-colors duration-200" />
-            <span className="text-xs text-gray-500 dark:text-gray-400 group-hover/link:text-gray-700 dark:group-hover/link:text-gray-300 truncate font-mono transition-colors duration-200">
+        <div className="flex items-center justify-between pt-2 sm:pt-3 border-t border-gray-200/60 dark:border-gray-700/60">
+          <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 flex-1 group/link">
+            <ExternalLink className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-gray-400 group-hover/link:text-indigo-500 flex-shrink-0 transition-colors duration-200" />
+            <span className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 group-hover/link:text-gray-700 dark:group-hover/link:text-gray-300 truncate font-mono transition-colors duration-200">
               {new URL(currentUrl).hostname}
             </span>
           </div>
 
           {!link.isActive && (
             <motion.div
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gradient-to-r from-amber-100 to-orange-100 dark:from-amber-900/40 dark:to-orange-900/40 border border-amber-200 dark:border-amber-800/50"
+              className="flex items-center gap-1 sm:gap-1.5 px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-md sm:rounded-lg bg-gradient-to-r from-amber-100 to-orange-100 dark:from-amber-900/40 dark:to-orange-900/40 border border-amber-200 dark:border-amber-800/50"
               whileHover={{ scale: 1.05 }}
               transition={{ type: "spring", stiffness: 400 }}
             >
-              <AlertCircle className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
-              <span className="text-xs font-semibold text-amber-700 dark:text-amber-300">
+              <AlertCircle className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-600 dark:text-amber-400" />
+              <span className="text-[10px] sm:text-xs font-semibold text-amber-700 dark:text-amber-300">
                 未激活
               </span>
             </motion.div>
