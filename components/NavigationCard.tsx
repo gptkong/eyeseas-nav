@@ -31,9 +31,9 @@ export function NavigationCard({ link, onClick, index = 0 }: NavigationCardProps
 
   const getNetworkIcon = () => {
     return networkMode === "internal" ? (
-      <Building className="w-5 h-5 text-blue-500 dark:text-blue-400" />
+      <Building className="w-4 h-4 text-blue-600 dark:text-blue-400" />
     ) : (
-      <Globe className="w-5 h-5 text-green-500 dark:text-green-400" />
+      <Globe className="w-4 h-4 text-green-600 dark:text-green-400" />
     );
   };
 
@@ -48,121 +48,190 @@ export function NavigationCard({ link, onClick, index = 0 }: NavigationCardProps
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: index * 0.05 }}
-      whileHover={{ y: -8 }}
+      whileHover={{ y: -8, scale: 1.02 }}
       onHoverStart={() => setIsHovered(true)}
       onHoverEnd={() => setIsHovered(false)}
       onClick={handleClick}
       className={cn(
         "group relative cursor-pointer rounded-2xl overflow-hidden",
-        "bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl",
-        "border border-gray-200/50 dark:border-gray-700/50",
+        "bg-gradient-to-br from-white/90 to-white/70 dark:from-gray-800/90 dark:to-gray-900/70",
+        "backdrop-blur-2xl",
+        "border border-gray-200/60 dark:border-gray-700/60",
         "shadow-lg hover:shadow-2xl",
         "transition-all duration-500 ease-out",
         "transform-gpu will-change-transform",
-        !link.isActive && "opacity-60 hover:opacity-90"
+        "before:absolute before:inset-0 before:rounded-2xl before:p-[1px]",
+        "before:bg-gradient-to-br before:from-transparent before:via-transparent before:to-transparent",
+        "before:group-hover:from-indigo-500/20 before:group-hover:via-purple-500/20 before:group-hover:to-pink-500/20",
+        "before:transition-all before:duration-500",
+        !link.isActive && "opacity-70 hover:opacity-95"
       )}
     >
-      {/* Gradient Background */}
-      <div
+      {/* Animated Gradient Background */}
+      <motion.div
         className={cn(
-          "absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-100 transition-opacity duration-500",
+          "absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-100 transition-opacity duration-700",
           getNetworkColor()
         )}
+        animate={isHovered ? {
+          background: [
+            "radial-gradient(circle at 0% 0%, rgba(99, 102, 241, 0.1) 0%, transparent 50%)",
+            "radial-gradient(circle at 100% 100%, rgba(168, 85, 247, 0.1) 0%, transparent 50%)",
+            "radial-gradient(circle at 0% 100%, rgba(236, 72, 153, 0.1) 0%, transparent 50%)",
+            "radial-gradient(circle at 100% 0%, rgba(99, 102, 241, 0.1) 0%, transparent 50%)",
+          ]
+        } : {}}
+        transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
       />
 
-      {/* Shine Effect */}
+      {/* Enhanced Shine Effect */}
       <motion.div
-        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
-        initial={{ x: "-100%" }}
-        animate={isHovered ? { x: "100%" } : { x: "-100%" }}
-        transition={{ duration: 0.8, ease: "easeInOut" }}
+        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 dark:via-white/10 to-transparent"
+        initial={{ x: "-100%", skewX: -20 }}
+        animate={isHovered ? { x: "200%" } : { x: "-100%" }}
+        transition={{ duration: 1, ease: "easeInOut" }}
+      />
+
+      {/* Radial Glow on Hover */}
+      <motion.div
+        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+        style={{
+          background: "radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(99, 102, 241, 0.15), transparent 60%)"
+        }}
       />
 
       {/* Content */}
-      <div className="relative p-5 sm:p-6 space-y-4">
+      <div className="relative p-5 sm:p-6 space-y-4 z-10">
         {/* Header Section */}
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0 flex-1">
-            {/* Icon/Favicon */}
+            {/* Enhanced Icon/Favicon */}
             <motion.div
               className="relative flex-shrink-0"
-              whileHover={{ scale: 1.1, rotate: 5 }}
-              transition={{ type: "spring", stiffness: 300 }}
+              whileHover={{ scale: 1.15 }}
+              transition={{ type: "spring", stiffness: 400, damping: 10 }}
             >
               {link.favicon ? (
-                <div className="relative w-12 h-12 rounded-xl overflow-hidden shadow-md ring-2 ring-white/50 dark:ring-gray-700/50">
+                <div className="relative w-14 h-14 rounded-2xl overflow-hidden shadow-xl ring-2 ring-white/70 dark:ring-gray-600/70 bg-white/50 dark:bg-gray-700/50">
                   <Image
                     src={link.favicon}
                     alt=""
-                    width={48}
-                    height={48}
-                    className="object-contain p-1"
+                    width={56}
+                    height={56}
+                    className="object-contain p-2"
                     onError={(e) => {
                       e.currentTarget.style.display = "none";
                     }}
                     unoptimized
                   />
-                  <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent pointer-events-none" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/30 to-transparent pointer-events-none" />
+                  <div className="absolute inset-0 ring-1 ring-inset ring-black/5 dark:ring-white/10 rounded-2xl pointer-events-none" />
                 </div>
               ) : (
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center shadow-md">
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center shadow-xl ring-2 ring-white/70 dark:ring-gray-600/70">
                   {getNetworkIcon()}
                 </div>
               )}
+
+              {/* Icon Glow Effect */}
+              <motion.div
+                className="absolute inset-0 rounded-2xl blur-xl opacity-0 group-hover:opacity-60 transition-opacity duration-500"
+                style={{
+                  background: networkMode === "internal"
+                    ? "radial-gradient(circle, rgba(59, 130, 246, 0.4) 0%, transparent 70%)"
+                    : "radial-gradient(circle, rgba(34, 197, 94, 0.4) 0%, transparent 70%)"
+                }}
+              />
             </motion.div>
 
-            {/* Title */}
+            {/* Title with Badge */}
             <div className="flex-1 min-w-0">
-              <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white truncate mb-0.5">
+              <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white truncate mb-1 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors duration-300">
                 {link.title}
               </h3>
               <div className="flex items-center gap-2">
-                <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
-                  {networkMode === "internal" ? "内网" : "外网"}
-                </span>
+                <motion.span
+                  className={cn(
+                    "inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full",
+                    networkMode === "internal"
+                      ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
+                      : "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300"
+                  )}
+                  whileHover={{ scale: 1.05 }}
+                >
+                  {getNetworkIcon()}
+                  <span className="ml-0.5">{networkMode === "internal" ? "内网" : "外网"}</span>
+                </motion.span>
               </div>
             </div>
           </div>
 
-          {/* Arrow Icon */}
+          {/* Enhanced Arrow Icon */}
           <motion.div
             className="flex-shrink-0"
-            animate={{ x: isHovered ? 4 : 0, y: isHovered ? -4 : 0 }}
-            transition={{ type: "spring", stiffness: 300 }}
+            animate={{
+              x: isHovered ? 6 : 0,
+              y: isHovered ? -6 : 0,
+              rotate: isHovered ? 45 : 0
+            }}
+            transition={{ type: "spring", stiffness: 400, damping: 15 }}
           >
-            <div className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center group-hover:bg-indigo-500 dark:group-hover:bg-indigo-500 transition-colors duration-300">
-              <ArrowUpRight className="w-4 h-4 text-gray-600 dark:text-gray-300 group-hover:text-white transition-colors duration-300" />
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center group-hover:from-indigo-500 group-hover:to-purple-600 dark:group-hover:from-indigo-500 dark:group-hover:to-purple-600 transition-all duration-300 shadow-md group-hover:shadow-lg">
+              <ArrowUpRight className="w-5 h-5 text-gray-600 dark:text-gray-300 group-hover:text-white transition-colors duration-300" />
             </div>
           </motion.div>
         </div>
 
-        {/* Description */}
-        <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2 leading-relaxed">
+        {/* Enhanced Description */}
+        <motion.p
+          className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2 leading-relaxed"
+          initial={{ opacity: 0.8 }}
+          whileHover={{ opacity: 1 }}
+        >
           {link.description}
-        </p>
+        </motion.p>
 
-        {/* Footer */}
-        <div className="flex items-center justify-between pt-3 border-t border-gray-200/50 dark:border-gray-700/50">
-          <div className="flex items-center gap-2 min-w-0 flex-1">
-            <ExternalLink className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
-            <span className="text-xs text-gray-500 dark:text-gray-400 truncate font-mono">
+        {/* Enhanced Footer */}
+        <div className="flex items-center justify-between pt-3 border-t border-gray-200/60 dark:border-gray-700/60">
+          <div className="flex items-center gap-2 min-w-0 flex-1 group/link">
+            <ExternalLink className="w-3.5 h-3.5 text-gray-400 group-hover/link:text-indigo-500 flex-shrink-0 transition-colors duration-200" />
+            <span className="text-xs text-gray-500 dark:text-gray-400 group-hover/link:text-gray-700 dark:group-hover/link:text-gray-300 truncate font-mono transition-colors duration-200">
               {new URL(currentUrl).hostname}
             </span>
           </div>
 
           {!link.isActive && (
-            <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-amber-100 dark:bg-amber-900/30">
-              <AlertCircle className="w-3 h-3 text-amber-600 dark:text-amber-400" />
-              <span className="text-xs font-medium text-amber-600 dark:text-amber-400">
+            <motion.div
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gradient-to-r from-amber-100 to-orange-100 dark:from-amber-900/40 dark:to-orange-900/40 border border-amber-200 dark:border-amber-800/50"
+              whileHover={{ scale: 1.05 }}
+              transition={{ type: "spring", stiffness: 400 }}
+            >
+              <AlertCircle className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+              <span className="text-xs font-semibold text-amber-700 dark:text-amber-300">
                 未激活
               </span>
-            </div>
+            </motion.div>
           )}
         </div>
       </div>
 
-      {/* Bottom Glow */}
-      <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      {/* Enhanced Bottom Glow */}
+      <motion.div
+        className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+        animate={isHovered ? {
+          boxShadow: [
+            "0 0 10px rgba(99, 102, 241, 0.5)",
+            "0 0 20px rgba(168, 85, 247, 0.5)",
+            "0 0 10px rgba(236, 72, 153, 0.5)",
+          ]
+        } : {}}
+        transition={{ duration: 2, repeat: Infinity }}
+      />
+
+      {/* Corner Accent */}
+      <motion.div
+        className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-indigo-500/10 to-transparent rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+      />
     </motion.div>
   );
 }
