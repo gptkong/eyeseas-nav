@@ -84,7 +84,7 @@ export function NavigationDashboard() {
               </div>
               <div className="hidden sm:block">
                 <h1 className="text-xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 dark:from-indigo-400 dark:via-purple-400 dark:to-pink-400 bg-clip-text text-transparent">
-                  EyeSeas Nav
+                  {process.env.NEXT_PUBLIC_APP_TITLE || "EyeSeas Navigation"}
                 </h1>
               </div>
             </motion.div>
@@ -221,7 +221,7 @@ export function NavigationDashboard() {
       <footer className="mt-16 border-t border-gray-200/50 dark:border-gray-700/50 bg-white/30 dark:bg-gray-900/30 backdrop-blur-sm">
         <div className="container mx-auto px-4 py-8">
           <div className="text-center text-sm text-gray-600 dark:text-gray-400">
-            <p>© 2025 EyeSeas Navigation. All rights reserved.</p>
+            <p>© 2025 {process.env.NEXT_PUBLIC_APP_TITLE || "EyeSeas Navigation"}. All rights reserved.</p>
           </div>
         </div>
       </footer>

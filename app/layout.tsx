@@ -1,21 +1,10 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
 export const metadata: Metadata = {
-  title: "Eyeseas Navigation",
-  description: "Internal and External Navigation Dashboard",
+  title: process.env.NEXT_PUBLIC_APP_TITLE || "EyeSeas Navigation",
+  description: process.env.NEXT_PUBLIC_APP_DESCRIPTION || "Internal and External Navigation Dashboard",
 };
 
 export default function RootLayout({
@@ -26,7 +15,7 @@ export default function RootLayout({
   return (
     <html lang="zh-CN" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className="antialiased"
         suppressHydrationWarning
       >
         <Providers>
