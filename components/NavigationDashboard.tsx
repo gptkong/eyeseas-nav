@@ -9,10 +9,15 @@ import { Settings, RefreshCw, Inbox } from "lucide-react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { NavigationLink } from "@/lib/types";
 
-export function NavigationDashboard() {
+interface NavigationDashboardProps {
+  initialLinks?: NavigationLink[];
+}
+
+export function NavigationDashboard({ initialLinks }: NavigationDashboardProps) {
   const { filteredLinks, isLoading, error, fetchLinks, filterLinks } =
-    useNavigation();
+    useNavigation(initialLinks);
 
   const handleSearch = (query: string) => {
     filterLinks({ query });

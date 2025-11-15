@@ -9,23 +9,81 @@ let redis: RedisClientType | null = null;
 
 async function getRedisClient() {
   if (!redis) {
-    redis = createClient({ url: process.env.REDIS_URL });
+    redis = createClient({
+      url: process.env.REDIS_URL,
+      socket: {
+        reconnectStrategy: (retries) => Math.min(retries * 50, 500),
+        connectTimeout: 5000,
+      },
+    });
+
+    // 添加错误监听
+    redis.on('error', (err) => console.error('Redis Error:', err));
+    redis.on('connect', () => console.log('Redis Connected'));
+
     await redis.connect();
   }
   return redis;
 }
 
+// 应用级缓存
+const linksCache = {
+  data: null as NavigationLink[] | null,
+  timestamp: 0,
+  TTL: 30000, // 30秒缓存
+};
+
 export class DatabaseService {
-  // Get all navigation links
+  // Get all navigation links with caching
   static async getAllLinks(): Promise<NavigationLink[]> {
     try {
+      // 检查缓存
+      const now = Date.now();
+      if (linksCache.data && now - linksCache.timestamp < linksCache.TTL) {
+        console.log('Using cached links data');
+        return linksCache.data;
+      }
+
+      // 缓存过期，从 Redis 获取
       const client = await getRedisClient();
-      const linksData = await client.get(LINKS_KEY);
-      return linksData ? JSON.parse(linksData) : [];
+
+      // 添加错误重试
+      let retries = 3;
+      let linksData: string | null = null;
+
+      while (retries > 0) {
+        try {
+          linksData = await client.get(LINKS_KEY);
+          break;
+        } catch (error) {
+          retries--;
+          if (retries === 0) throw error;
+          await new Promise(resolve => setTimeout(resolve, 100));
+        }
+      }
+
+      const links = linksData ? JSON.parse(linksData) : [];
+
+      // 更新缓存
+      linksCache.data = links;
+      linksCache.timestamp = now;
+
+      return links;
     } catch (error) {
       console.error('Error fetching links:', error);
+      // 如果有缓存数据，即使过期也返回
+      if (linksCache.data) {
+        console.log('Returning stale cached data due to error');
+        return linksCache.data;
+      }
       return [];
     }
+  }
+
+  // 清除缓存的辅助方法
+  private static clearCache() {
+    linksCache.data = null;
+    linksCache.timestamp = 0;
   }
 
   // Get a single navigation link by ID
@@ -64,6 +122,9 @@ export class DatabaseService {
         client.set(COUNTER_KEY, newCounter.toString())
       ]);
 
+      // 清除缓存
+      this.clearCache();
+
       return newLink;
     } catch (error) {
       console.error('Error creating link:', error);
@@ -91,6 +152,9 @@ export class DatabaseService {
       links[linkIndex] = updatedLink;
       await client.set(LINKS_KEY, JSON.stringify(links));
 
+      // 清除缓存
+      this.clearCache();
+
       return updatedLink;
     } catch (error) {
       console.error('Error updating link:', error);
@@ -110,6 +174,10 @@ export class DatabaseService {
       }
 
       await client.set(LINKS_KEY, JSON.stringify(filteredLinks));
+
+      // 清除缓存
+      this.clearCache();
+
       return true;
     } catch (error) {
       console.error('Error deleting link:', error);
@@ -155,6 +223,10 @@ export class DatabaseService {
       }).filter(Boolean) as NavigationLink[];
 
       await client.set(LINKS_KEY, JSON.stringify(reorderedLinks));
+
+      // 清除缓存
+      this.clearCache();
+
       return true;
     } catch (error) {
       console.error('Error reordering links:', error);

@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
+import useSWR from "swr";
 import {
   NavigationLink,
   SearchFilters,
@@ -9,58 +10,43 @@ import {
 } from "@/lib/types";
 import { useAuth } from "./useAuth";
 
-export function useNavigation() {
-  const [links, setLinks] = useState<NavigationLink[]>([]);
-  const [filteredLinks, setFilteredLinks] = useState<NavigationLink[]>([]);
+// SWR fetcher 函数
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
+
+export function useNavigation(initialData?: NavigationLink[]) {
+  const [filteredLinks, setFilteredLinks] = useState<NavigationLink[]>(initialData || []);
   const [stats, setStats] = useState<DashboardStats | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const { getAuthHeaders } = useAuth();
 
-  // Fetch all links
-  const fetchLinks = async (filters?: SearchFilters) => {
-    try {
-      setIsLoading(true);
-      setError(null);
-
-      const params = new URLSearchParams();
-      if (filters?.isActive !== undefined) {
-        params.append("isActive", filters.isActive.toString());
-      }
-
-      const response = await fetch(`/api/links?${params.toString()}`);
-      const data = await response.json();
-
-      if (data.success) {
-        setLinks(data.data || []);
-        setFilteredLinks(data.data || []);
-      } else {
-        setError(data.message || "Failed to fetch links");
-      }
-    } catch (err) {
-      setError("An unexpected error occurred");
-      console.error("Error fetching links:", err);
-    } finally {
-      setIsLoading(false);
+  // 使用 SWR 获取链接数据
+  const { data, error, mutate, isLoading } = useSWR<{ success: boolean; data: NavigationLink[] }>(
+    '/api/links',
+    fetcher,
+    {
+      fallbackData: initialData ? { success: true, data: initialData } : undefined,
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      dedupingInterval: 60000, // 1分钟内去重
+      revalidateOnMount: !initialData, // 如果有初始数据则不重新请求
     }
-  };
+  );
 
-  // Fetch dashboard stats
-  const fetchStats = async () => {
-    try {
-      const response = await fetch("/api/stats");
-      const data = await response.json();
+  const links = data?.data || [];
 
-      if (data.success) {
-        setStats(data.data);
-      }
-    } catch (err) {
-      console.error("Error fetching stats:", err);
-    }
-  };
+  // 使用 useMemo 缓存错误消息
+  const errorMessage = useMemo(() => {
+    if (error) return "加载数据失败";
+    return null;
+  }, [error]);
 
-  // Filter links based on search query
-  const filterLinks = (filters: SearchFilters) => {
+  // 刷新链接数据
+  const fetchLinks = useCallback(async (filters?: SearchFilters) => {
+    // 使用 SWR 的 mutate 重新获取数据
+    await mutate();
+  }, [mutate]);
+
+  // 使用 useMemo 缓存筛选结果
+  const filterLinks = useCallback((filters: SearchFilters) => {
     let filtered = [...links];
 
     // Filter by search query
@@ -81,7 +67,26 @@ export function useNavigation() {
     }
 
     setFilteredLinks(filtered);
-  };
+  }, [links]);
+
+  // Fetch dashboard stats
+  const fetchStats = useCallback(async () => {
+    try {
+      const response = await fetch("/api/stats");
+      const statsData = await response.json();
+
+      if (statsData.success) {
+        setStats(statsData.data);
+      }
+    } catch (err) {
+      console.error("Error fetching stats:", err);
+    }
+  }, []);
+
+  // 当 links 变化时更新 filteredLinks
+  useEffect(() => {
+    setFilteredLinks(links);
+  }, [links]);
 
   // Create new link
   const createLink = async (
@@ -105,7 +110,7 @@ export function useNavigation() {
       const data = await response.json();
 
       if (data.success) {
-        await fetchLinks();
+        await mutate(); // 重新获取数据
         return { success: true };
       } else {
         return {
@@ -142,7 +147,7 @@ export function useNavigation() {
       const data = await response.json();
 
       if (data.success) {
-        await fetchLinks();
+        await mutate(); // 重新获取数据
         return { success: true };
       } else {
         return {
@@ -175,7 +180,7 @@ export function useNavigation() {
       const data = await response.json();
 
       if (data.success) {
-        await fetchLinks();
+        await mutate(); // 重新获取数据
         return { success: true };
       } else {
         return {
@@ -189,17 +194,12 @@ export function useNavigation() {
     }
   };
 
-  // Initial load
-  useEffect(() => {
-    fetchLinks();
-  }, []);
-
   return {
     links,
     filteredLinks,
     stats,
     isLoading,
-    error,
+    error: errorMessage,
     fetchLinks,
     fetchStats,
     filterLinks,

@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useNetworkMode } from "@/lib/contexts/NetworkModeContext";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useCallback, useMemo, memo } from "react";
 
 interface NavigationCardProps {
   link: NavigationLink;
@@ -14,40 +14,49 @@ interface NavigationCardProps {
   index?: number;
 }
 
-export function NavigationCard({ link, onClick, index = 0 }: NavigationCardProps) {
+const NavigationCardComponent = ({ link, onClick, index = 0 }: NavigationCardProps) => {
   const { networkMode } = useNetworkMode();
   const [isHovered, setIsHovered] = useState(false);
 
-  const currentUrl =
-    networkMode === "internal" ? link.internalUrl : link.externalUrl;
+  // 使用 useMemo 缓存计算结果
+  const currentUrl = useMemo(
+    () => networkMode === "internal" ? link.internalUrl : link.externalUrl,
+    [networkMode, link.internalUrl, link.externalUrl]
+  );
 
-  const handleClick = () => {
+  // 使用 useCallback 包裹事件处理函数
+  const handleClick = useCallback(() => {
     if (onClick) {
       onClick();
     } else {
       window.open(currentUrl, "_blank", "noopener,noreferrer");
     }
-  };
+  }, [onClick, currentUrl]);
 
-  const getNetworkIcon = () => {
+  // 使用 useMemo 缓存网络图标
+  const networkIcon = useMemo(() => {
     return networkMode === "internal" ? (
       <Building className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-600 dark:text-blue-400" />
     ) : (
       <Globe className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-600 dark:text-green-400" />
     );
-  };
+  }, [networkMode]);
 
-  const getNetworkColor = () => {
+  // 使用 useMemo 缓存网络颜色类名
+  const networkColor = useMemo(() => {
     return networkMode === "internal"
       ? "from-blue-500/10 to-blue-600/10 dark:from-blue-500/20 dark:to-blue-600/20"
       : "from-green-500/10 to-green-600/10 dark:from-green-500/20 dark:to-green-600/20";
-  };
+  }, [networkMode]);
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay: index * 0.05 }}
+      transition={{
+        duration: 0.4,
+        delay: index < 12 ? index * 0.05 : 0  // 限制前12个卡片有延迟动画
+      }}
       whileHover={{ y: -8, scale: 1.02 }}
       onHoverStart={() => setIsHovered(true)}
       onHoverEnd={() => setIsHovered(false)}
@@ -67,21 +76,12 @@ export function NavigationCard({ link, onClick, index = 0 }: NavigationCardProps
         !link.isActive && "opacity-70 hover:opacity-95"
       )}
     >
-      {/* Animated Gradient Background */}
-      <motion.div
+      {/* Static Gradient Background - Optimized */}
+      <div
         className={cn(
-          "absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-100 transition-opacity duration-700",
-          getNetworkColor()
+          "absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-100 transition-opacity duration-500",
+          networkColor
         )}
-        animate={isHovered ? {
-          background: [
-            "radial-gradient(circle at 0% 0%, rgba(99, 102, 241, 0.1) 0%, transparent 50%)",
-            "radial-gradient(circle at 100% 100%, rgba(168, 85, 247, 0.1) 0%, transparent 50%)",
-            "radial-gradient(circle at 0% 100%, rgba(236, 72, 153, 0.1) 0%, transparent 50%)",
-            "radial-gradient(circle at 100% 0%, rgba(99, 102, 241, 0.1) 0%, transparent 50%)",
-          ]
-        } : {}}
-        transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
       />
 
       {/* Enhanced Shine Effect */}
@@ -119,6 +119,8 @@ export function NavigationCard({ link, onClick, index = 0 }: NavigationCardProps
                     width={56}
                     height={56}
                     className="object-contain p-2"
+                    loading={index < 8 ? "eager" : "lazy"} // 前8个优先加载
+                    priority={index < 4} // 前4个高优先级
                     onError={(e) => {
                       e.currentTarget.style.display = "none";
                     }}
@@ -129,7 +131,7 @@ export function NavigationCard({ link, onClick, index = 0 }: NavigationCardProps
                 </div>
               ) : (
                 <div className="w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 rounded-xl sm:rounded-2xl bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center shadow-xl ring-2 ring-white/70 dark:ring-gray-600/70">
-                  {getNetworkIcon()}
+                  {networkIcon}
                 </div>
               )}
 
@@ -159,7 +161,7 @@ export function NavigationCard({ link, onClick, index = 0 }: NavigationCardProps
                   )}
                   whileHover={{ scale: 1.05 }}
                 >
-                  <span className="flex-shrink-0">{getNetworkIcon()}</span>
+                  <span className="flex-shrink-0">{networkIcon}</span>
                   <span className="hidden sm:inline">{networkMode === "internal" ? "内网" : "外网"}</span>
                 </motion.span>
               </div>
@@ -215,18 +217,8 @@ export function NavigationCard({ link, onClick, index = 0 }: NavigationCardProps
         </div>
       </div>
 
-      {/* Enhanced Bottom Glow */}
-      <motion.div
-        className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-        animate={isHovered ? {
-          boxShadow: [
-            "0 0 10px rgba(99, 102, 241, 0.5)",
-            "0 0 20px rgba(168, 85, 247, 0.5)",
-            "0 0 10px rgba(236, 72, 153, 0.5)",
-          ]
-        } : {}}
-        transition={{ duration: 2, repeat: Infinity }}
-      />
+      {/* Static Bottom Glow - Optimized */}
+      <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
       {/* Corner Accent */}
       <motion.div
@@ -234,4 +226,7 @@ export function NavigationCard({ link, onClick, index = 0 }: NavigationCardProps
       />
     </motion.div>
   );
-}
+};
+
+// 使用 React.memo 优化组件渲染性能
+export const NavigationCard = memo(NavigationCardComponent);
