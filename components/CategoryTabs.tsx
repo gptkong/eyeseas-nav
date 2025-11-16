@@ -46,6 +46,13 @@ export function CategoryTabs({
           aria-label="分类筛选"
           selectedKey={activeCategory || "all"}
           onSelectionChange={handleSelectionChange}
+          variant="solid"
+          color="primary"
+          classNames={{
+            tabList: "gap-2 bg-default-100 dark:bg-default-50/10 p-1 rounded-lg",
+            tab: "h-10",
+            cursor: "bg-primary shadow-sm"
+          }}
         >
           {/* "全部" Tab */}
           <Tab key="all" title="全部" />
