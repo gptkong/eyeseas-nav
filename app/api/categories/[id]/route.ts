@@ -6,10 +6,11 @@ import { updateCategorySchema } from "@/lib/validations";
 // GET - Fetch single category (public)
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const category = await DatabaseService.getCategoryById(params.id);
+    const { id } = await params;
+    const category = await DatabaseService.getCategoryById(id);
 
     if (!category) {
       return NextResponse.json(
@@ -42,7 +43,7 @@ export async function GET(
 // PUT - Update category (admin only)
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Check authentication
@@ -58,8 +59,9 @@ export async function PUT(
       );
     }
 
+    const { id } = await params;
     const body = await request.json();
-    const dataWithId = { ...body, id: params.id };
+    const dataWithId = { ...body, id };
 
     // Validate request body
     const validation = updateCategorySchema.safeParse(dataWithId);
@@ -68,7 +70,7 @@ export async function PUT(
         {
           success: false,
           error: "Invalid request data",
-          message: validation.error.errors.map(e => e.message).join(", "),
+          message: validation.error.issues.map(e => e.message).join(", "),
         },
         { status: 400 }
       );
@@ -108,7 +110,7 @@ export async function PUT(
 // DELETE - Delete category (admin only)
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Check authentication
@@ -124,7 +126,8 @@ export async function DELETE(
       );
     }
 
-    const success = await DatabaseService.deleteCategory(params.id);
+    const { id } = await params;
+    const success = await DatabaseService.deleteCategory(id);
 
     if (!success) {
       return NextResponse.json(

@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
         {
           success: false,
           error: "Invalid request data",
-          message: validation.error.errors.map(e => e.message).join(", "),
+          message: validation.error.issues.map(e => e.message).join(", "),
         },
         { status: 400 }
       );
