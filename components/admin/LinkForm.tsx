@@ -2,15 +2,18 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   navigationLinkSchema,
   NavigationLinkFormData,
 } from "@/lib/validations";
 import { NavigationLink } from "@/lib/types";
-import { X, Link as LinkIcon, Globe, Building, Image, Tag, Check } from "lucide-react";
+import { X, Link as LinkIcon, Globe, Building, Image, Tag, Check, Folder } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { useCategories } from "@/lib/hooks/useCategories";
+import { useNavigation } from "@/lib/hooks/useNavigation";
+import { TagSelector } from "../TagSelector";
 
 interface LinkFormProps {
   link?: NavigationLink;
@@ -28,6 +31,12 @@ export function LinkForm({
   open = true,
 }: LinkFormProps) {
   const isEditing = !!link;
+  const { categories } = useCategories();
+  const { getAllTags } = useNavigation();
+
+  // 分类和标签状态
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const allTags = getAllTags();
 
   const {
     register,
@@ -46,6 +55,8 @@ export function LinkForm({
       icon: "",
       favicon: "",
       isActive: true,
+      categoryId: "",
+      tags: [],
     },
   });
 
@@ -61,7 +72,10 @@ export function LinkForm({
         icon: link.icon || "",
         favicon: link.favicon || "",
         isActive: link.isActive ?? true,
+        categoryId: link.categoryId || "",
+        tags: link.tags || [],
       });
+      setSelectedTags(link.tags || []);
     } else {
       reset({
         title: "",
@@ -71,9 +85,18 @@ export function LinkForm({
         icon: "",
         favicon: "",
         isActive: true,
+        categoryId: "",
+        tags: [],
       });
+      setSelectedTags([]);
     }
   }, [link, reset]);
+
+  // 处理标签变化
+  const handleTagsChange = (tags: string[]) => {
+    setSelectedTags(tags);
+    setValue("tags", tags);
+  };
 
   if (!open) return null;
 
@@ -281,6 +304,46 @@ export function LinkForm({
                     </p>
                   )}
                 </div>
+              </div>
+
+              {/* Category Selection */}
+              <div className="space-y-2">
+                <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  <Folder className="w-4 h-4 text-orange-600 dark:text-orange-400" />
+                  分类 (可选)
+                </label>
+                <select
+                  className="w-full h-12 px-4 rounded-xl bg-gray-50 dark:bg-gray-900/50 border-2 border-gray-200 dark:border-gray-700 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 text-gray-900 dark:text-white focus:outline-none transition-all duration-200"
+                  {...register("categoryId")}
+                >
+                  <option value="">无分类</option>
+                  {categories.map((category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.icon && `${category.icon} `}{category.name}
+                    </option>
+                  ))}
+                </select>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  选择一个分类来组织你的书签
+                </p>
+              </div>
+
+              {/* Tags Selection */}
+              <div className="space-y-2">
+                <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  <Tag className="w-4 h-4 text-pink-600 dark:text-pink-400" />
+                  标签 (可选)
+                </label>
+                <TagSelector
+                  selectedTags={selectedTags}
+                  allTags={allTags}
+                  onChange={handleTagsChange}
+                  maxTags={10}
+                  placeholder="输入标签并按 Enter"
+                />
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  添加标签以便更好地筛选和组织书签
+                </p>
               </div>
 
               {/* Active Status */}

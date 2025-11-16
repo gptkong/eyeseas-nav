@@ -18,6 +18,8 @@ export const navigationLinkSchema = z.object({
     .optional()
     .or(z.literal("")),
   isActive: z.boolean().optional(),
+  categoryId: z.string().optional(),
+  tags: z.array(z.string()).optional(),
 });
 
 export const updateNavigationLinkSchema = navigationLinkSchema
@@ -36,7 +38,28 @@ export const adminLoginSchema = z.object({
 export const searchFiltersSchema = z.object({
   query: z.string().optional().default(""),
   isActive: z.boolean().optional(),
+  categoryId: z.string().optional(),
+  tags: z.array(z.string()).optional(),
 });
+
+// 分类验证规则
+export const categorySchema = z.object({
+  name: z
+    .string()
+    .min(1, "分类名称不能为空")
+    .max(50, "分类名称不能超过50个字符"),
+  icon: z.string().optional(),
+  color: z.string().optional(),
+});
+
+export const updateCategorySchema = categorySchema
+  .extend({
+    id: z.string().min(1, "ID is required"),
+  })
+  .partial()
+  .extend({
+    id: z.string().min(1, "ID is required"),
+  });
 
 export type NavigationLinkFormData = z.infer<typeof navigationLinkSchema>;
 export type UpdateNavigationLinkFormData = z.infer<
@@ -44,3 +67,5 @@ export type UpdateNavigationLinkFormData = z.infer<
 >;
 export type AdminLoginFormData = z.infer<typeof adminLoginSchema>;
 export type SearchFiltersFormData = z.infer<typeof searchFiltersSchema>;
+export type CategoryFormData = z.infer<typeof categorySchema>;
+export type UpdateCategoryFormData = z.infer<typeof updateCategorySchema>;

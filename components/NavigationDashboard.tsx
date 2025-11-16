@@ -1,8 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import { useNavigation } from "@/lib/hooks/useNavigation";
+import { useCategories } from "@/lib/hooks/useCategories";
 import { NavigationCard } from "./NavigationCard";
 import { SearchAndFilter } from "./SearchAndFilter";
+import { CategoryTabs } from "./CategoryTabs";
+import { QuickTagFilter } from "./QuickTagFilter";
 import { NetworkModeToggle } from "./NetworkModeToggle";
 import { ThemeToggle } from "./ThemeToggle";
 import { Settings, RefreshCw, Inbox } from "lucide-react";
@@ -16,11 +20,53 @@ interface NavigationDashboardProps {
 }
 
 export function NavigationDashboard({ initialLinks }: NavigationDashboardProps) {
-  const { filteredLinks, isLoading, error, fetchLinks, filterLinks } =
+  const { filteredLinks, isLoading, error, fetchLinks, filterLinks, getAllTags, getTagsByCategory } =
     useNavigation(initialLinks);
+  const { categories, isLoading: categoriesLoading } = useCategories();
 
+  // 分类和标签筛选状态
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // 获取当前分类下的标签
+  const currentTags = getTagsByCategory(activeCategory);
+
+  // 处理分类切换
+  const handleCategoryChange = (categoryId: string | null) => {
+    setActiveCategory(categoryId);
+    setSelectedTags([]); // 切换分类时清空标签筛选
+    applyFilters(categoryId, [], searchQuery);
+  };
+
+  // 处理标签切换
+  const handleTagToggle = (tag: string) => {
+    const newTags = selectedTags.includes(tag)
+      ? selectedTags.filter((t) => t !== tag)
+      : [...selectedTags, tag];
+    setSelectedTags(newTags);
+    applyFilters(activeCategory, newTags, searchQuery);
+  };
+
+  // 处理搜索
   const handleSearch = (query: string) => {
-    filterLinks({ query });
+    setSearchQuery(query);
+    applyFilters(activeCategory, selectedTags, query);
+  };
+
+  // 应用所有筛选条件
+  const applyFilters = (categoryId: string | null, tags: string[], query: string) => {
+    filterLinks({
+      categoryId: categoryId || undefined,
+      tags: tags.length > 0 ? tags : undefined,
+      query,
+    });
+  };
+
+  // 清除标签筛选
+  const handleClearTags = () => {
+    setSelectedTags([]);
+    applyFilters(activeCategory, [], searchQuery);
   };
 
   const handleRefresh = () => {
@@ -152,6 +198,29 @@ export function NavigationDashboard({ initialLinks }: NavigationDashboardProps) 
       <div className="container mx-auto px-4 py-6 sm:py-8">
         {/* Search and Filter */}
         <SearchAndFilter onSearch={handleSearch} />
+
+        {/* Category Tabs */}
+        {!categoriesLoading && categories.length > 0 && (
+          <div className="mb-6">
+            <CategoryTabs
+              categories={categories}
+              activeCategory={activeCategory}
+              onCategoryChange={handleCategoryChange}
+            />
+          </div>
+        )}
+
+        {/* Quick Tag Filter */}
+        {currentTags.length > 0 && (
+          <div className="mb-6">
+            <QuickTagFilter
+              tags={currentTags}
+              selectedTags={selectedTags}
+              onTagToggle={handleTagToggle}
+              onClear={handleClearTags}
+            />
+          </div>
+        )}
 
         {/* Navigation Links Grid */}
         <AnimatePresence mode="wait">

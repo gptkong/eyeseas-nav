@@ -10,6 +10,8 @@ export interface NavigationLink {
   updatedAt: string;
   isActive: boolean;
   order: number;
+  categoryId?: string;  // 所属分类ID（可选，兼容旧数据）
+  tags?: string[];      // 标签数组
 }
 
 export interface CreateNavigationLinkData {
@@ -20,6 +22,8 @@ export interface CreateNavigationLinkData {
   icon?: string;
   favicon?: string;
   isActive?: boolean;
+  categoryId?: string;
+  tags?: string[];
 }
 
 export interface UpdateNavigationLinkData
@@ -42,6 +46,8 @@ export interface ApiResponse<T> {
 export interface SearchFilters {
   query: string;
   isActive?: boolean;
+  categoryId?: string;
+  tags?: string[];
 }
 
 export type NetworkMode = "internal" | "external";
@@ -52,4 +58,25 @@ export interface DashboardStats {
   externalLinks: number;
   activeLinks: number;
   inactiveLinks: number;
+}
+
+// 分类相关接口
+export interface Category {
+  id: string;
+  name: string;
+  icon?: string;
+  color?: string;  // Tailwind 颜色类名（如：blue, green, purple）
+  order: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateCategoryData {
+  name: string;
+  icon?: string;
+  color?: string;
+}
+
+export interface UpdateCategoryData extends Partial<CreateCategoryData> {
+  id: string;
 }

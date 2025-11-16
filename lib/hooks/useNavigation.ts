@@ -49,6 +49,25 @@ export function useNavigation(initialData?: NavigationLink[]) {
   const filterLinks = useCallback((filters: SearchFilters) => {
     let filtered = [...links];
 
+    // Filter by category
+    if (filters.categoryId !== undefined) {
+      if (filters.categoryId === null || filters.categoryId === "") {
+        // 显示无分类的链接
+        filtered = filtered.filter((link) => !link.categoryId);
+      } else {
+        filtered = filtered.filter((link) => link.categoryId === filters.categoryId);
+      }
+    }
+
+    // Filter by tags
+    if (filters.tags && filters.tags.length > 0) {
+      filtered = filtered.filter((link) => {
+        if (!link.tags || link.tags.length === 0) return false;
+        // 链接必须包含所有指定的标签
+        return filters.tags!.every(tag => link.tags!.includes(tag));
+      });
+    }
+
     // Filter by search query
     if (filters.query && filters.query.trim()) {
       const searchTerm = filters.query.toLowerCase();
@@ -194,6 +213,36 @@ export function useNavigation(initialData?: NavigationLink[]) {
     }
   };
 
+  // 获取所有唯一标签
+  const getAllTags = useCallback((): string[] => {
+    const tagsSet = new Set<string>();
+    links.forEach((link) => {
+      if (link.tags && link.tags.length > 0) {
+        link.tags.forEach((tag) => tagsSet.add(tag));
+      }
+    });
+    return Array.from(tagsSet).sort();
+  }, [links]);
+
+  // 获取特定分类下的标签
+  const getTagsByCategory = useCallback((categoryId: string | null): string[] => {
+    const tagsSet = new Set<string>();
+    const categoryLinks = links.filter((link) => {
+      if (categoryId === null) {
+        return !link.categoryId;
+      }
+      return link.categoryId === categoryId;
+    });
+
+    categoryLinks.forEach((link) => {
+      if (link.tags && link.tags.length > 0) {
+        link.tags.forEach((tag) => tagsSet.add(tag));
+      }
+    });
+
+    return Array.from(tagsSet).sort();
+  }, [links]);
+
   return {
     links,
     filteredLinks,
@@ -206,5 +255,7 @@ export function useNavigation(initialData?: NavigationLink[]) {
     createLink,
     updateLink,
     deleteLink,
+    getAllTags,
+    getTagsByCategory,
   };
 }

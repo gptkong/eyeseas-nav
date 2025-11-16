@@ -6,6 +6,7 @@ import { useNavigation } from "@/lib/hooks/useNavigation";
 import { NavigationLink } from "@/lib/types";
 import { NavigationLinkFormData } from "@/lib/validations";
 import { LinkForm } from "./LinkForm";
+import { CategoryManager } from "./CategoryManager";
 import { ThemeToggle } from "../ThemeToggle";
 import {
   Plus,
@@ -17,6 +18,7 @@ import {
   Search,
   RefreshCw,
   LayoutGrid,
+  Folder,
 } from "lucide-react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -34,6 +36,7 @@ export function AdminDashboard() {
     fetchLinks,
   } = useNavigation();
 
+  const [activeTab, setActiveTab] = useState<"links" | "categories">("links");
   const [showForm, setShowForm] = useState(false);
   const [editingLink, setEditingLink] = useState<NavigationLink | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -191,34 +194,65 @@ export function AdminDashboard() {
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
-        {/* Actions Bar */}
-        <div className="mb-6 flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
-          {/* Search */}
-          <div className="relative flex-1 max-w-md w-full">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-            <input
-              type="text"
-              placeholder="搜索链接..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full h-12 pl-12 pr-4 rounded-xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all duration-200"
-            />
-          </div>
-
-          {/* Add Button */}
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => setShowForm(true)}
-            className="w-full sm:w-auto px-5 py-3 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 hover:from-indigo-600 hover:via-purple-600 hover:to-pink-600 text-white font-medium shadow-lg transition-all duration-200 flex items-center justify-center gap-2"
+        {/* Tab Switcher */}
+        <div className="mb-6 flex gap-2">
+          <button
+            onClick={() => setActiveTab("links")}
+            className={cn(
+              "px-6 py-3 rounded-xl font-medium transition-all duration-200 flex items-center gap-2",
+              activeTab === "links"
+                ? "bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-lg"
+                : "bg-white/50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-800"
+            )}
           >
-            <Plus className="w-5 h-5" />
-            <span>添加链接</span>
-          </motion.button>
+            <LayoutGrid className="w-5 h-5" />
+            链接管理
+          </button>
+          <button
+            onClick={() => setActiveTab("categories")}
+            className={cn(
+              "px-6 py-3 rounded-xl font-medium transition-all duration-200 flex items-center gap-2",
+              activeTab === "categories"
+                ? "bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-lg"
+                : "bg-white/50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-800"
+            )}
+          >
+            <Folder className="w-5 h-5" />
+            分类管理
+          </button>
         </div>
 
-        {/* Table */}
-        <motion.div
+        {/* Links Management Tab */}
+        {activeTab === "links" && (
+          <>
+            {/* Actions Bar */}
+            <div className="mb-6 flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
+              {/* Search */}
+              <div className="relative flex-1 max-w-md w-full">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="搜索链接..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full h-12 pl-12 pr-4 rounded-xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all duration-200"
+                />
+              </div>
+
+              {/* Add Button */}
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setShowForm(true)}
+                className="w-full sm:w-auto px-5 py-3 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 hover:from-indigo-600 hover:via-purple-600 hover:to-pink-600 text-white font-medium shadow-lg transition-all duration-200 flex items-center justify-center gap-2"
+              >
+                <Plus className="w-5 h-5" />
+                <span>添加链接</span>
+              </motion.button>
+            </div>
+
+            {/* Table */}
+            <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
@@ -413,6 +447,13 @@ export function AdminDashboard() {
             </div>
           )}
         </motion.div>
+          </>
+        )}
+
+        {/* Categories Management Tab */}
+        {activeTab === "categories" && (
+          <CategoryManager />
+        )}
       </div>
 
       {/* Create/Edit Form Modal */}

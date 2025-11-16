@@ -9,6 +9,8 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const isActive = searchParams.get("isActive");
+    const categoryId = searchParams.get("categoryId");
+    const tagsParam = searchParams.get("tags");
 
     let links = await DatabaseService.getAllLinks();
 
@@ -16,6 +18,28 @@ export async function GET(request: NextRequest) {
     if (isActive !== null) {
       const activeFilter = isActive === "true";
       links = links.filter((link) => link.isActive === activeFilter);
+    }
+
+    // Filter by category if specified
+    if (categoryId !== null) {
+      if (categoryId === "null" || categoryId === "") {
+        // 显示无分类的链接
+        links = links.filter((link) => !link.categoryId);
+      } else {
+        links = links.filter((link) => link.categoryId === categoryId);
+      }
+    }
+
+    // Filter by tags if specified
+    if (tagsParam) {
+      const tags = tagsParam.split(",").filter(Boolean);
+      if (tags.length > 0) {
+        links = links.filter((link) => {
+          if (!link.tags || link.tags.length === 0) return false;
+          // 链接必须包含所有指定的标签
+          return tags.every(tag => link.tags!.includes(tag));
+        });
+      }
     }
 
     // Sort by order
