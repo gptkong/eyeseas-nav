@@ -119,44 +119,40 @@ export function NavigationDashboard({ initialLinks }: NavigationDashboardProps) 
         className="sticky top-0 z-50 backdrop-blur-xl bg-white/70 dark:bg-gray-900/70 border-b border-gray-200/50 dark:border-gray-700/50 shadow-lg"
       >
         <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-4">
             {/* Logo */}
             <motion.div
               whileHover={{ scale: 1.05 }}
               transition={{ type: "spring", stiffness: 400 }}
-              className="flex items-center gap-3"
+              className="flex items-center gap-3 flex-shrink-0"
             >
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center shadow-lg">
                 <span className="text-white font-bold text-lg">E</span>
               </div>
-              <div className="hidden sm:block">
+              <div className="hidden md:block">
                 <h1 className="text-xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 dark:from-indigo-400 dark:via-purple-400 dark:to-pink-400 bg-clip-text text-transparent">
                   {process.env.NEXT_PUBLIC_APP_TITLE || "EyeSeas Navigation"}
                 </h1>
               </div>
             </motion.div>
 
+            {/* Search Bar */}
+            <SearchAndFilter onSearch={handleSearch} />
+
             {/* Actions */}
-            <div className="flex items-center gap-2 sm:gap-3">
-              {/* Network Mode Toggle */}
+            <div className="flex items-center gap-2 flex-shrink-0">
               <NetworkModeToggle />
-
-              {/* Theme Toggle */}
               <ThemeToggle />
-
-              {/* Refresh Button */}
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={handleRefresh}
                 disabled={isLoading}
                 className={cn(
-                  "px-3 sm:px-4 py-2 rounded-xl",
+                  "p-2 rounded-xl",
                   "bg-gray-100 dark:bg-gray-800",
                   "hover:bg-gray-200 dark:hover:bg-gray-700",
-                  "border border-gray-200 dark:border-gray-700",
-                  "transition-colors duration-200",
-                  "flex items-center gap-2"
+                  "border border-gray-200 dark:border-gray-700"
                 )}
                 title="刷新"
               >
@@ -166,23 +162,15 @@ export function NavigationDashboard({ initialLinks }: NavigationDashboardProps) 
                     isLoading && "animate-spin"
                   )}
                 />
-                <span className="hidden sm:inline text-sm font-medium text-gray-700 dark:text-gray-300">
-                  刷新
-                </span>
               </motion.button>
-
-              {/* Admin Button */}
               <Link href="/login?redirect=/admin">
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="px-3 sm:px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white shadow-lg transition-all duration-200 flex items-center gap-2"
+                  className="p-2 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white shadow-lg"
                   title="管理后台"
                 >
                   <Settings className="w-4 h-4" />
-                  <span className="hidden sm:inline text-sm font-medium">
-                    管理
-                  </span>
                 </motion.button>
               </Link>
             </div>
@@ -192,9 +180,6 @@ export function NavigationDashboard({ initialLinks }: NavigationDashboardProps) 
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-6 sm:py-8">
-        {/* Search and Filter */}
-        <SearchAndFilter onSearch={handleSearch} />
-
         {/* Category Tabs */}
         {!categoriesLoading && categories.length > 0 && (
           <div className="mb-6">
