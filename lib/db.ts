@@ -260,13 +260,6 @@ export class DatabaseService {
   // Get all categories with caching
   static async getAllCategories(): Promise<Category[]> {
     try {
-      // 检查缓存
-      const now = Date.now();
-      if (categoriesCache.data && now - categoriesCache.timestamp < categoriesCache.TTL) {
-        console.log('Using cached categories data');
-        return categoriesCache.data;
-      }
-
       // 缓存过期，从 Redis 获取
       const client = await getRedisClient();
       const categoriesData = await client.get(CATEGORIES_KEY);
@@ -275,17 +268,9 @@ export class DatabaseService {
       // 按 order 字段排序
       categories.sort((a: Category, b: Category) => a.order - b.order);
 
-      // 更新缓存
-      categoriesCache.data = categories;
-      categoriesCache.timestamp = now;
-
       return categories;
     } catch (error) {
       console.error('Error fetching categories:', error);
-      if (categoriesCache.data) {
-        console.log('Returning stale cached categories data due to error');
-        return categoriesCache.data;
-      }
       return [];
     }
   }
