@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { useNavigation } from "@/lib/hooks/useNavigation";
 import { useCategories } from "@/lib/hooks/useCategories";
 import { NavigationCard } from "./NavigationCard";
@@ -29,8 +29,35 @@ export function NavigationDashboard({ initialLinks }: NavigationDashboardProps) 
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
 
-  // 获取当前分类下的标签
-  const currentTags = getTagsByCategory(activeCategory);
+  // 检查当前选中的分类是否仍然存在，如果不存在则重置为"全部"
+  const prevCategoriesRef = useRef<string[] | null>(null);
+  useEffect(() => {
+    const currentCategoryIds = categories.map(cat => cat.id);
+    const prevCategoryIds = prevCategoriesRef.current;
+
+    // 首次加载时记录初始状态
+    if (prevCategoriesRef.current === null) {
+      prevCategoriesRef.current = currentCategoryIds;
+      return;
+    }
+
+    // 检测分类数量是否减少（表示有分类被删除）
+    if (prevCategoryIds.length > currentCategoryIds.length) {
+      console.log("检测到分类删除，刷新数据...");
+      // 强制刷新链接数据
+      fetchLinks();
+      // 检查当前分类是否被删除
+      if (activeCategory && !currentCategoryIds.includes(activeCategory)) {
+        setActiveCategory(null);
+        setSelectedTags([]);
+      }
+    }
+
+    prevCategoriesRef.current = currentCategoryIds;
+  }, [categories, activeCategory, fetchLinks]);
+
+  // 获取所有唯一标签（独立标签筛选）
+  const currentTags = getAllTags();
 
   // 使用 useMemo 计算过滤后的链接
   const filteredLinks = useMemo(() => {
@@ -191,17 +218,15 @@ export function NavigationDashboard({ initialLinks }: NavigationDashboardProps) 
           </div>
         )}
 
-        {/* Quick Tag Filter */}
-        {currentTags.length > 0 && (
-          <div className="mb-6">
-            <QuickTagFilter
-              tags={currentTags}
-              selectedTags={selectedTags}
-              onTagToggle={handleTagToggle}
-              onClear={handleClearTags}
-            />
-          </div>
-        )}
+        {/* Quick Tag Filter - 独立标签筛选区域 */}
+        <div className="mb-6">
+          <QuickTagFilter
+            tags={currentTags}
+            selectedTags={selectedTags}
+            onTagToggle={handleTagToggle}
+            onClear={handleClearTags}
+          />
+        </div>
 
         {/* Navigation Links Grid */}
         <AnimatePresence mode="wait">

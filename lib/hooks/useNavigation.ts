@@ -23,9 +23,6 @@ export function useNavigation(initialData?: NavigationLink[]) {
     fetcher,
     {
       fallbackData: initialData ? { success: true, data: initialData } : undefined,
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      dedupingInterval: 60000, // 1分钟内去重
       revalidateOnMount: !initialData, // 如果有初始数据则不重新请求
     }
   );

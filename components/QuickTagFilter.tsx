@@ -30,9 +30,16 @@ export function QuickTagFilter({
   maxDisplay = 15,
   className,
 }: QuickTagFilterProps) {
-  // 如果没有标签，不显示组件
+  // 如果没有标签，显示空状态
   if (tags.length === 0) {
-    return null;
+    return (
+      <div className={cn("w-full", className)}>
+        <div className="flex items-center gap-2 text-gray-400 dark:text-gray-500">
+          <TagIcon className="w-4 h-4" />
+          <span className="text-sm">暂无可用标签</span>
+        </div>
+      </div>
+    );
   }
 
   const displayTags = tags.slice(0, maxDisplay);

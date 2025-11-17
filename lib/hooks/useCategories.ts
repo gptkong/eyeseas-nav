@@ -22,10 +22,7 @@ export function useCategories() {
     data,
     error: swrError,
     mutate,
-  } = useSWR<ApiResponse<Category[]>>("/api/categories", fetcher, {
-    revalidateOnFocus: false,
-    dedupingInterval: 10000,
-  });
+  } = useSWR<ApiResponse<Category[]>>("/api/categories", fetcher);
 
   const categories = data?.data || [];
 
@@ -53,8 +50,8 @@ export function useCategories() {
         const result = await response.json();
 
         if (result.success) {
-          // 刷新分类列表
-          mutate();
+          // 强制刷新所有相关缓存
+          await mutate("/api/categories");
         } else {
           setError(result.error || "创建分类失败");
         }
@@ -101,8 +98,8 @@ export function useCategories() {
         const result = await response.json();
 
         if (result.success) {
-          // 刷新分类列表
-          mutate();
+          // 强制刷新所有相关缓存
+          await mutate("/api/categories");
         } else {
           setError(result.error || "更新分类失败");
         }
@@ -143,8 +140,8 @@ export function useCategories() {
         const result = await response.json();
 
         if (result.success) {
-          // 刷新分类列表
-          mutate();
+          // 强制刷新所有相关缓存
+          await mutate("/api/categories");
         } else {
           setError(result.error || "删除分类失败");
         }
