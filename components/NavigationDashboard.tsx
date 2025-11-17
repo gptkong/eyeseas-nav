@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useNavigation } from "@/lib/hooks/useNavigation";
 import { useCategories } from "@/lib/hooks/useCategories";
 import { NavigationCard } from "./NavigationCard";
@@ -20,7 +20,7 @@ interface NavigationDashboardProps {
 }
 
 export function NavigationDashboard({ initialLinks }: NavigationDashboardProps) {
-  const { filteredLinks, isLoading, error, fetchLinks, filterLinks, getAllTags, getTagsByCategory } =
+  const { links, isLoading, error, fetchLinks, filterLinks, getAllTags, getTagsByCategory } =
     useNavigation(initialLinks);
   const { categories, isLoading: categoriesLoading } = useCategories();
 
@@ -32,11 +32,19 @@ export function NavigationDashboard({ initialLinks }: NavigationDashboardProps) 
   // 获取当前分类下的标签
   const currentTags = getTagsByCategory(activeCategory);
 
+  // 使用 useMemo 计算过滤后的链接
+  const filteredLinks = useMemo(() => {
+    return filterLinks({
+      categoryId: activeCategory || undefined,
+      tags: selectedTags.length > 0 ? selectedTags : undefined,
+      query: searchQuery,
+    });
+  }, [filterLinks, activeCategory, selectedTags, searchQuery]);
+
   // 处理分类切换
   const handleCategoryChange = (categoryId: string | null) => {
     setActiveCategory(categoryId);
     setSelectedTags([]); // 切换分类时清空标签筛选
-    applyFilters(categoryId, [], searchQuery);
   };
 
   // 处理标签切换
@@ -45,28 +53,16 @@ export function NavigationDashboard({ initialLinks }: NavigationDashboardProps) 
       ? selectedTags.filter((t) => t !== tag)
       : [...selectedTags, tag];
     setSelectedTags(newTags);
-    applyFilters(activeCategory, newTags, searchQuery);
   };
 
   // 处理搜索
   const handleSearch = (query: string) => {
     setSearchQuery(query);
-    applyFilters(activeCategory, selectedTags, query);
-  };
-
-  // 应用所有筛选条件
-  const applyFilters = (categoryId: string | null, tags: string[], query: string) => {
-    filterLinks({
-      categoryId: categoryId || undefined,
-      tags: tags.length > 0 ? tags : undefined,
-      query,
-    });
   };
 
   // 清除标签筛选
   const handleClearTags = () => {
     setSelectedTags([]);
-    applyFilters(activeCategory, [], searchQuery);
   };
 
   const handleRefresh = () => {

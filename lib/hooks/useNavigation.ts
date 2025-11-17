@@ -14,7 +14,6 @@ import { useAuth } from "./useAuth";
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export function useNavigation(initialData?: NavigationLink[]) {
-  const [filteredLinks, setFilteredLinks] = useState<NavigationLink[]>(initialData || []);
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const { getAuthHeaders } = useAuth();
 
@@ -85,7 +84,7 @@ export function useNavigation(initialData?: NavigationLink[]) {
       filtered = filtered.filter((link) => link.isActive === filters.isActive);
     }
 
-    setFilteredLinks(filtered);
+    return filtered;
   }, [links]);
 
   // Fetch dashboard stats
@@ -101,11 +100,6 @@ export function useNavigation(initialData?: NavigationLink[]) {
       console.error("Error fetching stats:", err);
     }
   }, []);
-
-  // 当 links 变化时更新 filteredLinks
-  useEffect(() => {
-    setFilteredLinks(links);
-  }, [links]);
 
   // Create new link
   const createLink = async (
@@ -129,7 +123,7 @@ export function useNavigation(initialData?: NavigationLink[]) {
       const data = await response.json();
 
       if (data.success) {
-        await mutate(); // 重新获取数据
+        mutate({ success: true, data: [...links, data.data] }, false);
         return { success: true };
       } else {
         return {
@@ -166,7 +160,7 @@ export function useNavigation(initialData?: NavigationLink[]) {
       const data = await response.json();
 
       if (data.success) {
-        await mutate(); // 重新获取数据
+        mutate({ success: true, data: links.map(link => link.id === id ? data.data : link) }, false);
         return { success: true };
       } else {
         return {
@@ -199,7 +193,7 @@ export function useNavigation(initialData?: NavigationLink[]) {
       const data = await response.json();
 
       if (data.success) {
-        await mutate(); // 重新获取数据
+        mutate({ success: true, data: links.filter(link => link.id !== id) }, false);
         return { success: true };
       } else {
         return {
@@ -245,7 +239,7 @@ export function useNavigation(initialData?: NavigationLink[]) {
 
   return {
     links,
-    filteredLinks,
+    filteredLinks: links,
     stats,
     isLoading,
     error: errorMessage,
