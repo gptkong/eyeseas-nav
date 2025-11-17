@@ -42,7 +42,7 @@ export function NavigationDashboard({ initialLinks }: NavigationDashboardProps) 
     }
 
     // 检测分类数量是否减少（表示有分类被删除）
-    if (prevCategoryIds.length > currentCategoryIds.length) {
+    if (prevCategoryIds && prevCategoryIds.length > currentCategoryIds.length) {
       console.log("检测到分类删除，刷新数据...");
       // 强制刷新链接数据
       fetchLinks();

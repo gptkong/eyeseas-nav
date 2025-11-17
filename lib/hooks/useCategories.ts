@@ -51,7 +51,7 @@ export function useCategories() {
 
         if (result.success) {
           // 强制刷新所有相关缓存
-          await mutate("/api/categories");
+          await mutate();
         } else {
           setError(result.error || "创建分类失败");
         }
@@ -99,7 +99,7 @@ export function useCategories() {
 
         if (result.success) {
           // 强制刷新所有相关缓存
-          await mutate("/api/categories");
+          await mutate();
         } else {
           setError(result.error || "更新分类失败");
         }
@@ -141,7 +141,7 @@ export function useCategories() {
 
         if (result.success) {
           // 强制刷新所有相关缓存
-          await mutate("/api/categories");
+          await mutate();
         } else {
           setError(result.error || "删除分类失败");
         }
