@@ -38,8 +38,9 @@ export class CategoriesRepository {
 
   static async update(id: string, data: UpdateCategoryData): Promise<Category | null> {
     const numericId = toNumericId(id);
+    const { id: _, ...updateData } = data;
     const [result] = await db.update(categories)
-      .set({ ...data, updatedAt: new Date() })
+      .set({ ...updateData, updatedAt: new Date() })
       .where(eq(categories.id, numericId))
       .returning();
 

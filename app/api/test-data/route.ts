@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { DatabaseService } from '@/lib/db';
+import { LinksRepository } from '@/lib/db';
 import { ApiResponse } from '@/lib/types';
 
 // POST - Create test data (admin only)
@@ -50,7 +50,7 @@ export async function POST() {
 
     const createdLinks = [];
     for (const linkData of testLinks) {
-      const link = await DatabaseService.createLink(linkData);
+      const link = await LinksRepository.create(linkData);
       createdLinks.push(link);
     }
 
@@ -74,10 +74,10 @@ export async function POST() {
 export async function DELETE() {
   try {
     // This is a simple implementation - in a real app you'd want more sophisticated cleanup
-    const links = await DatabaseService.getAllLinks();
-    
+    const links = await LinksRepository.findAll();
+
     for (const link of links) {
-      await DatabaseService.deleteLink(link.id);
+      await LinksRepository.delete(link.id);
     }
 
     return NextResponse.json({

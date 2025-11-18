@@ -63,10 +63,15 @@ export class LinksRepository {
 
   static async update(id: string, data: UpdateNavigationLinkData): Promise<NavigationLink | null> {
     const numericId = toNumericId(id);
-    const updateData: any = { ...data, updatedAt: new Date() };
+    const { id: _, categoryId, ...updateFields } = data;
+    
+    const updateData: Partial<typeof links.$inferInsert> & { updatedAt: Date } = {
+      ...updateFields,
+      updatedAt: new Date(),
+    };
 
-    if (data.categoryId !== undefined) {
-      updateData.categoryId = data.categoryId ? toNumericId(data.categoryId) : null;
+    if (categoryId !== undefined) {
+      updateData.categoryId = categoryId ? toNumericId(categoryId) : null;
     }
 
     const [result] = await db.update(links)
