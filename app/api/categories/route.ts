@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { DatabaseService } from "@/lib/db";
+import { CategoriesRepository } from "@/lib/db";
 import { AuthService } from "@/lib/auth";
 import { categorySchema } from "@/lib/validations";
 
 // GET - Fetch all categories (public)
 export async function GET(request: NextRequest) {
   try {
-    const categories = await DatabaseService.getAllCategories();
+    const categories = await CategoriesRepository.findAll();
 
     return NextResponse.json(
       {
@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const newCategory = await DatabaseService.createCategory(validation.data);
+    const newCategory = await CategoriesRepository.create(validation.data);
 
     return NextResponse.json(
       {

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { DatabaseService } from "@/lib/db";
+import { LinksRepository } from "@/lib/db";
 import { AuthService } from "@/lib/auth";
 import { updateNavigationLinkSchema } from "@/lib/validations";
 
@@ -10,7 +10,7 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const link = await DatabaseService.getLinkById(id);
+    const link = await LinksRepository.findById(id);
 
     if (!link) {
       return NextResponse.json(
@@ -76,7 +76,7 @@ export async function PUT(
       );
     }
 
-    const updatedLink = await DatabaseService.updateLink(validation.data);
+    const updatedLink = await LinksRepository.update(id, validation.data);
 
     if (!updatedLink) {
       return NextResponse.json(
@@ -128,7 +128,7 @@ export async function DELETE(
 
     const { id } = await params;
 
-    const deleted = await DatabaseService.deleteLink(id);
+    const deleted = await LinksRepository.delete(id);
 
     if (!deleted) {
       return NextResponse.json(

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { DatabaseService } from "@/lib/db";
+import { LinksRepository } from "@/lib/db";
 import { AuthService } from "@/lib/auth";
 import { navigationLinkSchema } from "@/lib/validations";
 import { ApiResponse } from "@/lib/types";
@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
     const categoryId = searchParams.get("categoryId");
     const tagsParam = searchParams.get("tags");
 
-    let links = await DatabaseService.getAllLinks();
+    let links = await LinksRepository.findAll();
 
     // Filter by active status if specified
     if (isActive !== null) {
@@ -100,7 +100,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const newLink = await DatabaseService.createLink(validation.data);
+    const newLink = await LinksRepository.create(validation.data);
 
     return NextResponse.json(
       {

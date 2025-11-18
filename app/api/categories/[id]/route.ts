@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { DatabaseService } from "@/lib/db";
+import { CategoriesRepository } from "@/lib/db";
 import { AuthService } from "@/lib/auth";
 import { updateCategorySchema } from "@/lib/validations";
 
@@ -10,7 +10,7 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const category = await DatabaseService.getCategoryById(id);
+    const category = await CategoriesRepository.findById(id);
 
     if (!category) {
       return NextResponse.json(
@@ -76,7 +76,7 @@ export async function PUT(
       );
     }
 
-    const updatedCategory = await DatabaseService.updateCategory(validation.data);
+    const updatedCategory = await CategoriesRepository.update(id, validation.data);
 
     if (!updatedCategory) {
       return NextResponse.json(
@@ -127,7 +127,7 @@ export async function DELETE(
     }
 
     const { id } = await params;
-    const success = await DatabaseService.deleteCategory(id);
+    const success = await CategoriesRepository.delete(id);
 
     if (!success) {
       return NextResponse.json(
