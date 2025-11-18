@@ -8,7 +8,10 @@ import { handleApiError, ApiError } from "@/lib/api-error";
 export async function GET() {
   try {
     const categories = await CategoriesRepository.findAll();
-    return NextResponse.json({ data: categories }, {
+    return NextResponse.json({
+      success: true,
+      data: categories
+    }, {
       headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300' },
     });
   } catch (error) {
@@ -31,7 +34,11 @@ export async function POST(request: NextRequest) {
     }
 
     const newCategory = await CategoriesRepository.create(validation.data);
-    return NextResponse.json({ data: newCategory }, { status: 201 });
+    return NextResponse.json({
+      success: true,
+      data: newCategory,
+      message: "Category created successfully"
+    }, { status: 201 });
   } catch (error) {
     return handleApiError(error);
   }

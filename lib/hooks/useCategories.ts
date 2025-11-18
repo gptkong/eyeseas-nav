@@ -5,9 +5,9 @@
  * 提供分类的 CRUD 操作和状态管理
  */
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import useSWR from "swr";
-import { Category, CreateCategoryData, UpdateCategoryData, ApiResponse } from "@/lib/types";
+import { Category, CreateCategoryData, ApiResponse } from "@/lib/types";
 import { useAuth } from "./useAuth";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
@@ -22,9 +22,12 @@ export function useCategories() {
     data,
     error: swrError,
     mutate,
-  } = useSWR<ApiResponse<Category[]>>("/api/categories", fetcher);
+  } = useSWR<ApiResponse<Category[]>>("/api/categories", fetcher, {
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+  });
 
-  const categories = data?.data || [];
+  const categories = useMemo(() => data?.data || [], [data]);
 
   // 创建分类
   const createCategory = useCallback(
@@ -50,6 +53,12 @@ export function useCategories() {
         const result = await response.json();
 
         if (result.success) {
+          // 乐观更新：立即添加新分类到本地缓存
+          const newCategory = result.data;
+          if (newCategory) {
+            mutate({ success: true, data: [...categories, newCategory] }, false);
+          }
+
           // 强制刷新所有相关缓存
           await mutate();
         } else {
@@ -57,7 +66,7 @@ export function useCategories() {
         }
 
         return result;
-      } catch (err) {
+      } catch {
         const errorMessage = "网络错误";
         setError(errorMessage);
         return {
@@ -68,7 +77,7 @@ export function useCategories() {
         setIsLoading(false);
       }
     },
-    [mutate, getAuthHeaders]
+    [mutate, getAuthHeaders, categories]
   );
 
   // 更新分类
@@ -98,6 +107,15 @@ export function useCategories() {
         const result = await response.json();
 
         if (result.success) {
+          // 乐观更新：立即更新本地缓存中的分类
+          const updatedCategory = result.data;
+          if (updatedCategory) {
+            const updatedCategories = categories.map(cat =>
+              cat.id === id ? updatedCategory : cat
+            );
+            mutate({ success: true, data: updatedCategories }, false);
+          }
+
           // 强制刷新所有相关缓存
           await mutate();
         } else {
@@ -105,7 +123,7 @@ export function useCategories() {
         }
 
         return result;
-      } catch (err) {
+      } catch {
         const errorMessage = "网络错误";
         setError(errorMessage);
         return {
@@ -116,7 +134,7 @@ export function useCategories() {
         setIsLoading(false);
       }
     },
-    [mutate, getAuthHeaders]
+    [mutate, getAuthHeaders, categories]
   );
 
   // 删除分类
@@ -140,14 +158,18 @@ export function useCategories() {
         const result = await response.json();
 
         if (result.success) {
-          // 强制刷新所有相关缓存
+          // 乐观更新：立即从本地缓存中移除删除的分类
+          const updatedCategories = categories.filter(cat => cat.id !== id);
+          mutate({ success: true, data: updatedCategories }, false);
+
+          // 强制刷新所有相关缓存（绕过缓存）
           await mutate();
         } else {
           setError(result.error || "删除分类失败");
         }
 
         return result;
-      } catch (err) {
+      } catch {
         const errorMessage = "网络错误";
         setError(errorMessage);
         return {
@@ -158,7 +180,7 @@ export function useCategories() {
         setIsLoading(false);
       }
     },
-    [mutate, getAuthHeaders]
+    [mutate, getAuthHeaders, categories]
   );
 
   // 重新排序分类
@@ -184,7 +206,7 @@ export function useCategories() {
         // });
 
         return true;
-      } catch (err) {
+      } catch {
         setError("重新排序失败");
         mutate(); // 恢复数据
         return false;
