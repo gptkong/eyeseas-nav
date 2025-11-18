@@ -90,15 +90,22 @@ export class LinksRepository {
   }
 
   static async reorder(linkIds: string[]): Promise<boolean> {
-    // 优化：批量并行更新
-    await db.transaction(async (tx) => {
-      await Promise.all(
-        linkIds.map((id, index) => {
-          const numericId = toNumericId(id);
-          return tx.update(links).set({ order: index }).where(eq(links.id, numericId));
-        })
-      );
-    });
+    if (linkIds.length === 0) return true;
+
+    // 优化：使用 SQL CASE 语句批量更新
+    const cases = linkIds.map((id, index) =>
+      sql`WHEN ${links.id} = ${toNumericId(id)} THEN ${index}`
+    );
+
+    const caseStatement = sql.join(cases, sql.raw(' '));
+    const ids = linkIds.map(toNumericId);
+
+    await db.execute(sql`
+      UPDATE ${links}
+      SET "order" = CASE ${caseStatement} END
+      WHERE ${links.id} IN (${sql.join(ids.map(id => sql`${id}`), sql.raw(','))})
+    `);
+
     return true;
   }
 

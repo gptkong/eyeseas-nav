@@ -58,15 +58,22 @@ export class CategoriesRepository {
   }
 
   static async reorder(categoryIds: string[]): Promise<boolean> {
-    // 优化：批量并行更新
-    await db.transaction(async (tx) => {
-      await Promise.all(
-        categoryIds.map((id, index) => {
-          const numericId = toNumericId(id);
-          return tx.update(categories).set({ order: index }).where(eq(categories.id, numericId));
-        })
-      );
-    });
+    if (categoryIds.length === 0) return true;
+
+    // 优化：使用 SQL CASE 语句批量更新
+    const cases = categoryIds.map((id, index) =>
+      sql`WHEN ${categories.id} = ${toNumericId(id)} THEN ${index}`
+    );
+
+    const caseStatement = sql.join(cases, sql.raw(' '));
+    const ids = categoryIds.map(toNumericId);
+
+    await db.execute(sql`
+      UPDATE ${categories}
+      SET "order" = CASE ${caseStatement} END
+      WHERE ${categories.id} IN (${sql.join(ids.map(id => sql`${id}`), sql.raw(','))})
+    `);
+
     return true;
   }
 }
