@@ -1,4 +1,4 @@
-import { pgTable, text, boolean, timestamp, integer, serial, index, jsonb } from 'drizzle-orm/pg-core';
+import { pgTable, text, boolean, timestamp, integer, serial, index } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 
 export const categories = pgTable('categories', {
@@ -31,18 +31,6 @@ export const links = pgTable('links', {
   categoryIdx: index('links_category_idx').on(table.categoryId),
   orderIdx: index('links_order_idx').on(table.order),
   activeIdx: index('links_active_idx').on(table.isActive),
-}));
-
-export const auditLogs = pgTable('audit_logs', {
-  id: serial('id').primaryKey(),
-  action: text('action').notNull(),
-  entityType: text('entity_type').notNull(),
-  entityId: integer('entity_id'),
-  changes: jsonb('changes'),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-}, (table) => ({
-  entityIdx: index('audit_logs_entity_idx').on(table.entityType, table.entityId),
-  createdAtIdx: index('audit_logs_created_at_idx').on(table.createdAt),
 }));
 
 export const categoriesRelations = relations(categories, ({ many }) => ({
