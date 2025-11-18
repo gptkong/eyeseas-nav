@@ -36,14 +36,12 @@ export interface AdminSession {
   expiresAt: number;
 }
 
-export type ApiResponse<T> = {
-  data: T;
-  error?: never;
-} | {
-  data?: never;
-  error: string;
-  code?: string;
-};
+export interface ApiResponse<T> {
+  success: boolean;
+  data?: T;
+  error?: string;
+  message?: string;
+}
 
 export interface PaginatedResponse<T> {
   data: T[];

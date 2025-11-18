@@ -159,13 +159,13 @@ export function AdminDashboard() {
 
       {(showForm || editingLink) && (
         <LinkForm
-          link={editingLink}
+          link={editingLink || undefined}
           onSubmit={editingLink ? handleUpdateLink : handleCreateLink}
-          onClose={() => {
+          onCancel={() => {
             setShowForm(false);
             setEditingLink(null);
           }}
-          isSubmitting={isSubmitting}
+          isLoading={isSubmitting}
         />
       )}
 
