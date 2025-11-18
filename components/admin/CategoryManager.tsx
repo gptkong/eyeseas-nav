@@ -180,8 +180,12 @@ export function CategoryManager() {
 
   // 删除分类
   const handleDelete = async (id: string) => {
-    await deleteCategory(id);
+    const result = await deleteCategory(id);
     setDeleteConfirm(null);
+
+    if (!result.success) {
+      alert(result.error || "删除分类失败");
+    }
   };
 
   // 取消操作

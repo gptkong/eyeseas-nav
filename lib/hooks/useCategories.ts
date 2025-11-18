@@ -56,11 +56,8 @@ export function useCategories() {
           // 乐观更新：立即添加新分类到本地缓存
           const newCategory = result.data;
           if (newCategory) {
-            mutate({ success: true, data: [...categories, newCategory] }, false);
+            await mutate({ success: true, data: [...categories, newCategory] }, false);
           }
-
-          // 强制刷新所有相关缓存
-          await mutate();
         } else {
           setError(result.error || "创建分类失败");
         }
@@ -113,11 +110,8 @@ export function useCategories() {
             const updatedCategories = categories.map(cat =>
               cat.id === id ? updatedCategory : cat
             );
-            mutate({ success: true, data: updatedCategories }, false);
+            await mutate({ success: true, data: updatedCategories }, false);
           }
-
-          // 强制刷新所有相关缓存
-          await mutate();
         } else {
           setError(result.error || "更新分类失败");
         }
@@ -160,10 +154,7 @@ export function useCategories() {
         if (result.success) {
           // 乐观更新：立即从本地缓存中移除删除的分类
           const updatedCategories = categories.filter(cat => cat.id !== id);
-          mutate({ success: true, data: updatedCategories }, false);
-
-          // 强制刷新所有相关缓存（绕过缓存）
-          await mutate();
+          await mutate({ success: true, data: updatedCategories }, false);
         } else {
           setError(result.error || "删除分类失败");
         }
