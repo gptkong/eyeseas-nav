@@ -12,9 +12,26 @@
 import { useState } from "react";
 import { useCategories } from "@/lib/hooks/useCategories";
 import { Category, CreateCategoryData } from "@/lib/types";
-import { Plus, Edit, Trash2, Folder } from "lucide-react";
+import { Plus, Edit, Trash2, Folder, GripVertical } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 // 可用颜色选项
 const COLORS = [
@@ -28,8 +45,92 @@ const COLORS = [
   { value: "yellow", label: "黄色", class: "bg-yellow-500" },
 ];
 
+// 可排序的分类卡片组件
+interface SortableCategoryCardProps {
+  category: Category;
+  onEdit: (category: Category) => void;
+  onDelete: (id: string) => void;
+}
+
+function SortableCategoryCard({ category, onEdit, onDelete }: SortableCategoryCardProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: category.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={cn(
+        "bg-white dark:bg-gray-800 rounded-lg border-2 border-gray-200 dark:border-gray-700 p-4 hover:shadow-lg transition-shadow",
+        isDragging && "opacity-50 shadow-xl ring-2 ring-indigo-500"
+      )}
+    >
+      <div className="flex items-start justify-between gap-3">
+        {/* 拖拽手柄 */}
+        <button
+          className="p-2 -ml-2 -mt-1 cursor-grab active:cursor-grabbing hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors touch-none"
+          {...attributes}
+          {...listeners}
+        >
+          <GripVertical className="w-5 h-5 text-gray-400" />
+        </button>
+
+        {/* 分类信息 */}
+        <div className="flex items-center gap-3 flex-1 min-w-0">
+          {category.icon && (
+            <span className="text-2xl flex-shrink-0">{category.icon}</span>
+          )}
+          <div className="flex-1 min-w-0">
+            <h3 className="font-semibold text-gray-900 dark:text-white truncate">
+              {category.name}
+            </h3>
+            <div className="flex items-center gap-2 mt-1">
+              <div className={cn(
+                "w-3 h-3 rounded-full flex-shrink-0",
+                COLORS.find(c => c.value === category.color)?.class || "bg-blue-500"
+              )} />
+              <span className="text-xs text-gray-500 dark:text-gray-400">
+                {COLORS.find(c => c.value === category.color)?.label || "蓝色"}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* 操作按钮 */}
+        <div className="flex items-center gap-1 flex-shrink-0">
+          <button
+            onClick={() => onEdit(category)}
+            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            title="编辑"
+          >
+            <Edit className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+          </button>
+          <button
+            onClick={() => onDelete(category.id)}
+            className="p-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
+            title="删除"
+          >
+            <Trash2 className="w-4 h-4 text-red-600 dark:text-red-400" />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function CategoryManager() {
-  const { categories, isLoading, createCategory, updateCategory, deleteCategory } = useCategories();
+  const { categories, isLoading, createCategory, updateCategory, deleteCategory, reorderCategories } = useCategories();
   const [showForm, setShowForm] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [formData, setFormData] = useState<CreateCategoryData>({
@@ -38,6 +139,18 @@ export function CategoryManager() {
     color: "blue",
   });
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+
+  // 配置拖拽传感器
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8, // 需要拖动 8px 才激活，避免与点击冲突
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   // 处理表单提交
   const handleSubmit = async (e: React.FormEvent) => {
@@ -78,6 +191,22 @@ export function CategoryManager() {
     setFormData({ name: "", icon: "", color: "blue" });
   };
 
+  // 处理拖拽结束
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      const oldIndex = categories.findIndex((c) => c.id === active.id);
+      const newIndex = categories.findIndex((c) => c.id === over.id);
+
+      if (oldIndex !== -1 && newIndex !== -1) {
+        const reorderedCategories = arrayMove(categories, oldIndex, newIndex);
+        const categoryIds = reorderedCategories.map((c) => c.id);
+        reorderCategories(categoryIds);
+      }
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -102,64 +231,34 @@ export function CategoryManager() {
       </div>
 
       {/* Category List */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <AnimatePresence>
-          {categories.map((category) => (
-            <motion.div
-              key={category.id}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              className="bg-white dark:bg-gray-800 rounded-lg border-2 border-gray-200 dark:border-gray-700 p-4 hover:shadow-lg transition-shadow"
-            >
-              <div className="flex items-start justify-between">
-                <div className="flex items-center gap-3 flex-1">
-                  {category.icon && (
-                    <span className="text-2xl">{category.icon}</span>
-                  )}
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-gray-900 dark:text-white">
-                      {category.name}
-                    </h3>
-                    <div className="flex items-center gap-2 mt-1">
-                      <div className={cn(
-                        "w-3 h-3 rounded-full",
-                        COLORS.find(c => c.value === category.color)?.class || "bg-blue-500"
-                      )} />
-                      <span className="text-xs text-gray-500 dark:text-gray-400">
-                        {COLORS.find(c => c.value === category.color)?.label || "蓝色"}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-1">
-                  <button
-                    onClick={() => handleEdit(category)}
-                    className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                    title="编辑"
-                  >
-                    <Edit className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                  </button>
-                  <button
-                    onClick={() => setDeleteConfirm(category.id)}
-                    className="p-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
-                    title="删除"
-                  >
-                    <Trash2 className="w-4 h-4 text-red-600 dark:text-red-400" />
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </AnimatePresence>
-
-        {categories.length === 0 && !isLoading && (
-          <div className="col-span-full text-center py-12 text-gray-500 dark:text-gray-400">
-            <Folder className="w-16 h-16 mx-auto mb-4 opacity-50" />
-            <p>还没有分类，点击&quot;新建分类&quot;开始添加</p>
-          </div>
-        )}
-      </div>
+      {categories.length === 0 && !isLoading ? (
+        <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+          <Folder className="w-16 h-16 mx-auto mb-4 opacity-50" />
+          <p>还没有分类，点击&quot;新建分类&quot;开始添加</p>
+        </div>
+      ) : (
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext
+            items={categories.map((c) => c.id)}
+            strategy={verticalListSortingStrategy}
+          >
+            <div className="max-w-4xl mx-auto space-y-3">
+              {categories.map((category) => (
+                <SortableCategoryCard
+                  key={category.id}
+                  category={category}
+                  onEdit={handleEdit}
+                  onDelete={setDeleteConfirm}
+                />
+              ))}
+            </div>
+          </SortableContext>
+        </DndContext>
+      )}
 
       {/* Category Form Modal */}
       <AnimatePresence>
