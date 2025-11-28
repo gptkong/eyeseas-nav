@@ -137,29 +137,22 @@ export function TagManager() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-            标签管理
-          </h2>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-            管理所有链接使用的标签，共 {tags.length} 个标签
-          </p>
-        </div>
+      {/* 统计和刷新 */}
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-gray-600 dark:text-gray-400">
+          共 <span className="font-semibold text-gray-900 dark:text-white">{tags.length}</span> 个标签
+        </p>
         
-        <div className="flex items-center gap-2">
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => fetchTags()}
-            disabled={isLoading}
-            className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-            title="刷新"
-          >
-            <RefreshCw className={cn("w-5 h-5 text-gray-600 dark:text-gray-400", isLoading && "animate-spin")} />
-          </motion.button>
-        </div>
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => fetchTags()}
+          disabled={isLoading}
+          className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+          title="刷新"
+        >
+          <RefreshCw className={cn("w-5 h-5 text-gray-600 dark:text-gray-400", isLoading && "animate-spin")} />
+        </motion.button>
       </div>
 
       {/* 搜索和批量操作 */}

@@ -230,21 +230,13 @@ export function CategoryManager() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-            分类管理
-          </h2>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-            管理书签分类，组织您的导航链接
-          </p>
-        </div>
+      {/* 操作栏 */}
+      <div className="flex items-center justify-end">
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => setShowForm(true)}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-teal-600 text-white font-medium shadow-lg hover:bg-teal-700 transition-all"
+          className="flex items-center gap-2 px-5 py-3 rounded-xl bg-teal-600 text-white font-medium shadow-lg hover:bg-teal-700 transition-all"
         >
           <Plus className="w-5 h-5" />
           新建分类
