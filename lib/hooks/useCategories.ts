@@ -128,6 +128,9 @@ export function useCategories() {
       setIsSubmitting(true);
       setError(null);
 
+      // 保存当前数据用于回滚
+      const previousCategories = categories;
+
       try {
         // 乐观更新
         const reorderedCategories = categoryIds.map((id, index) => {
@@ -137,13 +140,20 @@ export function useCategories() {
 
         await mutate({ success: true, data: reorderedCategories }, false);
 
-        // TODO: 实现后端排序 API
-        // await post("/api/categories/reorder", { categoryIds });
+        // 发送请求到后端保存排序
+        const result = await post<null, { categoryIds: string[] }>("/api/categories/reorder", { categoryIds });
+
+        if (!result.success) {
+          // 请求失败，回滚到之前的数据
+          await mutate({ success: true, data: previousCategories }, false);
+          setError(result.error || "重新排序失败");
+          return false;
+        }
 
         return true;
       } catch {
         setError("重新排序失败");
-        mutate(); // 恢复数据
+        await mutate({ success: true, data: previousCategories }, false); // 恢复数据
         return false;
       } finally {
         setIsSubmitting(false);
