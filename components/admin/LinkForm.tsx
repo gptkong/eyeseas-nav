@@ -306,44 +306,66 @@ export function LinkForm({
                 </div>
               </div>
 
-              {/* Category Selection */}
-              <div className="space-y-2">
-                <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
-                  <Folder className="w-4 h-4 text-orange-600 dark:text-orange-400" />
-                  分类 (可选)
-                </label>
-                <select
-                  className="w-full h-12 px-4 rounded-xl bg-gray-50 dark:bg-gray-900/50 border-2 border-gray-200 dark:border-gray-700 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 text-gray-900 dark:text-white focus:outline-none transition-all duration-200"
-                  {...register("categoryId")}
-                >
-                  <option value="">无分类</option>
-                  {categories.map((category) => (
-                    <option key={category.id} value={category.id}>
-                      {category.icon && `${category.icon} `}{category.name}
-                    </option>
-                  ))}
-                </select>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  选择一个分类来组织你的书签
-                </p>
-              </div>
+              {/* Category & Tags Selection - Combined Row */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                {/* Category Selection */}
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    <Folder className="w-4 h-4 text-orange-600 dark:text-orange-400" />
+                    分类
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {/* 无分类选项 */}
+                    <button
+                      type="button"
+                      onClick={() => setValue("categoryId", "")}
+                      className={cn(
+                        "px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200",
+                        "border-2",
+                        !watch("categoryId")
+                          ? "border-orange-500 bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400"
+                          : "border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-gray-300 dark:hover:border-gray-600"
+                      )}
+                    >
+                      无分类
+                    </button>
+                    {categories.map((category) => (
+                      <button
+                        key={category.id}
+                        type="button"
+                        onClick={() => setValue("categoryId", category.id)}
+                        className={cn(
+                          "px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200",
+                          "border-2 flex items-center gap-1.5",
+                          watch("categoryId") === category.id
+                            ? "border-orange-500 bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400"
+                            : "border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-gray-300 dark:hover:border-gray-600"
+                        )}
+                      >
+                        {category.icon && <span>{category.icon}</span>}
+                        <span>{category.name}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
 
-              {/* Tags Selection */}
-              <div className="space-y-2">
-                <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
-                  <Tag className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                  标签 (可选)
-                </label>
-                <TagSelector
-                  selectedTags={selectedTags}
-                  allTags={allTags}
-                  onChange={handleTagsChange}
-                  maxTags={10}
-                  placeholder="输入标签并按 Enter"
-                />
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  添加标签以便更好地筛选和组织书签
-                </p>
+                {/* Tags Selection */}
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    <Tag className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                    标签
+                    <span className="text-xs font-normal text-gray-400">
+                      ({selectedTags.length}/10)
+                    </span>
+                  </label>
+                  <TagSelector
+                    selectedTags={selectedTags}
+                    allTags={allTags}
+                    onChange={handleTagsChange}
+                    maxTags={10}
+                    placeholder="输入或选择标签"
+                  />
+                </div>
               </div>
 
               {/* Active Status */}
