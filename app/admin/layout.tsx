@@ -24,9 +24,9 @@ import { useTheme } from '@/lib/contexts/ThemeContext';
 
 // 导航项配置
 const navItems = [
-  { key: '/admin/links', label: '链接管理', icon: LayoutGrid, description: '添加、编辑、删除导航链接' },
-  { key: '/admin/categories', label: '分类管理', icon: Folder, description: '创建和管理链接分类，支持拖拽排序' },
-  { key: '/admin/tags', label: '标签管理', icon: Tag, description: '管理标签：重命名、删除、合并' },
+  { key: '/admin/links', label: '链接管理', icon: LayoutGrid },
+  { key: '/admin/categories', label: '分类管理', icon: Folder },
+  { key: '/admin/tags', label: '标签管理', icon: Tag },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -85,7 +85,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         {/* 左侧边栏 */}
         <motion.aside
           initial={false}
-          animate={{ width: sidebarCollapsed ? 80 : 280 }}
+          animate={{ width: sidebarCollapsed ? 64 : 180 }}
           transition={{ duration: 0.3, ease: 'easeInOut' }}
           className={cn(
             "h-full flex flex-col",
@@ -95,36 +95,32 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           )}
         >
           {/* Logo 区域 */}
-          <div className="p-4 border-b border-gray-200/50 dark:border-gray-700/50">
-            <Link href="/" className="flex items-center gap-3">
+          <div className="p-3 border-b border-gray-200/50 dark:border-gray-700/50">
+            <Link href="/" className="flex items-center gap-2">
               <motion.div
                 whileHover={{ scale: 1.05 }}
-                className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center shadow-lg flex-shrink-0"
+                className="w-8 h-8 rounded-lg bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center shadow-md flex-shrink-0"
               >
-                <span className="text-white font-bold text-lg">E</span>
+                <span className="text-white font-bold text-sm">E</span>
               </motion.div>
               <AnimatePresence>
                 {!sidebarCollapsed && (
-                  <motion.div
+                  <motion.span
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -10 }}
                     transition={{ duration: 0.2 }}
+                    className="font-semibold text-gray-900 dark:text-white text-sm"
                   >
-                    <h1 className="font-bold text-gray-900 dark:text-white text-lg">
-                      管理后台
-                    </h1>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      EyeSeas Navigation
-                    </p>
-                  </motion.div>
+                    管理后台
+                  </motion.span>
                 )}
               </AnimatePresence>
             </Link>
           </div>
 
           {/* 导航标签 */}
-          <div className="flex-1 overflow-y-auto py-4">
+          <div className="flex-1 overflow-y-auto py-2">
             <Tabs
               aria-label="管理导航"
               selectedKey={getSelectedKey()}
@@ -135,17 +131,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               classNames={{
                 base: "w-full",
                 tabList: cn(
-                  "gap-2 w-full px-3",
+                  "gap-1 w-full px-2",
                   "bg-transparent"
                 ),
                 tab: cn(
-                  "h-auto py-3 px-3",
+                  "h-auto py-2 px-2",
                   "justify-start",
                   "data-[selected=true]:bg-teal-500/10 dark:data-[selected=true]:bg-teal-500/20",
                   "data-[hover=true]:bg-gray-100 dark:data-[hover=true]:bg-gray-700/50",
-                  "rounded-xl transition-all duration-200"
+                  "rounded-lg transition-all duration-200"
                 ),
-                cursor: "bg-teal-500/10 dark:bg-teal-500/20 rounded-xl",
+                cursor: "bg-teal-500/10 dark:bg-teal-500/20 rounded-lg",
                 tabContent: "group-data-[selected=true]:text-teal-600 dark:group-data-[selected=true]:text-teal-400",
               }}
             >
@@ -154,36 +150,31 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   key={item.key}
                   title={
                     <div className={cn(
-                      "flex items-center gap-3 w-full",
+                      "flex items-center gap-2 w-full",
                       sidebarCollapsed && "justify-center"
                     )}>
                       <item.icon className={cn(
-                        "w-5 h-5 flex-shrink-0",
+                        "w-4 h-4 flex-shrink-0",
                         pathname.startsWith(item.key)
                           ? "text-teal-600 dark:text-teal-400"
                           : "text-gray-500 dark:text-gray-400"
                       )} />
                       <AnimatePresence>
                         {!sidebarCollapsed && (
-                          <motion.div
+                          <motion.span
                             initial={{ opacity: 0, width: 0 }}
                             animate={{ opacity: 1, width: 'auto' }}
                             exit={{ opacity: 0, width: 0 }}
                             transition={{ duration: 0.2 }}
-                            className="flex flex-col items-start overflow-hidden"
-                          >
-                            <span className={cn(
+                            className={cn(
                               "font-medium text-sm whitespace-nowrap",
                               pathname.startsWith(item.key)
                                 ? "text-teal-600 dark:text-teal-400"
                                 : "text-gray-700 dark:text-gray-300"
-                            )}>
-                              {item.label}
-                            </span>
-                            <span className="text-xs text-gray-400 dark:text-gray-500 whitespace-nowrap">
-                              {item.description}
-                            </span>
-                          </motion.div>
+                            )}
+                          >
+                            {item.label}
+                          </motion.span>
                         )}
                       </AnimatePresence>
                     </div>
@@ -194,109 +185,90 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </div>
 
           {/* 底部操作区 */}
-          <div className="p-4 border-t border-gray-200/50 dark:border-gray-700/50 space-y-2">
-            {/* 折叠按钮 */}
-            <button
-              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-              className={cn(
-                "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl",
-                "text-gray-600 dark:text-gray-400",
-                "hover:bg-gray-100 dark:hover:bg-gray-700/50",
-                "transition-colors duration-200",
-                sidebarCollapsed && "justify-center"
-              )}
-            >
-              {sidebarCollapsed ? (
-                <ChevronRight className="w-5 h-5" />
-              ) : (
-                <>
-                  <ChevronLeft className="w-5 h-5" />
-                  <span className="text-sm">收起侧边栏</span>
-                </>
-              )}
-            </button>
-
-            {/* 主题切换 */}
-            <button
-              onClick={toggleTheme}
-              className={cn(
-                "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl",
-                "text-gray-600 dark:text-gray-400",
-                "hover:bg-gray-100 dark:hover:bg-gray-700/50",
-                "transition-colors duration-200",
-                sidebarCollapsed && "justify-center"
-              )}
-            >
-              {theme === 'dark' ? (
-                <Sun className="w-5 h-5" />
-              ) : (
-                <Moon className="w-5 h-5" />
-              )}
-              <AnimatePresence>
-                {!sidebarCollapsed && (
-                  <motion.span
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="text-sm"
-                  >
-                    {theme === 'dark' ? '浅色模式' : '深色模式'}
-                  </motion.span>
+          <div className="p-2 border-t border-gray-200/50 dark:border-gray-700/50">
+            {/* 图标按钮组 */}
+            <div className={cn(
+              "flex items-center gap-1 p-1 rounded-lg",
+              "bg-gray-100/80 dark:bg-gray-700/50",
+              sidebarCollapsed ? "flex-col" : "justify-center"
+            )}>
+              {/* 折叠按钮 */}
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+                className={cn(
+                  "p-2 rounded-md",
+                  "text-gray-500 dark:text-gray-400",
+                  "hover:text-gray-700 dark:hover:text-gray-200",
+                  "hover:bg-white dark:hover:bg-gray-600",
+                  "transition-all duration-200"
                 )}
-              </AnimatePresence>
-            </button>
-
-            {/* 返回首页 */}
-            <Link
-              href="/"
-              className={cn(
-                "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl",
-                "text-gray-600 dark:text-gray-400",
-                "hover:bg-gray-100 dark:hover:bg-gray-700/50",
-                "transition-colors duration-200",
-                sidebarCollapsed && "justify-center"
-              )}
-            >
-              <Home className="w-5 h-5" />
-              <AnimatePresence>
-                {!sidebarCollapsed && (
-                  <motion.span
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="text-sm"
-                  >
-                    返回首页
-                  </motion.span>
+                title={sidebarCollapsed ? "展开" : "收起"}
+              >
+                {sidebarCollapsed ? (
+                  <ChevronRight className="w-4 h-4" />
+                ) : (
+                  <ChevronLeft className="w-4 h-4" />
                 )}
-              </AnimatePresence>
-            </Link>
+              </motion.button>
 
-            {/* 退出登录 */}
-            <button
-              onClick={() => setShowLogoutConfirm(true)}
-              className={cn(
-                "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl",
-                "text-red-600 dark:text-red-400",
-                "hover:bg-red-50 dark:hover:bg-red-900/20",
-                "transition-colors duration-200",
-                sidebarCollapsed && "justify-center"
-              )}
-            >
-              <LogOut className="w-5 h-5" />
-              <AnimatePresence>
-                {!sidebarCollapsed && (
-                  <motion.span
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="text-sm font-medium"
-                  >
-                    退出登录
-                  </motion.span>
+              {/* 主题切换 */}
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={toggleTheme}
+                className={cn(
+                  "p-2 rounded-md",
+                  "text-gray-500 dark:text-gray-400",
+                  "hover:text-amber-500 dark:hover:text-amber-400",
+                  "hover:bg-white dark:hover:bg-gray-600",
+                  "transition-all duration-200"
                 )}
-              </AnimatePresence>
-            </button>
+                title={theme === 'dark' ? "浅色模式" : "深色模式"}
+              >
+                {theme === 'dark' ? (
+                  <Sun className="w-4 h-4" />
+                ) : (
+                  <Moon className="w-4 h-4" />
+                )}
+              </motion.button>
+
+              {/* 返回首页 */}
+              <Link href="/">
+                <motion.div
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.95 }}
+                  className={cn(
+                    "p-2 rounded-md",
+                    "text-gray-500 dark:text-gray-400",
+                    "hover:text-teal-600 dark:hover:text-teal-400",
+                    "hover:bg-white dark:hover:bg-gray-600",
+                    "transition-all duration-200"
+                  )}
+                  title="返回首页"
+                >
+                  <Home className="w-4 h-4" />
+                </motion.div>
+              </Link>
+
+              {/* 退出登录 */}
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setShowLogoutConfirm(true)}
+                className={cn(
+                  "p-2 rounded-md",
+                  "text-gray-500 dark:text-gray-400",
+                  "hover:text-red-500 dark:hover:text-red-400",
+                  "hover:bg-white dark:hover:bg-gray-600",
+                  "transition-all duration-200"
+                )}
+                title="退出登录"
+              >
+                <LogOut className="w-4 h-4" />
+              </motion.button>
+            </div>
           </div>
         </motion.aside>
 
@@ -304,22 +276,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <main className="flex-1 overflow-y-auto">
           {/* 顶部标题栏 */}
           <header className="sticky top-0 z-10 bg-white/70 dark:bg-gray-800/70 backdrop-blur-xl border-b border-gray-200/50 dark:border-gray-700/50">
-            <div className="px-6 py-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-                    {navItems.find(item => pathname.startsWith(item.key))?.label || '管理后台'}
-                  </h2>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    {navItems.find(item => pathname.startsWith(item.key))?.description || '欢迎使用管理后台'}
-                  </p>
-                </div>
-                
-                {/* 移动端菜单按钮 - 可扩展 */}
-                <div className="flex items-center gap-2">
-                  {/* 可以添加更多操作按钮 */}
-                </div>
-              </div>
+            <div className="px-6 py-3">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                {navItems.find(item => pathname.startsWith(item.key))?.label || '管理后台'}
+              </h2>
             </div>
           </header>
 
