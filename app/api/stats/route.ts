@@ -1,30 +1,34 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { LinksRepository } from '@/lib/db';
-import { ApiResponse } from '@/lib/types';
+import { LinksRepository, CategoriesRepository } from "@/lib/db";
+import { 
+  cachedResponse, 
+  handleApiError 
+} from "@/lib/api-response";
 
-// GET - Fetch dashboard statistics (public)
-export async function GET(request: NextRequest) {
+/**
+ * GET - 获取仪表盘统计数据（公开）
+ */
+export async function GET() {
   try {
-    const links = await LinksRepository.findAll();
+    // 获取链接统计
+    const linkStats = await LinksRepository.getStats();
+    
+    // 获取分类数量
+    const categories = await CategoriesRepository.findAll();
+
     const stats = {
-      totalLinks: links.length,
-      internalLinks: links.length,
-      externalLinks: links.length,
-      activeLinks: links.filter(l => l.isActive).length,
-      inactiveLinks: links.filter(l => !l.isActive).length,
+      totalLinks: linkStats.totalLinks,
+      activeLinks: linkStats.activeLinks,
+      inactiveLinks: linkStats.inactiveLinks,
+      internalLinks: linkStats.totalLinks, // 所有链接都有内网地址
+      externalLinks: linkStats.totalLinks, // 所有链接都有外网地址
+      totalCategories: categories.length,
     };
 
-    return NextResponse.json({
-      success: true,
-      data: stats,
+    return cachedResponse(stats, {
+      maxAge: 30,
+      staleWhileRevalidate: 60,
     });
-
   } catch (error) {
-    console.error('Error fetching stats:', error);
-    return NextResponse.json({
-      success: false,
-      error: 'Internal server error',
-      message: 'Failed to fetch dashboard statistics',
-    }, { status: 500 });
+    return handleApiError(error);
   }
 }

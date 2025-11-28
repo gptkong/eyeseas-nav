@@ -1,60 +1,41 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { AuthService } from "@/lib/auth";
 import { adminLoginSchema } from "@/lib/validations";
-import { ApiResponse } from "@/lib/types";
+import { 
+  successResponse, 
+  handleApiError, 
+  ApiError 
+} from "@/lib/api-response";
 
+/**
+ * POST - 管理员登录
+ */
 export async function POST(request: NextRequest) {
   try {
+    // 解析并验证请求体
     const body = await request.json();
-
-    // Validate request body
     const validation = adminLoginSchema.safeParse(body);
+    
     if (!validation.success) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Invalid request data",
-          message: "Validation failed",
-        },
-        { status: 400 }
-      );
+      throw ApiError.badRequest("请输入密码");
     }
 
     const { password } = validation.data;
 
-    // Verify password
+    // 验证密码
     const isValid = await AuthService.verifyPassword(password);
     if (!isValid) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Invalid credentials",
-          message: "Incorrect password",
-        },
-        { status: 401 }
-      );
+      throw ApiError.unauthorized("密码错误");
     }
 
-    // Create session
-    const session = AuthService.createSession();
-    const sessionString = Buffer.from(JSON.stringify(session)).toString(
-      "base64"
-    );
+    // 创建 JWT session
+    const token = await AuthService.createSession();
 
-    return NextResponse.json({
-      success: true,
-      data: { session: sessionString },
-      message: "Login successful",
-    });
-  } catch (error) {
-    console.error("Login error:", error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: "Internal server error",
-        message: "An unexpected error occurred",
-      },
-      { status: 500 }
+    return successResponse(
+      { session: token },
+      { message: "登录成功" }
     );
+  } catch (error) {
+    return handleApiError(error);
   }
 }

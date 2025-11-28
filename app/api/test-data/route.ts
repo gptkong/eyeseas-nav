@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import { LinksRepository } from '@/lib/db';
-import { ApiResponse } from '@/lib/types';
 
 // POST - Create test data (admin only)
 export async function POST() {

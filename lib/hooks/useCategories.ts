@@ -8,73 +8,55 @@
 import { useState, useCallback, useMemo } from "react";
 import useSWR from "swr";
 import { Category, CreateCategoryData, ApiResponse } from "@/lib/types";
-import { useAuth } from "./useAuth";
+import { post, put, del } from "@/lib/api-client";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export function useCategories() {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { getAuthHeaders } = useAuth();
 
   // 使用 SWR 获取分类列表
   const {
     data,
     error: swrError,
     mutate,
+    isLoading: swrLoading,
   } = useSWR<ApiResponse<Category[]>>("/api/categories", fetcher, {
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
+    keepPreviousData: true,
   });
 
   const categories = useMemo(() => data?.data || [], [data]);
+  const isLoading = swrLoading || !data;
 
   // 创建分类
   const createCategory = useCallback(
     async (categoryData: CreateCategoryData): Promise<ApiResponse<Category>> => {
-      setIsLoading(true);
+      setIsSubmitting(true);
       setError(null);
 
       try {
-        const authHeaders = getAuthHeaders();
-        const headers: Record<string, string> = {
-          "Content-Type": "application/json",
-        };
-        if (authHeaders.Authorization) {
-          headers.Authorization = authHeaders.Authorization;
+        const result = await post<Category, CreateCategoryData>("/api/categories", categoryData);
+
+        if (result.success && result.data) {
+          // 乐观更新
+          await mutate({ success: true, data: [...categories, result.data] }, false);
+          return result;
         }
 
-        const response = await fetch("/api/categories", {
-          method: "POST",
-          headers,
-          body: JSON.stringify(categoryData),
-        });
-
-        const result = await response.json();
-
-        if (result.success) {
-          // 乐观更新：立即添加新分类到本地缓存
-          const newCategory = result.data;
-          if (newCategory) {
-            await mutate({ success: true, data: [...categories, newCategory] }, false);
-          }
-        } else {
-          setError(result.error || "创建分类失败");
-        }
-
+        setError(result.error || "创建分类失败");
         return result;
       } catch {
         const errorMessage = "网络错误";
         setError(errorMessage);
-        return {
-          success: false,
-          error: errorMessage,
-        };
+        return { success: false, error: errorMessage };
       } finally {
-        setIsLoading(false);
+        setIsSubmitting(false);
       }
     },
-    [mutate, getAuthHeaders, categories]
+    [mutate, categories]
   );
 
   // 更新分类
@@ -83,101 +65,67 @@ export function useCategories() {
       id: string,
       categoryData: Partial<CreateCategoryData>
     ): Promise<ApiResponse<Category>> => {
-      setIsLoading(true);
+      setIsSubmitting(true);
       setError(null);
 
       try {
-        const authHeaders = getAuthHeaders();
-        const headers: Record<string, string> = {
-          "Content-Type": "application/json",
-        };
-        if (authHeaders.Authorization) {
-          headers.Authorization = authHeaders.Authorization;
+        const result = await put<Category, Partial<CreateCategoryData>>(`/api/categories/${id}`, categoryData);
+
+        if (result.success && result.data) {
+          // 乐观更新
+          const updatedCategories = categories.map(cat =>
+            cat.id === id ? result.data! : cat
+          );
+          await mutate({ success: true, data: updatedCategories }, false);
+          return result;
         }
 
-        const response = await fetch(`/api/categories/${id}`, {
-          method: "PUT",
-          headers,
-          body: JSON.stringify(categoryData),
-        });
-
-        const result = await response.json();
-
-        if (result.success) {
-          // 乐观更新：立即更新本地缓存中的分类
-          const updatedCategory = result.data;
-          if (updatedCategory) {
-            const updatedCategories = categories.map(cat =>
-              cat.id === id ? updatedCategory : cat
-            );
-            await mutate({ success: true, data: updatedCategories }, false);
-          }
-        } else {
-          setError(result.error || "更新分类失败");
-        }
-
+        setError(result.error || "更新分类失败");
         return result;
       } catch {
         const errorMessage = "网络错误";
         setError(errorMessage);
-        return {
-          success: false,
-          error: errorMessage,
-        };
+        return { success: false, error: errorMessage };
       } finally {
-        setIsLoading(false);
+        setIsSubmitting(false);
       }
     },
-    [mutate, getAuthHeaders, categories]
+    [mutate, categories]
   );
 
   // 删除分类
   const deleteCategory = useCallback(
     async (id: string): Promise<ApiResponse<void>> => {
-      setIsLoading(true);
+      setIsSubmitting(true);
       setError(null);
 
       try {
-        const authHeaders = getAuthHeaders();
-        const headers: Record<string, string> = {};
-        if (authHeaders.Authorization) {
-          headers.Authorization = authHeaders.Authorization;
-        }
-
-        const response = await fetch(`/api/categories/${id}`, {
-          method: "DELETE",
-          headers,
-        });
-
-        const result = await response.json();
+        const result = await del<void>(`/api/categories/${id}`);
 
         if (result.success) {
-          // 乐观更新：立即从本地缓存中移除删除的分类
+          // 乐观更新
           const updatedCategories = categories.filter(cat => cat.id !== id);
           await mutate({ success: true, data: updatedCategories }, false);
-        } else {
-          setError(result.error || "删除分类失败");
+          return result;
         }
 
+        setError(result.error || "删除分类失败");
         return result;
       } catch {
         const errorMessage = "网络错误";
         setError(errorMessage);
-        return {
-          success: false,
-          error: errorMessage,
-        };
+        return { success: false, error: errorMessage };
       } finally {
-        setIsLoading(false);
+        setIsSubmitting(false);
       }
     },
-    [mutate, getAuthHeaders, categories]
+    [mutate, categories]
   );
 
   // 重新排序分类
   const reorderCategories = useCallback(
     async (categoryIds: string[]): Promise<boolean> => {
-      setIsLoading(true);
+      setIsSubmitting(true);
       setError(null);
 
       try {
@@ -185,16 +133,12 @@ export function useCategories() {
         const reorderedCategories = categoryIds.map((id, index) => {
           const category = categories.find((c) => c.id === id);
           return category ? { ...category, order: index } : null;
-        }).filter(Boolean) as Category[];
+        }).filter((c): c is Category => c !== null);
 
-        mutate({ success: true, data: reorderedCategories }, false);
+        await mutate({ success: true, data: reorderedCategories }, false);
 
         // TODO: 实现后端排序 API
-        // const response = await fetch("/api/categories/reorder", {
-        //   method: "POST",
-        //   headers: { "Content-Type": "application/json" },
-        //   body: JSON.stringify({ categoryIds }),
-        // });
+        // await post("/api/categories/reorder", { categoryIds });
 
         return true;
       } catch {
@@ -202,7 +146,7 @@ export function useCategories() {
         mutate(); // 恢复数据
         return false;
       } finally {
-        setIsLoading(false);
+        setIsSubmitting(false);
       }
     },
     [categories, mutate]
@@ -215,7 +159,8 @@ export function useCategories() {
 
   return {
     categories,
-    isLoading: isLoading || !data,
+    isLoading,
+    isSubmitting,
     error: error || (swrError ? "加载分类失败" : null),
     createCategory,
     updateCategory,

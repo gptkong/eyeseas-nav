@@ -10,10 +10,11 @@
 
 "use client";
 
-import { useState, KeyboardEvent } from "react";
+import { useState, KeyboardEvent, useCallback } from "react";
 import { X, Tag as TagIcon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/components/ui/toast";
 
 interface TagSelectorProps {
   selectedTags: string[];
@@ -34,6 +35,7 @@ export function TagSelector({
 }: TagSelectorProps) {
   const [inputValue, setInputValue] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const { warning } = useToast();
 
   // 过滤建议标签（排除已选中的）
   const suggestions = allTags.filter(
@@ -42,40 +44,40 @@ export function TagSelector({
       tag.toLowerCase().includes(inputValue.toLowerCase())
   );
 
+  // 添加标签
+  const addTag = useCallback((tag: string) => {
+    if (!tag.trim()) return;
+
+    if (selectedTags.length >= maxTags) {
+      warning(`最多只能添加 ${maxTags} 个标签`);
+      return;
+    }
+
+    if (selectedTags.includes(tag.trim())) {
+      warning("标签已存在");
+      return;
+    }
+
+    onChange([...selectedTags, tag.trim()]);
+    setInputValue("");
+    setShowSuggestions(false);
+  }, [selectedTags, maxTags, onChange, warning]);
+
   // 处理键盘事件
-  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = useCallback((e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       e.preventDefault();
-      addTag(inputValue.trim());
+      addTag(inputValue);
     } else if (e.key === "Backspace" && !inputValue && selectedTags.length > 0) {
       // 按退格键删除最后一个标签
       onChange(selectedTags.slice(0, -1));
     }
-  };
-
-  // 添加标签
-  const addTag = (tag: string) => {
-    if (!tag) return;
-
-    if (selectedTags.length >= maxTags) {
-      alert(`最多只能添加 ${maxTags} 个标签`);
-      return;
-    }
-
-    if (selectedTags.includes(tag)) {
-      alert("标签已存在");
-      return;
-    }
-
-    onChange([...selectedTags, tag]);
-    setInputValue("");
-    setShowSuggestions(false);
-  };
+  }, [inputValue, selectedTags, addTag, onChange]);
 
   // 删除标签
-  const removeTag = (tag: string) => {
+  const removeTag = useCallback((tag: string) => {
     onChange(selectedTags.filter((t) => t !== tag));
-  };
+  }, [selectedTags, onChange]);
 
   return (
     <div className={cn("relative", className)}>
@@ -99,6 +101,7 @@ export function TagSelector({
                   type="button"
                   onClick={() => removeTag(tag)}
                   className="ml-1 hover:bg-teal-200 dark:hover:bg-teal-800 rounded-full p-0.5 transition-colors"
+                  aria-label={`删除标签 ${tag}`}
                 >
                   <X className="w-3 h-3" />
                 </button>
@@ -117,9 +120,7 @@ export function TagSelector({
             onKeyDown={handleKeyDown}
             onFocus={() => setShowSuggestions(true)}
             onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-            placeholder={
-              selectedTags.length === 0 ? placeholder : ""
-            }
+            placeholder={selectedTags.length === 0 ? placeholder : ""}
             className="flex-1 min-w-[120px] outline-none bg-transparent text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
             disabled={selectedTags.length >= maxTags}
           />

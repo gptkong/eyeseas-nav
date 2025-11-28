@@ -1,70 +1,71 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback } from "react";
 import useSWR from "swr";
 import {
   NavigationLink,
   SearchFilters,
   DashboardStats,
+  CreateNavigationLinkData,
+  UpdateNavigationLinkData,
+  ApiResponse,
 } from "@/lib/types";
-import { useAuth } from "./useAuth";
+import { post, put, del } from "@/lib/api-client";
 
 // SWR fetcher 函数
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export function useNavigation(initialData?: NavigationLink[]) {
   const [stats, setStats] = useState<DashboardStats | null>(null);
-  const { getAuthHeaders } = useAuth();
 
   // 使用 SWR 获取链接数据
-  const { data, error, mutate, isLoading } = useSWR<{ success: boolean; data: NavigationLink[] }>(
+  const { data, error, mutate, isLoading } = useSWR<ApiResponse<NavigationLink[]>>(
     '/api/links',
     fetcher,
     {
       fallbackData: initialData ? { success: true, data: initialData } : undefined,
-      revalidateOnMount: !initialData, // 如果有初始数据则不重新请求
+      revalidateOnMount: !initialData,
+      keepPreviousData: true,
     }
   );
 
-  const links = data?.data || [];
+  // 使用 useMemo 缓存 links，避免引用变化
+  const links = useMemo(() => data?.data || [], [data]);
 
-  // 使用 useMemo 缓存错误消息
+  // 错误消息
   const errorMessage = useMemo(() => {
     if (error) return "加载数据失败";
+    if (data && !data.success) return data.error || "加载数据失败";
     return null;
-  }, [error]);
+  }, [error, data]);
 
   // 刷新链接数据
-  const fetchLinks = useCallback(async (filters?: SearchFilters) => {
-    // 使用 SWR 的 mutate 重新获取数据
+  const fetchLinks = useCallback(async () => {
     await mutate();
   }, [mutate]);
 
-  // 使用 useMemo 缓存筛选结果
+  // 过滤链接（客户端过滤，用于即时响应）
   const filterLinks = useCallback((filters: SearchFilters) => {
     let filtered = [...links];
 
-    // Filter by category
+    // 按分类过滤
     if (filters.categoryId !== undefined) {
       if (filters.categoryId === null || filters.categoryId === "") {
-        // 显示无分类的链接
         filtered = filtered.filter((link) => !link.categoryId);
       } else {
         filtered = filtered.filter((link) => link.categoryId === filters.categoryId);
       }
     }
 
-    // Filter by tags
+    // 按标签过滤
     if (filters.tags && filters.tags.length > 0) {
       filtered = filtered.filter((link) => {
         if (!link.tags || link.tags.length === 0) return false;
-        // 链接必须包含所有指定的标签
         return filters.tags!.every(tag => link.tags!.includes(tag));
       });
     }
 
-    // Filter by search query
+    // 按搜索关键词过滤
     if (filters.query && filters.query.trim()) {
       const searchTerm = filters.query.toLowerCase();
       filtered = filtered.filter(
@@ -76,7 +77,7 @@ export function useNavigation(initialData?: NavigationLink[]) {
       );
     }
 
-    // Filter by active status
+    // 按活跃状态过滤
     if (filters.isActive !== undefined) {
       filtered = filtered.filter((link) => link.isActive === filters.isActive);
     }
@@ -84,7 +85,7 @@ export function useNavigation(initialData?: NavigationLink[]) {
     return filtered;
   }, [links]);
 
-  // Fetch dashboard stats
+  // 获取统计数据
   const fetchStats = useCallback(async () => {
     try {
       const response = await fetch("/api/stats");
@@ -98,111 +99,51 @@ export function useNavigation(initialData?: NavigationLink[]) {
     }
   }, []);
 
-  // Create new link
-  const createLink = async (
-    linkData: any
+  // 创建链接
+  const createLink = useCallback(async (
+    linkData: CreateNavigationLinkData
   ): Promise<{ success: boolean; error?: string }> => {
-    try {
-      const authHeaders = getAuthHeaders();
-      const headers: Record<string, string> = {
-        "Content-Type": "application/json",
-      };
-      if (authHeaders.Authorization) {
-        headers.Authorization = authHeaders.Authorization;
-      }
-
-      const response = await fetch("/api/links", {
-        method: "POST",
-        headers,
-        body: JSON.stringify(linkData),
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        mutate({ success: true, data: [...links, data.data] }, false);
-        return { success: true };
-      } else {
-        return {
-          success: false,
-          error: data.message || "Failed to create link",
-        };
-      }
-    } catch (err) {
-      console.error("Error creating link:", err);
-      return { success: false, error: "An unexpected error occurred" };
+    const result = await post<NavigationLink, CreateNavigationLinkData>('/api/links', linkData);
+    
+    if (result.success && result.data) {
+      // 乐观更新
+      await mutate();
+      return { success: true };
     }
-  };
+    
+    return { success: false, error: result.error || "创建失败" };
+  }, [mutate]);
 
-  // Update existing link
-  const updateLink = async (
+  // 更新链接
+  const updateLink = useCallback(async (
     id: string,
-    linkData: any
+    linkData: Partial<UpdateNavigationLinkData>
   ): Promise<{ success: boolean; error?: string }> => {
-    try {
-      const authHeaders = getAuthHeaders();
-      const headers: Record<string, string> = {
-        "Content-Type": "application/json",
-      };
-      if (authHeaders.Authorization) {
-        headers.Authorization = authHeaders.Authorization;
-      }
-
-      const response = await fetch(`/api/links/${id}`, {
-        method: "PUT",
-        headers,
-        body: JSON.stringify(linkData),
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        mutate({ success: true, data: links.map(link => link.id === id ? data.data : link) }, false);
-        return { success: true };
-      } else {
-        return {
-          success: false,
-          error: data.message || "Failed to update link",
-        };
-      }
-    } catch (err) {
-      console.error("Error updating link:", err);
-      return { success: false, error: "An unexpected error occurred" };
+    const result = await put<NavigationLink, Partial<UpdateNavigationLinkData>>(`/api/links/${id}`, linkData);
+    
+    if (result.success && result.data) {
+      // 乐观更新
+      await mutate();
+      return { success: true };
     }
-  };
+    
+    return { success: false, error: result.error || "更新失败" };
+  }, [mutate]);
 
-  // Delete link
-  const deleteLink = async (
+  // 删除链接
+  const deleteLink = useCallback(async (
     id: string
   ): Promise<{ success: boolean; error?: string }> => {
-    try {
-      const authHeaders = getAuthHeaders();
-      const headers: Record<string, string> = {};
-      if (authHeaders.Authorization) {
-        headers.Authorization = authHeaders.Authorization;
-      }
-
-      const response = await fetch(`/api/links/${id}`, {
-        method: "DELETE",
-        headers,
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        mutate({ success: true, data: links.filter(link => link.id !== id) }, false);
-        return { success: true };
-      } else {
-        return {
-          success: false,
-          error: data.message || "Failed to delete link",
-        };
-      }
-    } catch (err) {
-      console.error("Error deleting link:", err);
-      return { success: false, error: "An unexpected error occurred" };
+    const result = await del<null>(`/api/links/${id}`);
+    
+    if (result.success) {
+      // 乐观更新
+      await mutate();
+      return { success: true };
     }
-  };
+    
+    return { success: false, error: result.error || "删除失败" };
+  }, [mutate]);
 
   // 获取所有唯一标签
   const getAllTags = useCallback((): string[] => {
@@ -236,7 +177,6 @@ export function useNavigation(initialData?: NavigationLink[]) {
 
   return {
     links,
-    filteredLinks: links,
     stats,
     isLoading,
     error: errorMessage,

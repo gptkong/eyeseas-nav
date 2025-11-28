@@ -20,7 +20,7 @@ interface NavigationDashboardProps {
 }
 
 export function NavigationDashboard({ initialLinks }: NavigationDashboardProps) {
-  const { links, isLoading, error, fetchLinks, filterLinks, getAllTags, getTagsByCategory } =
+  const { isLoading, error, fetchLinks, filterLinks, getAllTags } =
     useNavigation(initialLinks);
   const { categories, isLoading: categoriesLoading } = useCategories();
 

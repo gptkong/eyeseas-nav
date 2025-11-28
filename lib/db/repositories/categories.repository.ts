@@ -38,7 +38,8 @@ export class CategoriesRepository {
 
   static async update(id: string, data: UpdateCategoryData): Promise<Category | null> {
     const numericId = toNumericId(id);
-    const { id: _, ...updateData } = data;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { id: _id, ...updateData } = data;
     const [result] = await db.update(categories)
       .set({ ...updateData, updatedAt: new Date() })
       .where(eq(categories.id, numericId))

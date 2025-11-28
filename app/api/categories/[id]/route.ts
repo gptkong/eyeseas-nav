@@ -1,158 +1,102 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { CategoriesRepository } from "@/lib/db";
 import { AuthService } from "@/lib/auth";
 import { updateCategorySchema } from "@/lib/validations";
+import { 
+  successResponse, 
+  handleApiError, 
+  ApiError 
+} from "@/lib/api-response";
 
-// GET - Fetch single category (public)
+type RouteParams = { params: Promise<{ id: string }> };
+
+/**
+ * GET - 获取单个分类（公开）
+ */
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: RouteParams
 ) {
   try {
     const { id } = await params;
     const category = await CategoriesRepository.findById(id);
 
     if (!category) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Not found",
-          message: "Category not found",
-        },
-        { status: 404 }
-      );
+      throw ApiError.notFound("分类不存在");
     }
 
-    return NextResponse.json({
-      success: true,
-      data: category,
-    });
+    return successResponse(category);
   } catch (error) {
-    console.error("Error fetching category:", error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: "Internal server error",
-        message: "Failed to fetch category",
-      },
-      { status: 500 }
-    );
+    return handleApiError(error);
   }
 }
 
-// PUT - Update category (admin only)
+/**
+ * PUT - 更新分类（需要认证）
+ */
 export async function PUT(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: RouteParams
 ) {
   try {
-    // Check authentication
-    const session = AuthService.getSessionFromHeaders(request.headers);
+    // 验证认证
+    const session = await AuthService.getSessionFromHeaders(request.headers);
     if (!session || !AuthService.isSessionValid(session)) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Unauthorized",
-          message: "Authentication required",
-        },
-        { status: 401 }
-      );
+      throw ApiError.unauthorized();
     }
 
     const { id } = await params;
     const body = await request.json();
-    const dataWithId = { ...body, id };
+    const updateData = { ...body, id };
 
-    // Validate request body
-    const validation = updateCategorySchema.safeParse(dataWithId);
+    // 验证请求体
+    const validation = updateCategorySchema.safeParse(updateData);
     if (!validation.success) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Invalid request data",
-          message: validation.error.issues.map(e => e.message).join(", "),
-        },
-        { status: 400 }
+      throw ApiError.badRequest(
+        validation.error.issues.map(e => e.message).join(", ")
       );
     }
 
+    // 更新分类
     const updatedCategory = await CategoriesRepository.update(id, validation.data);
 
     if (!updatedCategory) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Not found",
-          message: "Category not found",
-        },
-        { status: 404 }
-      );
+      throw ApiError.notFound("分类不存在");
     }
 
-    return NextResponse.json({
-      success: true,
-      data: updatedCategory,
-      message: "Category updated successfully",
+    return successResponse(updatedCategory, {
+      message: "分类更新成功",
     });
   } catch (error) {
-    console.error("Error updating category:", error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: "Internal server error",
-        message: "Failed to update category",
-      },
-      { status: 500 }
-    );
+    return handleApiError(error);
   }
 }
 
-// DELETE - Delete category (admin only)
+/**
+ * DELETE - 删除分类（需要认证）
+ */
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: RouteParams
 ) {
   try {
-    // Check authentication
-    const session = AuthService.getSessionFromHeaders(request.headers);
+    // 验证认证
+    const session = await AuthService.getSessionFromHeaders(request.headers);
     if (!session || !AuthService.isSessionValid(session)) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Unauthorized",
-          message: "Authentication required",
-        },
-        { status: 401 }
-      );
+      throw ApiError.unauthorized();
     }
 
     const { id } = await params;
-    const success = await CategoriesRepository.delete(id);
+    const deleted = await CategoriesRepository.delete(id);
 
-    if (!success) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Not found",
-          message: "Category not found",
-        },
-        { status: 404 }
-      );
+    if (!deleted) {
+      throw ApiError.notFound("分类不存在");
     }
 
-    return NextResponse.json({
-      success: true,
-      message: "Category deleted successfully",
+    return successResponse(null, {
+      message: "分类删除成功",
     });
   } catch (error) {
-    console.error("Error deleting category:", error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: "Internal server error",
-        message: "Failed to delete category",
-      },
-      { status: 500 }
-    );
+    return handleApiError(error);
   }
 }

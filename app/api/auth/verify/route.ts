@@ -1,34 +1,26 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { AuthService } from '@/lib/auth';
-import { ApiResponse } from '@/lib/types';
+import { NextRequest } from "next/server";
+import { AuthService } from "@/lib/auth";
+import { 
+  successResponse, 
+  handleApiError, 
+  ApiError 
+} from "@/lib/api-response";
 
+/**
+ * GET - 验证 Session 有效性
+ */
 export async function GET(request: NextRequest) {
   try {
-    const session = AuthService.getSessionFromHeaders(request.headers);
-
+    const session = await AuthService.getSessionFromHeaders(request.headers);
+    
     if (!session || !AuthService.isSessionValid(session)) {
-      return NextResponse.json({
-        success: false,
-        error: 'Unauthorized',
-        message: 'Invalid or expired session',
-      }, { status: 401 });
+      throw ApiError.unauthorized("Session 无效或已过期");
     }
 
-    return NextResponse.json({
-      success: true,
-      data: {
-        isAuthenticated: true,
-        expiresAt: session.expiresAt
-      },
-      message: 'Session is valid',
+    return successResponse(session, {
+      message: "Session 有效",
     });
-
   } catch (error) {
-    console.error('Session verification error:', error);
-    return NextResponse.json({
-      success: false,
-      error: 'Internal server error',
-      message: 'An unexpected error occurred',
-    }, { status: 500 });
+    return handleApiError(error);
   }
 }

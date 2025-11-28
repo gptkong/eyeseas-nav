@@ -1,44 +1,57 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { CategoriesRepository } from "@/lib/db";
 import { AuthService } from "@/lib/auth";
 import { categorySchema } from "@/lib/validations";
-import { handleApiError, ApiError } from "@/lib/api-error";
+import { 
+  successResponse, 
+  cachedResponse, 
+  handleApiError, 
+  ApiError 
+} from "@/lib/api-response";
 
-// GET - Fetch all categories (public)
+/**
+ * GET - 获取所有分类（公开）
+ */
 export async function GET() {
   try {
     const categories = await CategoriesRepository.findAll();
-    return NextResponse.json({
-      success: true,
-      data: categories
-    }, {
-      headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300' },
+    
+    return cachedResponse(categories, {
+      maxAge: 60,
+      staleWhileRevalidate: 300,
     });
   } catch (error) {
     return handleApiError(error);
   }
 }
 
-// POST - Create new category (admin only)
+/**
+ * POST - 创建新分类（需要认证）
+ */
 export async function POST(request: NextRequest) {
   try {
-    const session = AuthService.getSessionFromHeaders(request.headers);
+    // 验证认证
+    const session = await AuthService.getSessionFromHeaders(request.headers);
     if (!session || !AuthService.isSessionValid(session)) {
       throw ApiError.unauthorized();
     }
 
+    // 解析并验证请求体
     const body = await request.json();
     const validation = categorySchema.safeParse(body);
     if (!validation.success) {
-      throw ApiError.badRequest(validation.error.issues.map(e => e.message).join(", "));
+      throw ApiError.badRequest(
+        validation.error.issues.map(e => e.message).join(", ")
+      );
     }
 
+    // 创建分类
     const newCategory = await CategoriesRepository.create(validation.data);
-    return NextResponse.json({
-      success: true,
-      data: newCategory,
-      message: "Category created successfully"
-    }, { status: 201 });
+    
+    return successResponse(newCategory, {
+      status: 201,
+      message: "分类创建成功",
+    });
   } catch (error) {
     return handleApiError(error);
   }

@@ -9,12 +9,13 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useCategories } from "@/lib/hooks/useCategories";
 import { Category, CreateCategoryData } from "@/lib/types";
 import { Plus, Edit, Trash2, Folder, GripVertical } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/components/ui/toast";
 import {
   DndContext,
   closestCenter,
@@ -131,6 +132,8 @@ function SortableCategoryCard({ category, onEdit, onDelete }: SortableCategoryCa
 
 export function CategoryManager() {
   const { categories, isLoading, createCategory, updateCategory, deleteCategory, reorderCategories } = useCategories();
+  const { success, error: showError } = useToast();
+  
   const [showForm, setShowForm] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [formData, setFormData] = useState<CreateCategoryData>({
@@ -144,7 +147,7 @@ export function CategoryManager() {
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 8, // 需要拖动 8px 才激活，避免与点击冲突
+        distance: 8,
       },
     }),
     useSensor(KeyboardSensor, {
@@ -153,22 +156,34 @@ export function CategoryManager() {
   );
 
   // 处理表单提交
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (editingCategory) {
-      await updateCategory(editingCategory.id, formData);
+      const result = await updateCategory(editingCategory.id, formData);
+      if (result.success) {
+        success('分类更新成功');
+      } else {
+        showError(result.error || '更新失败');
+        return;
+      }
     } else {
-      await createCategory(formData);
+      const result = await createCategory(formData);
+      if (result.success) {
+        success('分类创建成功');
+      } else {
+        showError(result.error || '创建失败');
+        return;
+      }
     }
 
     setShowForm(false);
     setEditingCategory(null);
     setFormData({ name: "", icon: "", color: "blue" });
-  };
+  }, [editingCategory, formData, createCategory, updateCategory, success, showError]);
 
   // 开始编辑
-  const handleEdit = (category: Category) => {
+  const handleEdit = useCallback((category: Category) => {
     setEditingCategory(category);
     setFormData({
       name: category.name,
@@ -176,27 +191,29 @@ export function CategoryManager() {
       color: category.color || "blue",
     });
     setShowForm(true);
-  };
+  }, []);
 
   // 删除分类
-  const handleDelete = async (id: string) => {
+  const handleDelete = useCallback(async (id: string) => {
     const result = await deleteCategory(id);
     setDeleteConfirm(null);
 
-    if (!result.success) {
-      alert(result.error || "删除分类失败");
+    if (result.success) {
+      success('分类删除成功');
+    } else {
+      showError(result.error || '删除失败');
     }
-  };
+  }, [deleteCategory, success, showError]);
 
   // 取消操作
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     setShowForm(false);
     setEditingCategory(null);
     setFormData({ name: "", icon: "", color: "blue" });
-  };
+  }, []);
 
   // 处理拖拽结束
-  const handleDragEnd = (event: DragEndEvent) => {
+  const handleDragEnd = useCallback((event: DragEndEvent) => {
     const { active, over } = event;
 
     if (over && active.id !== over.id) {
@@ -209,7 +226,7 @@ export function CategoryManager() {
         reorderCategories(categoryIds);
       }
     }
-  };
+  }, [categories, reorderCategories]);
 
   return (
     <div className="space-y-6">

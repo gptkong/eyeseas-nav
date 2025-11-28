@@ -40,7 +40,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
       } else {
         setError(result.error || "登录失败");
       }
-    } catch (err) {
+    } catch {
       setError("发生意外错误");
     } finally {
       setIsLoading(false);

@@ -1,159 +1,102 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { LinksRepository } from "@/lib/db";
 import { AuthService } from "@/lib/auth";
 import { updateNavigationLinkSchema } from "@/lib/validations";
+import { 
+  successResponse, 
+  handleApiError, 
+  ApiError 
+} from "@/lib/api-response";
 
-// GET - Fetch single navigation link (public)
+type RouteParams = { params: Promise<{ id: string }> };
+
+/**
+ * GET - 获取单个导航链接（公开）
+ */
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: RouteParams
 ) {
   try {
     const { id } = await params;
     const link = await LinksRepository.findById(id);
 
     if (!link) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Not found",
-          message: "Navigation link not found",
-        },
-        { status: 404 }
-      );
+      throw ApiError.notFound("导航链接不存在");
     }
 
-    return NextResponse.json({
-      success: true,
-      data: link,
-    });
+    return successResponse(link);
   } catch (error) {
-    console.error("Error fetching link:", error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: "Internal server error",
-        message: "Failed to fetch navigation link",
-      },
-      { status: 500 }
-    );
+    return handleApiError(error);
   }
 }
 
-// PUT - Update navigation link (admin only)
+/**
+ * PUT - 更新导航链接（需要认证）
+ */
 export async function PUT(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: RouteParams
 ) {
   try {
-    // Check authentication
-    const session = AuthService.getSessionFromHeaders(request.headers);
+    // 验证认证
+    const session = await AuthService.getSessionFromHeaders(request.headers);
     if (!session || !AuthService.isSessionValid(session)) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Unauthorized",
-          message: "Authentication required",
-        },
-        { status: 401 }
-      );
+      throw ApiError.unauthorized();
     }
 
     const { id } = await params;
     const body = await request.json();
     const updateData = { ...body, id };
 
-    // Validate request body
+    // 验证请求体
     const validation = updateNavigationLinkSchema.safeParse(updateData);
     if (!validation.success) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Invalid request data",
-          message: "Validation failed",
-        },
-        { status: 400 }
+      throw ApiError.badRequest(
+        validation.error.issues.map(e => e.message).join(", ")
       );
     }
 
+    // 更新链接
     const updatedLink = await LinksRepository.update(id, validation.data);
 
     if (!updatedLink) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Not found",
-          message: "Navigation link not found",
-        },
-        { status: 404 }
-      );
+      throw ApiError.notFound("导航链接不存在");
     }
 
-    return NextResponse.json({
-      success: true,
-      data: updatedLink,
-      message: "Navigation link updated successfully",
+    return successResponse(updatedLink, {
+      message: "导航链接更新成功",
     });
   } catch (error) {
-    console.error("Error updating link:", error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: "Internal server error",
-        message: "Failed to update navigation link",
-      },
-      { status: 500 }
-    );
+    return handleApiError(error);
   }
 }
 
-// DELETE - Delete navigation link (admin only)
+/**
+ * DELETE - 删除导航链接（需要认证）
+ */
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: RouteParams
 ) {
   try {
-    // Check authentication
-    const session = AuthService.getSessionFromHeaders(request.headers);
+    // 验证认证
+    const session = await AuthService.getSessionFromHeaders(request.headers);
     if (!session || !AuthService.isSessionValid(session)) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Unauthorized",
-          message: "Authentication required",
-        },
-        { status: 401 }
-      );
+      throw ApiError.unauthorized();
     }
 
     const { id } = await params;
-
     const deleted = await LinksRepository.delete(id);
 
     if (!deleted) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Not found",
-          message: "Navigation link not found",
-        },
-        { status: 404 }
-      );
+      throw ApiError.notFound("导航链接不存在");
     }
 
-    return NextResponse.json({
-      success: true,
-      message: "Navigation link deleted successfully",
+    return successResponse(null, {
+      message: "导航链接删除成功",
     });
   } catch (error) {
-    console.error("Error deleting link:", error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: "Internal server error",
-        message: "Failed to delete navigation link",
-      },
-      { status: 500 }
-    );
+    return handleApiError(error);
   }
 }

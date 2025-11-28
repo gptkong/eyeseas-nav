@@ -1,27 +1,40 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { Search, Command, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { useDebouncedCallback } from "@/lib/hooks/useDebounce";
 
 interface SearchAndFilterProps {
   onSearch: (query: string) => void;
+  debounceDelay?: number;
+  placeholder?: string;
 }
 
 const isMac = typeof window !== 'undefined' && navigator.platform.toUpperCase().indexOf('MAC') >= 0;
 
-export function SearchAndFilter({ onSearch }: SearchAndFilterProps) {
+export function SearchAndFilter({ 
+  onSearch, 
+  debounceDelay = 300,
+  placeholder = "搜索导航链接..."
+}: SearchAndFilterProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // 防抖搜索
+  const debouncedSearch = useDebouncedCallback(onSearch, debounceDelay);
+
+  // 键盘快捷键
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Cmd/Ctrl + K 聚焦搜索框
       if ((e.metaKey || e.ctrlKey) && e.key === "k") {
         e.preventDefault();
         inputRef.current?.focus();
       }
+      // ESC 失焦
       if (e.key === "Escape" && isFocused) {
         inputRef.current?.blur();
       }
@@ -31,16 +44,18 @@ export function SearchAndFilter({ onSearch }: SearchAndFilterProps) {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isFocused]);
 
-  const handleSearch = (value: string) => {
+  // 处理搜索输入
+  const handleSearch = useCallback((value: string) => {
     setSearchQuery(value);
-    onSearch(value);
-  };
+    debouncedSearch(value);
+  }, [debouncedSearch]);
 
-  const handleClear = () => {
+  // 清除搜索
+  const handleClear = useCallback(() => {
     setSearchQuery("");
-    onSearch("");
+    onSearch(""); // 立即清除，不需要防抖
     inputRef.current?.focus();
-  };
+  }, [onSearch]);
 
   return (
     <div className="relative flex-1 max-w-xl">
@@ -66,7 +81,7 @@ export function SearchAndFilter({ onSearch }: SearchAndFilterProps) {
         <input
           ref={inputRef}
           type="search"
-          placeholder="搜索导航链接..."
+          placeholder={placeholder}
           value={searchQuery}
           onChange={(e) => handleSearch(e.target.value)}
           onFocus={() => setIsFocused(true)}
@@ -84,6 +99,7 @@ export function SearchAndFilter({ onSearch }: SearchAndFilterProps) {
                 onClick={handleClear}
                 className="p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
                 type="button"
+                aria-label="清除搜索"
               >
                 <X className="w-3.5 h-3.5 text-gray-400" />
               </motion.button>

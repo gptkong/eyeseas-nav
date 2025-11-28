@@ -10,9 +10,11 @@ import { SearchBar } from '@/components/admin/SearchBar';
 import { ConfirmDialog } from '@/components/admin/ConfirmDialog';
 import { Plus } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useToast } from '@/components/ui/toast';
 
 export default function LinksPage() {
   const { links, isLoading, error, createLink, updateLink, deleteLink, fetchLinks } = useNavigation();
+  const { success, error: showError } = useToast();
 
   const [showForm, setShowForm] = useState(false);
   const [editingLink, setEditingLink] = useState<NavigationLink | null>(null);
@@ -26,13 +28,14 @@ export default function LinksPage() {
       const result = await createLink(data);
       if (result.success) {
         setShowForm(false);
+        success('链接创建成功');
       } else {
-        alert(result.error || '创建失败');
+        showError(result.error || '创建失败');
       }
     } finally {
       setIsSubmitting(false);
     }
-  }, [createLink]);
+  }, [createLink, success, showError]);
 
   const handleUpdateLink = useCallback(async (data: NavigationLinkFormData) => {
     if (!editingLink) return;
@@ -41,22 +44,24 @@ export default function LinksPage() {
       const result = await updateLink(editingLink.id, data);
       if (result.success) {
         setEditingLink(null);
+        success('链接更新成功');
       } else {
-        alert(result.error || '更新失败');
+        showError(result.error || '更新失败');
       }
     } finally {
       setIsSubmitting(false);
     }
-  }, [editingLink, updateLink]);
+  }, [editingLink, updateLink, success, showError]);
 
   const handleDeleteLink = useCallback(async (id: string) => {
     const result = await deleteLink(id);
     if (result.success) {
       setDeleteConfirm(null);
+      success('链接删除成功');
     } else {
-      alert(result.error || '删除失败');
+      showError(result.error || '删除失败');
     }
-  }, [deleteLink]);
+  }, [deleteLink, success, showError]);
 
   const filteredLinks = useMemo(
     () => links.filter((link) => link.title.toLowerCase().includes(searchQuery.toLowerCase())),
