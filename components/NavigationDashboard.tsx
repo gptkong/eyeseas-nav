@@ -29,7 +29,14 @@ export function NavigationDashboard({ initialLinks }: NavigationDashboardProps) 
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
 
-  // 检查当前选中的分类是否仍然存在，如果不存在则重置为"全部"
+  // 当分类数据加载完成后，默认选择第一个分类
+  useEffect(() => {
+    if (!categoriesLoading && categories.length > 0 && activeCategory === null) {
+      setActiveCategory(categories[0].id);
+    }
+  }, [categories, categoriesLoading, activeCategory]);
+
+  // 检查当前选中的分类是否仍然存在
   const prevCategoriesRef = useRef<string[] | null>(null);
   useEffect(() => {
     const currentCategoryIds = categories.map(cat => cat.id);
@@ -43,12 +50,11 @@ export function NavigationDashboard({ initialLinks }: NavigationDashboardProps) 
 
     // 检测分类数量是否减少（表示有分类被删除）
     if (prevCategoryIds && prevCategoryIds.length > currentCategoryIds.length) {
-      console.log("检测到分类删除，刷新数据...");
       // 强制刷新链接数据
       fetchLinks();
-      // 检查当前分类是否被删除
+      // 检查当前分类是否被删除，重置为第一个分类
       if (activeCategory && !currentCategoryIds.includes(activeCategory)) {
-        setActiveCategory(null);
+        setActiveCategory(currentCategoryIds.length > 0 ? currentCategoryIds[0] : null);
         setSelectedTags([]);
       }
     }
@@ -61,8 +67,11 @@ export function NavigationDashboard({ initialLinks }: NavigationDashboardProps) 
 
   // 使用 useMemo 计算过滤后的链接
   const filteredLinks = useMemo(() => {
+    // 必须有选中的分类才过滤
+    if (!activeCategory) return [];
+    
     return filterLinks({
-      categoryId: activeCategory || undefined,
+      categoryId: activeCategory,
       tags: selectedTags.length > 0 ? selectedTags : undefined,
       query: searchQuery,
     });

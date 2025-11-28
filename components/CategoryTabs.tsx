@@ -54,9 +54,6 @@ export function CategoryTabs({
             cursor: "bg-primary shadow-sm"
           }}
         >
-          {/* "全部" Tab */}
-          <Tab key="all" title="全部" />
-
           {/* 分类 Tabs */}
           {categories.map((category) => (
             <Tab
