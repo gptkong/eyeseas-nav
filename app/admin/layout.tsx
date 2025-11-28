@@ -5,7 +5,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { AdminHeader } from '@/components/admin/AdminHeader';
 import { ConfirmDialog } from '@/components/admin/ConfirmDialog';
-import { LayoutGrid, Folder } from 'lucide-react';
+import { LayoutGrid, Folder, Tag } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState, useCallback } from 'react';
 import Link from 'next/link';
@@ -38,6 +38,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const tabs = [
     { href: '/admin/links', label: '链接管理', icon: LayoutGrid },
     { href: '/admin/categories', label: '分类管理', icon: Folder },
+    { href: '/admin/tags', label: '标签管理', icon: Tag },
   ];
 
   return (
