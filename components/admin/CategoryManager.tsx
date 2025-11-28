@@ -73,7 +73,7 @@ function SortableCategoryCard({ category, onEdit, onDelete }: SortableCategoryCa
       style={style}
       className={cn(
         "bg-white dark:bg-gray-800 rounded-lg border-2 border-gray-200 dark:border-gray-700 p-4 hover:shadow-lg transition-shadow",
-        isDragging && "opacity-50 shadow-xl ring-2 ring-indigo-500"
+        isDragging && "opacity-50 shadow-xl ring-2 ring-teal-500"
       )}
     >
       <div className="flex items-start justify-between gap-3">
@@ -227,7 +227,7 @@ export function CategoryManager() {
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => setShowForm(true)}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-medium shadow-lg hover:from-indigo-600 hover:to-purple-600 transition-all"
+          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-teal-600 text-white font-medium shadow-lg hover:bg-teal-700 transition-all"
         >
           <Plus className="w-5 h-5" />
           新建分类
@@ -293,7 +293,7 @@ export function CategoryManager() {
                     type="text"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full px-4 py-2 rounded-lg border-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none"
+                    className="w-full px-4 py-2 rounded-lg border-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none"
                     placeholder="例如：工作、学习、娱乐"
                     required
                   />
@@ -306,7 +306,7 @@ export function CategoryManager() {
                     type="text"
                     value={formData.icon}
                     onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
-                    className="w-full px-4 py-2 rounded-lg border-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none"
+                    className="w-full px-4 py-2 rounded-lg border-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none"
                     placeholder="🏢"
                   />
                 </div>
@@ -345,7 +345,7 @@ export function CategoryManager() {
                   </button>
                   <button
                     type="submit"
-                    className="flex-1 px-4 py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-medium hover:from-indigo-600 hover:to-purple-600 transition-all"
+                    className="flex-1 px-4 py-2 rounded-lg bg-teal-600 text-white font-medium hover:bg-teal-700 transition-all"
                   >
                     {editingCategory ? "更新" : "创建"}
                   </button>

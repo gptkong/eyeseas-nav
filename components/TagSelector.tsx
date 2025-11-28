@@ -80,7 +80,7 @@ export function TagSelector({
   return (
     <div className={cn("relative", className)}>
       {/* 标签输入区域 */}
-      <div className="min-h-[42px] p-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500">
+      <div className="min-h-[42px] p-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 focus-within:ring-2 focus-within:ring-teal-500/20 focus-within:border-teal-500">
         <div className="flex flex-wrap gap-2 items-center">
           {/* 已选标签 */}
           <AnimatePresence>
@@ -91,14 +91,14 @@ export function TagSelector({
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0, opacity: 0 }}
                 transition={{ duration: 0.15 }}
-                className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 text-sm font-medium"
+                className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 text-sm font-medium"
               >
                 <TagIcon className="w-3 h-3" />
                 <span>{tag}</span>
                 <button
                   type="button"
                   onClick={() => removeTag(tag)}
-                  className="ml-1 hover:bg-indigo-200 dark:hover:bg-indigo-800 rounded-full p-0.5 transition-colors"
+                  className="ml-1 hover:bg-teal-200 dark:hover:bg-teal-800 rounded-full p-0.5 transition-colors"
                 >
                   <X className="w-3 h-3" />
                 </button>

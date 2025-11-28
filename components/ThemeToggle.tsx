@@ -57,7 +57,7 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
             exit={{ y: 20, opacity: 0, rotate: 90 }}
             transition={{ duration: 0.2 }}
           >
-            <Moon className="w-5 h-5 text-indigo-400" />
+            <Moon className="w-5 h-5 text-cyan-400" />
           </motion.div>
         ) : (
           <motion.div
@@ -76,7 +76,7 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
       <motion.div
         className={cn(
           "absolute inset-0 rounded-xl",
-          isDark ? "bg-indigo-500/10" : "bg-amber-500/10"
+          isDark ? "bg-cyan-500/10" : "bg-amber-500/10"
         )}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}

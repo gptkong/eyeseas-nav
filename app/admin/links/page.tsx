@@ -92,7 +92,7 @@ export default function LinksPage() {
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => setShowForm(true)}
-          className="w-full sm:w-auto px-5 py-3 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 hover:from-indigo-600 hover:via-purple-600 hover:to-pink-600 text-white font-medium shadow-lg transition-all duration-200 flex items-center justify-center gap-2"
+          className="w-full sm:w-auto px-5 py-3 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-medium shadow-lg transition-all duration-200 flex items-center justify-center gap-2"
         >
           <Plus className="w-5 h-5" />
           <span>添加链接</span>

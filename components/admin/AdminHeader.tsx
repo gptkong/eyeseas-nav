@@ -20,11 +20,11 @@ export function AdminHeader({ onLogout }: AdminHeaderProps) {
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           <motion.div whileHover={{ scale: 1.05 }} className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center shadow-lg">
+            <div className="w-10 h-10 rounded-xl bg-teal-600 flex items-center justify-center shadow-lg">
               <LayoutGrid className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 dark:from-indigo-400 dark:via-purple-400 dark:to-pink-400 bg-clip-text text-transparent">
+              <h1 className="text-xl font-bold text-gray-900 dark:text-white">
                 管理后台
               </h1>
               <p className="text-xs text-gray-500 dark:text-gray-400">导航链接管理系统</p>

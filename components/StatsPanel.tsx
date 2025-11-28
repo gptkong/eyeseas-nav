@@ -24,9 +24,9 @@ export function StatsPanel({ stats, isLoading }: StatsPanelProps) {
       label: "内网链接",
       value: stats?.internalLinks || 0,
       icon: Building,
-      color: "from-indigo-500 to-purple-500",
-      bgColor: "bg-indigo-50 dark:bg-indigo-950/30",
-      iconColor: "text-indigo-600 dark:text-indigo-400",
+      color: "from-teal-500 to-cyan-500",
+      bgColor: "bg-teal-50 dark:bg-teal-950/30",
+      iconColor: "text-teal-600 dark:text-teal-400",
     },
     {
       label: "外网链接",
@@ -40,9 +40,9 @@ export function StatsPanel({ stats, isLoading }: StatsPanelProps) {
       label: "激活状态",
       value: stats?.activeLinks || 0,
       icon: Activity,
-      color: "from-pink-500 to-rose-500",
-      bgColor: "bg-pink-50 dark:bg-pink-950/30",
-      iconColor: "text-pink-600 dark:text-pink-400",
+      color: "from-amber-500 to-orange-500",
+      bgColor: "bg-amber-50 dark:bg-amber-950/30",
+      iconColor: "text-amber-600 dark:text-amber-400",
     },
   ];
 

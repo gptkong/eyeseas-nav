@@ -68,7 +68,7 @@ export function QuickTagFilter({
                 className={cn(
                   "px-3 py-1 rounded-full text-xs font-medium transition-all duration-200 border",
                   isSelected
-                    ? "bg-indigo-500 text-white border-indigo-500 shadow-sm"
+                    ? "bg-teal-500 text-white border-teal-500 shadow-sm"
                     : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-700"
                 )}
               >

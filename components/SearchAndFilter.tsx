@@ -50,7 +50,7 @@ export function SearchAndFilter({ onSearch }: SearchAndFilterProps) {
           "bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm",
           "border",
           isFocused
-            ? "border-indigo-500 dark:border-indigo-400 shadow-lg shadow-indigo-500/10"
+            ? "border-teal-500 dark:border-teal-400 shadow-lg shadow-teal-500/10"
             : "border-gray-200/50 dark:border-gray-700/50"
         )}
       >
@@ -58,7 +58,7 @@ export function SearchAndFilter({ onSearch }: SearchAndFilterProps) {
           <Search
             className={cn(
               "w-4 h-4 transition-colors",
-              isFocused ? "text-indigo-500 dark:text-indigo-400" : "text-gray-400"
+              isFocused ? "text-teal-500 dark:text-teal-400" : "text-gray-400"
             )}
           />
         </div>

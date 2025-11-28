@@ -153,11 +153,11 @@ export function NavigationDashboard({ initialLinks }: NavigationDashboardProps) 
               transition={{ type: "spring", stiffness: 400 }}
               className="flex items-center gap-3 flex-shrink-0"
             >
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center shadow-lg">
+              <div className="w-10 h-10 rounded-xl bg-teal-600 flex items-center justify-center shadow-lg">
                 <span className="text-white font-bold text-lg">E</span>
               </div>
               <div className="hidden md:block">
-                <h1 className="text-xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 dark:from-indigo-400 dark:via-purple-400 dark:to-pink-400 bg-clip-text text-transparent">
+                <h1 className="text-xl font-bold text-gray-900 dark:text-white">
                   {process.env.NEXT_PUBLIC_APP_TITLE || "EyeSeas Navigation"}
                 </h1>
               </div>
@@ -194,7 +194,7 @@ export function NavigationDashboard({ initialLinks }: NavigationDashboardProps) 
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="p-2 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white shadow-lg"
+                  className="p-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white shadow-lg"
                   title="管理后台"
                 >
                   <Settings className="w-4 h-4" />
@@ -287,7 +287,7 @@ export function NavigationDashboard({ initialLinks }: NavigationDashboardProps) 
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white font-medium shadow-lg transition-all duration-200"
+                  className="px-6 py-3 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-medium shadow-lg transition-all duration-200"
                 >
                   添加导航链接
                 </motion.button>

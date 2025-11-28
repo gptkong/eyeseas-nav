@@ -118,10 +118,10 @@ export function LinkForm({
             className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden"
           >
             {/* Header */}
-            <div className="relative px-6 py-5 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-gray-800 dark:to-gray-800">
+            <div className="relative px-6 py-5 border-b border-gray-200 dark:border-gray-700 bg-teal-50/50 dark:bg-teal-900/20">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-xl bg-teal-600 flex items-center justify-center">
                     <LinkIcon className="w-5 h-5 text-white" />
                   </div>
                   <div>
@@ -148,7 +148,7 @@ export function LinkForm({
               {/* Title */}
               <div className="space-y-2">
                 <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
-                  <Tag className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                  <Tag className="w-4 h-4 text-teal-600 dark:text-teal-400" />
                   标题 <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -162,7 +162,7 @@ export function LinkForm({
                     "focus:outline-none focus:ring-2 focus:ring-offset-2",
                     errors.title
                       ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
-                      : "border-gray-200 dark:border-gray-700 focus:border-indigo-500 focus:ring-indigo-500/20"
+                      : "border-gray-200 dark:border-gray-700 focus:border-teal-500 focus:ring-teal-500/20"
                   )}
                   {...register("title")}
                 />
@@ -249,7 +249,7 @@ export function LinkForm({
                     "resize-none",
                     errors.description
                       ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
-                      : "border-gray-200 dark:border-gray-700 focus:border-indigo-500 focus:ring-indigo-500/20"
+                      : "border-gray-200 dark:border-gray-700 focus:border-teal-500 focus:ring-teal-500/20"
                   )}
                   {...register("description")}
                 />
@@ -270,7 +270,7 @@ export function LinkForm({
                   <input
                     type="text"
                     placeholder="输入 emoji 或图标名称"
-                    className="w-full h-12 px-4 rounded-xl bg-gray-50 dark:bg-gray-900/50 border-2 border-gray-200 dark:border-gray-700 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none transition-all duration-200"
+                    className="w-full h-12 px-4 rounded-xl bg-gray-50 dark:bg-gray-900/50 border-2 border-gray-200 dark:border-gray-700 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none transition-all duration-200"
                     {...register("icon")}
                   />
                   <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -280,7 +280,7 @@ export function LinkForm({
 
                 <div className="space-y-2">
                   <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    <Image className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                    <Image className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
                     Favicon URL (可选)
                   </label>
                   <input
@@ -294,7 +294,7 @@ export function LinkForm({
                       "focus:outline-none focus:ring-2 focus:ring-offset-2",
                       errors.favicon
                         ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
-                        : "border-gray-200 dark:border-gray-700 focus:border-purple-500 focus:ring-purple-500/20"
+                        : "border-gray-200 dark:border-gray-700 focus:border-cyan-500 focus:ring-cyan-500/20"
                     )}
                     {...register("favicon")}
                   />
@@ -331,7 +331,7 @@ export function LinkForm({
               {/* Tags Selection */}
               <div className="space-y-2">
                 <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
-                  <Tag className="w-4 h-4 text-pink-600 dark:text-pink-400" />
+                  <Tag className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                   标签 (可选)
                 </label>
                 <TagSelector
@@ -407,7 +407,7 @@ export function LinkForm({
                   disabled={isLoading}
                   className={cn(
                     "px-5 py-2.5 rounded-xl font-medium text-white transition-all duration-200 disabled:opacity-50",
-                    "bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600",
+                    "bg-teal-600 hover:bg-teal-700",
                     "flex items-center gap-2"
                   )}
                 >

@@ -51,7 +51,7 @@ export function StatsCards({ stats, isLoading }: StatsCardsProps) {
       title: 'External',
       value: stats.externalLinks,
       icon: <Globe className="w-8 h-8" />,
-      color: 'text-purple-600',
+      color: 'text-teal-600',
     },
     {
       title: 'Active',

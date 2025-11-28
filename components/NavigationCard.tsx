@@ -71,7 +71,7 @@ const NavigationCardComponent = ({ link, onClick, index = 0 }: NavigationCardPro
         "transform-gpu will-change-transform",
         "before:absolute before:inset-0 before:rounded-2xl before:p-[1px]",
         "before:bg-gradient-to-br before:from-transparent before:via-transparent before:to-transparent",
-        "before:group-hover:from-indigo-500/20 before:group-hover:via-purple-500/20 before:group-hover:to-pink-500/20",
+        "before:group-hover:from-teal-500/20 before:group-hover:via-cyan-500/20 before:group-hover:to-emerald-500/20",
         "before:transition-all before:duration-500",
         !link.isActive && "opacity-70 hover:opacity-95"
       )}
@@ -96,7 +96,7 @@ const NavigationCardComponent = ({ link, onClick, index = 0 }: NavigationCardPro
       <motion.div
         className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
         style={{
-          background: "radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(99, 102, 241, 0.15), transparent 60%)"
+          background: "radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(20, 184, 166, 0.15), transparent 60%)"
         }}
       />
 
@@ -148,7 +148,7 @@ const NavigationCardComponent = ({ link, onClick, index = 0 }: NavigationCardPro
 
             {/* Title with Badge */}
             <div className="flex-1 min-w-0">
-              <h3 className="text-sm sm:text-base lg:text-lg font-bold text-gray-900 dark:text-white truncate mb-1 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors duration-300">
+              <h3 className="text-sm sm:text-base lg:text-lg font-bold text-gray-900 dark:text-white truncate mb-1 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors duration-300">
                 {link.title}
               </h3>
               <div className="flex items-center gap-1.5">
@@ -178,7 +178,7 @@ const NavigationCardComponent = ({ link, onClick, index = 0 }: NavigationCardPro
             }}
             transition={{ type: "spring", stiffness: 400, damping: 15 }}
           >
-            <div className="w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 rounded-lg sm:rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center group-hover:from-indigo-500 group-hover:to-purple-600 dark:group-hover:from-indigo-500 dark:group-hover:to-purple-600 transition-all duration-300 shadow-md group-hover:shadow-lg">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 rounded-lg sm:rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center group-hover:bg-teal-600 dark:group-hover:bg-teal-600 transition-all duration-300 shadow-md group-hover:shadow-lg">
               <ArrowUpRight className="w-4 h-4 sm:w-4.5 sm:h-4.5 lg:w-5 lg:h-5 text-gray-600 dark:text-gray-300 group-hover:text-white transition-colors duration-300" />
             </div>
           </motion.div>
@@ -196,7 +196,7 @@ const NavigationCardComponent = ({ link, onClick, index = 0 }: NavigationCardPro
         {/* Enhanced Footer */}
         <div className="flex items-center justify-between pt-2 sm:pt-3 border-t border-gray-200/60 dark:border-gray-700/60">
           <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 flex-1 group/link">
-            <ExternalLink className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-gray-400 group-hover/link:text-indigo-500 flex-shrink-0 transition-colors duration-200" />
+            <ExternalLink className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-gray-400 group-hover/link:text-teal-500 flex-shrink-0 transition-colors duration-200" />
             <span className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 group-hover/link:text-gray-700 dark:group-hover/link:text-gray-300 truncate font-mono transition-colors duration-200">
               {new URL(currentUrl).hostname}
             </span>
@@ -218,11 +218,11 @@ const NavigationCardComponent = ({ link, onClick, index = 0 }: NavigationCardPro
       </div>
 
       {/* Static Bottom Glow - Optimized */}
-      <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      <div className="absolute bottom-0 left-0 right-0 h-1 bg-teal-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
       {/* Corner Accent */}
       <motion.div
-        className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-indigo-500/10 to-transparent rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+        className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-teal-500/10 to-transparent rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"
       />
     </motion.div>
   );

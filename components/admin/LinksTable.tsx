@@ -100,7 +100,7 @@ export const LinksTable = memo(function LinksTable({
                       href={link.internalUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1 text-sm"
+                      className="text-teal-600 dark:text-teal-400 hover:underline flex items-center gap-1 text-sm"
                     >
                       <span className="truncate max-w-xs">{link.internalUrl}</span>
                       <ExternalLink className="w-3 h-3 flex-shrink-0" />
@@ -111,7 +111,7 @@ export const LinksTable = memo(function LinksTable({
                       href={link.externalUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1 text-sm"
+                      className="text-teal-600 dark:text-teal-400 hover:underline flex items-center gap-1 text-sm"
                     >
                       <span className="truncate max-w-xs">{link.externalUrl}</span>
                       <ExternalLink className="w-3 h-3 flex-shrink-0" />
@@ -134,7 +134,7 @@ export const LinksTable = memo(function LinksTable({
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.9 }}
                         onClick={() => onEdit(link)}
-                        className="p-2 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-200 dark:hover:bg-indigo-900/50 transition-colors duration-200"
+                        className="p-2 rounded-lg bg-teal-100 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400 hover:bg-teal-200 dark:hover:bg-teal-900/50 transition-colors duration-200"
                       >
                         <Edit className="w-4 h-4" />
                       </motion.button>

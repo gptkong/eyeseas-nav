@@ -48,11 +48,11 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-indigo-950 flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-4 relative overflow-hidden">
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         <motion.div
-          className="absolute -top-4 -right-4 w-96 h-96 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 dark:opacity-10"
+          className="absolute -top-4 -right-4 w-96 h-96 bg-teal-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 dark:opacity-10"
           animate={{
             scale: [1, 1.2, 1],
             rotate: [0, 90, 0],
@@ -64,7 +64,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
           }}
         />
         <motion.div
-          className="absolute -bottom-8 -left-4 w-96 h-96 bg-indigo-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 dark:opacity-10"
+          className="absolute -bottom-8 -left-4 w-96 h-96 bg-cyan-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 dark:opacity-10"
           animate={{
             scale: [1.2, 1, 1.2],
             rotate: [90, 0, 90],
@@ -103,7 +103,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
       >
         <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-3xl border border-gray-200/50 dark:border-gray-700/50 shadow-2xl overflow-hidden">
           {/* Header */}
-          <div className="relative p-8 text-center bg-gradient-to-br from-indigo-500/10 via-purple-500/10 to-pink-500/10 dark:from-indigo-500/20 dark:via-purple-500/20 dark:to-pink-500/20">
+          <div className="relative p-8 text-center bg-teal-50/50 dark:bg-teal-900/20">
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
@@ -112,7 +112,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
                 stiffness: 200,
                 delay: 0.2,
               }}
-              className="mx-auto w-20 h-20 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-xl mb-4"
+              className="mx-auto w-20 h-20 bg-teal-600 rounded-2xl flex items-center justify-center shadow-xl mb-4"
             >
               <Shield className="w-10 h-10 text-white" />
             </motion.div>
@@ -121,7 +121,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 dark:from-indigo-400 dark:via-purple-400 dark:to-pink-400 bg-clip-text text-transparent mb-2"
+              className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2"
             >
               管理员登录
             </motion.h1>
@@ -144,7 +144,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
                 ease: "linear",
               }}
             >
-              <Sparkles className="w-5 h-5 text-purple-500/50" />
+              <Sparkles className="w-5 h-5 text-teal-500/50" />
             </motion.div>
           </div>
 
@@ -174,7 +174,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
                     "focus:outline-none focus:ring-2 focus:ring-offset-2",
                     errors.password
                       ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
-                      : "border-gray-200 dark:border-gray-700 focus:border-indigo-500 focus:ring-indigo-500/20"
+                      : "border-gray-200 dark:border-gray-700 focus:border-teal-500 focus:ring-teal-500/20"
                   )}
                   {...register("password")}
                 />
@@ -228,8 +228,8 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
               whileTap={{ scale: isLoading ? 1 : 0.98 }}
               className={cn(
                 "w-full h-14 rounded-xl font-semibold text-white",
-                "bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500",
-                "hover:from-indigo-600 hover:via-purple-600 hover:to-pink-600",
+                "bg-teal-600",
+                "hover:bg-teal-700",
                 "shadow-lg hover:shadow-xl",
                 "transition-all duration-300",
                 "flex items-center justify-center gap-2",
@@ -285,7 +285,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
             repeat: Infinity,
             ease: "easeInOut",
           }}
-          className="absolute -top-6 -right-6 w-16 h-16 bg-gradient-to-br from-indigo-400 to-purple-500 rounded-2xl opacity-20 blur-xl"
+          className="absolute -top-6 -right-6 w-16 h-16 bg-teal-400 rounded-2xl opacity-20 blur-xl"
         />
         <motion.div
           animate={{ y: [0, 10, 0] }}
@@ -294,7 +294,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
             repeat: Infinity,
             ease: "easeInOut",
           }}
-          className="absolute -bottom-6 -left-6 w-16 h-16 bg-gradient-to-br from-purple-400 to-pink-500 rounded-2xl opacity-20 blur-xl"
+          className="absolute -bottom-6 -left-6 w-16 h-16 bg-cyan-400 rounded-2xl opacity-20 blur-xl"
         />
       </motion.div>
     </div>

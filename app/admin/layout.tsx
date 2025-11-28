@@ -53,7 +53,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               className={cn(
                 "px-6 py-3 rounded-xl font-medium transition-all duration-200 flex items-center gap-2",
                 pathname.startsWith(tab.href)
-                  ? "bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-lg"
+                  ? "bg-teal-600 text-white shadow-lg"
                   : "bg-white/50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-800"
               )}
             >
