@@ -1,7 +1,7 @@
 "use client";
 
 import { NavigationLink } from "@/lib/types";
-import { ExternalLink, Globe, Building, AlertCircle, ArrowUpRight } from "lucide-react";
+import { Globe, Building, AlertCircle, ArrowUpRight, Tag } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useNetworkMode } from "@/lib/contexts/NetworkModeContext";
@@ -25,14 +25,6 @@ const NavigationCardComponent = ({ link, onClick, index = 0 }: NavigationCardPro
     [networkMode, link.internalUrl, link.externalUrl]
   );
 
-  // 缓存主机名
-  const hostname = useMemo(() => {
-    try {
-      return new URL(currentUrl).hostname;
-    } catch {
-      return currentUrl;
-    }
-  }, [currentUrl]);
 
   // 点击处理
   const handleClick = useCallback(() => {
@@ -177,17 +169,35 @@ const NavigationCardComponent = ({ link, onClick, index = 0 }: NavigationCardPro
           {link.description}
         </p>
 
-        {/* 底部 */}
+        {/* 底部标签 */}
         <div className="flex items-center justify-between pt-2 sm:pt-3 border-t border-gray-200/60 dark:border-gray-700/60">
-          <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 flex-1 group/link">
-            <ExternalLink className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-gray-400 group-hover/link:text-teal-500 flex-shrink-0 transition-colors duration-200" />
-            <span className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 group-hover/link:text-gray-700 dark:group-hover/link:text-gray-300 truncate font-mono transition-colors duration-200">
-              {hostname}
-            </span>
+          <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 flex-1 overflow-hidden">
+            {link.tags && link.tags.length > 0 ? (
+              <div className="flex items-center gap-1 sm:gap-1.5 flex-wrap">
+                <Tag className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-gray-400 flex-shrink-0" />
+                {link.tags.slice(0, 3).map((tag, idx) => (
+                  <span
+                    key={idx}
+                    className="inline-flex items-center text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700/60 text-gray-600 dark:text-gray-300 truncate max-w-[80px] sm:max-w-[100px] transition-colors duration-200 group-hover:bg-teal-100 dark:group-hover:bg-teal-900/30 group-hover:text-teal-700 dark:group-hover:text-teal-300"
+                  >
+                    {tag}
+                  </span>
+                ))}
+                {link.tags.length > 3 && (
+                  <span className="text-[10px] sm:text-xs text-gray-400 dark:text-gray-500">
+                    +{link.tags.length - 3}
+                  </span>
+                )}
+              </div>
+            ) : (
+              <span className="text-[10px] sm:text-xs text-gray-400 dark:text-gray-500 italic">
+                暂无标签
+              </span>
+            )}
           </div>
 
           {!link.isActive && (
-            <div className="flex items-center gap-1 sm:gap-1.5 px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-md sm:rounded-lg bg-gradient-to-r from-amber-100 to-orange-100 dark:from-amber-900/40 dark:to-orange-900/40 border border-amber-200 dark:border-amber-800/50">
+            <div className="flex items-center gap-1 sm:gap-1.5 px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-md sm:rounded-lg bg-gradient-to-r from-amber-100 to-orange-100 dark:from-amber-900/40 dark:to-orange-900/40 border border-amber-200 dark:border-amber-800/50 flex-shrink-0">
               <AlertCircle className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-600 dark:text-amber-400" />
               <span className="text-[10px] sm:text-xs font-semibold text-amber-700 dark:text-amber-300">
                 未激活
