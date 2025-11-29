@@ -152,13 +152,22 @@ const NavigationCardComponent = ({ link, onClick, index = 0 }: NavigationCardPro
           <motion.div
             className="flex-shrink-0"
             animate={{
-              x: isHovered ? 4 : 0,
-              y: isHovered ? -4 : 0,
+              x: isHovered ? 6 : 0,
+              y: isHovered ? -6 : 0,
+              rotate: isHovered ? 45 : 0,
             }}
-            transition={{ type: "spring", stiffness: 400, damping: 20 }}
+            transition={{ type: "spring", stiffness: 400, damping: 15 }}
           >
-            <div className="w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 rounded-lg sm:rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center group-hover:bg-teal-600 dark:group-hover:bg-teal-600 transition-colors duration-200 shadow-md">
-              <ArrowUpRight className="w-4 h-4 sm:w-4.5 sm:h-4.5 lg:w-5 lg:h-5 text-gray-600 dark:text-gray-300 group-hover:text-white transition-colors duration-200" />
+            <div className={cn(
+              "w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 rounded-lg sm:rounded-xl flex items-center justify-center transition-all duration-300 shadow-md",
+              isHovered
+                ? "bg-gradient-to-br from-teal-500 to-teal-600 shadow-lg"
+                : "bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800"
+            )}>
+              <ArrowUpRight className={cn(
+                "w-4 h-4 sm:w-4.5 sm:h-4.5 lg:w-5 lg:h-5 transition-colors duration-300",
+                isHovered ? "text-white" : "text-gray-600 dark:text-gray-300"
+              )} />
             </div>
           </motion.div>
         </div>
