@@ -12,11 +12,18 @@ import { post, put, del } from "@/lib/api-client";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
-export function useCategories() {
+interface UseCategoriesOptions {
+  /** 服务端预取的分类数据，用于首屏渲染 */
+  initialData?: Category[];
+}
+
+export function useCategories(options?: UseCategoriesOptions) {
+  const { initialData } = options || {};
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // 使用 SWR 获取分类列表
+  // 如果有 initialData，使用 fallbackData 避免首次加载闪烁
   const {
     data,
     error: swrError,
@@ -26,10 +33,13 @@ export function useCategories() {
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
     keepPreviousData: true,
+    // 使用服务端预取的数据作为 fallback，实现首屏即渲染
+    fallbackData: initialData ? { success: true, data: initialData } : undefined,
   });
 
   const categories = useMemo(() => data?.data || [], [data]);
-  const isLoading = swrLoading || !data;
+  // 有 initialData 时，首次渲染不显示 loading
+  const isLoading = initialData ? false : (swrLoading || !data);
 
   // 创建分类
   const createCategory = useCallback(

@@ -13,16 +13,20 @@ import { Settings, RefreshCw, Inbox } from "lucide-react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { NavigationLink } from "@/lib/types";
+import { NavigationLink, Category } from "@/lib/types";
 
 interface NavigationDashboardProps {
   initialLinks?: NavigationLink[];
+  /** 服务端预取的分类数据，实现首屏即渲染 */
+  initialCategories?: Category[];
 }
 
-export function NavigationDashboard({ initialLinks }: NavigationDashboardProps) {
+export function NavigationDashboard({ initialLinks, initialCategories }: NavigationDashboardProps) {
   const { isLoading, error, fetchLinks, filterLinks, getAllTags } =
     useNavigation(initialLinks);
-  const { categories, isLoading: categoriesLoading } = useCategories();
+  const { categories, isLoading: categoriesLoading } = useCategories({ 
+    initialData: initialCategories 
+  });
 
   // 分类和标签筛选状态
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
