@@ -2,12 +2,13 @@
 
 import { memo, useState } from "react";
 import { motion } from "framer-motion";
-import { Edit, Trash2, ExternalLink, Globe } from "lucide-react";
-import { NavigationLink } from "@/lib/types";
+import { Edit, Trash2, Globe } from "lucide-react";
+import { NavigationLink, Category } from "@/lib/types";
 import Image from "next/image";
 
 interface LinksTableProps {
   links: NavigationLink[];
+  categories: Category[];
   isLoading: boolean;
   onEdit: (link: NavigationLink) => void;
   onDelete: (id: string) => void;
@@ -92,10 +93,13 @@ const LinkIcon = memo(function LinkIcon({ link }: { link: NavigationLink }) {
 
 export const LinksTable = memo(function LinksTable({
   links,
+  categories,
   isLoading,
   onEdit,
   onDelete,
 }: LinksTableProps) {
+  // 创建分类 ID 到分类名称的映射
+  const categoryMap = new Map(categories.map(cat => [cat.id, cat]));
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -110,11 +114,8 @@ export const LinksTable = memo(function LinksTable({
               <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
                 标题
               </th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider hidden lg:table-cell">
-                内网地址
-              </th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider hidden lg:table-cell">
-                外网地址
+              <th className="px-6 py-4 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+                分类
               </th>
               <th className="px-6 py-4 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
                 状态
@@ -131,11 +132,8 @@ export const LinksTable = memo(function LinksTable({
                   <td className="px-6 py-4">
                     <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
                   </td>
-                  <td className="px-6 py-4 hidden lg:table-cell">
-                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-48"></div>
-                  </td>
-                  <td className="px-6 py-4 hidden lg:table-cell">
-                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-48"></div>
+                  <td className="px-6 py-4">
+                    <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-16 mx-auto"></div>
                   </td>
                   <td className="px-6 py-4">
                     <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-16 mx-auto"></div>
@@ -150,7 +148,7 @@ export const LinksTable = memo(function LinksTable({
               ))
             ) : links.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
+                <td colSpan={4} className="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
                   暂无链接数据
                 </td>
               </tr>
@@ -173,27 +171,17 @@ export const LinksTable = memo(function LinksTable({
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-4 hidden lg:table-cell">
-                    <a
-                      href={link.internalUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-teal-600 dark:text-teal-400 hover:underline flex items-center gap-1 text-sm"
-                    >
-                      <span className="truncate max-w-xs">{link.internalUrl}</span>
-                      <ExternalLink className="w-3 h-3 flex-shrink-0" />
-                    </a>
-                  </td>
-                  <td className="px-6 py-4 hidden lg:table-cell">
-                    <a
-                      href={link.externalUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-teal-600 dark:text-teal-400 hover:underline flex items-center gap-1 text-sm"
-                    >
-                      <span className="truncate max-w-xs">{link.externalUrl}</span>
-                      <ExternalLink className="w-3 h-3 flex-shrink-0" />
-                    </a>
+                  <td className="px-6 py-4 text-center">
+                    {link.categoryId ? (
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
+                        {categoryMap.get(link.categoryId)?.icon && (
+                          <span>{categoryMap.get(link.categoryId)?.icon}</span>
+                        )}
+                        {categoryMap.get(link.categoryId)?.name || "未知分类"}
+                      </span>
+                    ) : (
+                      <span className="text-gray-400 dark:text-gray-500 text-xs">无分类</span>
+                    )}
                   </td>
                   <td className="px-6 py-4 text-center">
                     <span

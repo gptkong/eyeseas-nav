@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useCallback } from 'react';
 import { useNavigation } from '@/lib/hooks/useNavigation';
+import { useCategories } from '@/lib/hooks/useCategories';
 import { NavigationLink } from '@/lib/types';
 import { NavigationLinkFormData } from '@/lib/validations';
 import { LinkForm } from '@/components/admin/LinkForm';
@@ -14,6 +15,7 @@ import { useToast } from '@/components/ui/toast';
 
 export default function LinksPage() {
   const { links, isLoading, error, createLink, updateLink, deleteLink, fetchLinks } = useNavigation();
+  const { categories } = useCategories();
   const { success, error: showError } = useToast();
 
   const [showForm, setShowForm] = useState(false);
@@ -106,6 +108,7 @@ export default function LinksPage() {
 
       <LinksTable
         links={filteredLinks}
+        categories={categories}
         isLoading={isLoading}
         onEdit={setEditingLink}
         onDelete={setDeleteConfirm}
