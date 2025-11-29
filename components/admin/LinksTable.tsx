@@ -163,12 +163,7 @@ export const LinksTable = memo(function LinksTable({
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
                       <LinkIcon link={link} />
-                      <div>
-                        <div className="font-medium text-gray-900 dark:text-white">{link.title}</div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400 line-clamp-1">
-                          {link.description}
-                        </div>
-                      </div>
+                      <div className="font-medium text-gray-900 dark:text-white">{link.title}</div>
                     </div>
                   </td>
                   <td className="px-6 py-4 text-center">
