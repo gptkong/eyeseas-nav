@@ -1,9 +1,10 @@
 "use client";
 
-import { memo } from "react";
+import { memo, useState } from "react";
 import { motion } from "framer-motion";
-import { Edit, Trash2, ExternalLink } from "lucide-react";
+import { Edit, Trash2, ExternalLink, Globe } from "lucide-react";
 import { NavigationLink } from "@/lib/types";
+import Image from "next/image";
 
 interface LinksTableProps {
   links: NavigationLink[];
@@ -11,6 +12,83 @@ interface LinksTableProps {
   onEdit: (link: NavigationLink) => void;
   onDelete: (id: string) => void;
 }
+
+/**
+ * 从 URL 中提取域名
+ */
+function extractDomain(url: string): string | null {
+  try {
+    const urlObj = new URL(url);
+    return urlObj.hostname;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * 获取自动 favicon URL
+ */
+function getAutoFaviconUrl(url: string): string | null {
+  const domain = extractDomain(url);
+  if (!domain) return null;
+  return `https://www.google.com/s2/favicons?domain=${domain}&sz=32`;
+}
+
+/**
+ * 单个链接图标组件
+ */
+const LinkIcon = memo(function LinkIcon({ link }: { link: NavigationLink }) {
+  const [imageError, setImageError] = useState(false);
+  const [autoFaviconError, setAutoFaviconError] = useState(false);
+  
+  // 获取自动 favicon URL
+  const autoFaviconUrl = link.favicon ? null : (getAutoFaviconUrl(link.externalUrl) || getAutoFaviconUrl(link.internalUrl));
+  
+  // 如果有 emoji icon
+  if (link.icon) {
+    return <span className="text-2xl">{link.icon}</span>;
+  }
+  
+  // 如果有设置 favicon 且没有加载错误
+  if (link.favicon && !imageError) {
+    return (
+      <div className="relative w-8 h-8 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700">
+        <Image
+          src={link.favicon}
+          alt=""
+          width={32}
+          height={32}
+          className="object-contain"
+          onError={() => setImageError(true)}
+        />
+      </div>
+    );
+  }
+  
+  // 尝试自动获取 favicon
+  if (autoFaviconUrl && !autoFaviconError) {
+    return (
+      <div className="relative w-8 h-8 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700">
+        <Image
+          src={autoFaviconUrl}
+          alt=""
+          width={32}
+          height={32}
+          className="object-contain p-1"
+          onError={() => setAutoFaviconError(true)}
+          unoptimized
+        />
+      </div>
+    );
+  }
+  
+  // 默认图标
+  return (
+    <div className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+      <Globe className="w-4 h-4 text-gray-400" />
+    </div>
+  );
+});
 
 export const LinksTable = memo(function LinksTable({
   links,
@@ -86,7 +164,7 @@ export const LinksTable = memo(function LinksTable({
                 >
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
-                      {link.icon && <span className="text-2xl">{link.icon}</span>}
+                      <LinkIcon link={link} />
                       <div>
                         <div className="font-medium text-gray-900 dark:text-white">{link.title}</div>
                         <div className="text-sm text-gray-500 dark:text-gray-400 line-clamp-1">

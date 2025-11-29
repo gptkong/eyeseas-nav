@@ -14,16 +14,47 @@ interface NavigationCardProps {
   index?: number;
 }
 
+/**
+ * 从 URL 中提取域名
+ */
+function extractDomain(url: string): string | null {
+  try {
+    const urlObj = new URL(url);
+    return urlObj.hostname;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * 获取自动 favicon URL
+ * 优先使用 Google Favicon API，它支持更多网站和更好的图标质量
+ */
+function getAutoFaviconUrl(url: string): string | null {
+  const domain = extractDomain(url);
+  if (!domain) return null;
+  // 使用 Google Favicon API 获取高质量图标
+  return `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
+}
+
 const NavigationCardComponent = ({ link, onClick, index = 0 }: NavigationCardProps) => {
   const { networkMode } = useNetworkMode();
   const [isHovered, setIsHovered] = useState(false);
   const [imageError, setImageError] = useState(false);
+  const [autoFaviconError, setAutoFaviconError] = useState(false);
 
   // 缓存当前 URL
   const currentUrl = useMemo(
     () => networkMode === "internal" ? link.internalUrl : link.externalUrl,
     [networkMode, link.internalUrl, link.externalUrl]
   );
+
+  // 获取自动 favicon URL (当没有设置 favicon 时)
+  const autoFaviconUrl = useMemo(() => {
+    if (link.favicon) return null;
+    // 优先使用外网地址获取 favicon，因为外网地址通常更稳定
+    return getAutoFaviconUrl(link.externalUrl) || getAutoFaviconUrl(link.internalUrl);
+  }, [link.favicon, link.externalUrl, link.internalUrl]);
 
 
   // 点击处理
@@ -99,6 +130,7 @@ const NavigationCardComponent = ({ link, onClick, index = 0 }: NavigationCardPro
           <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
             {/* 图标/Favicon */}
             <div className="relative flex-shrink-0">
+              {/* 1. 优先使用用户设置的 favicon */}
               {link.favicon && !imageError ? (
                 <div className="relative w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 rounded-xl sm:rounded-2xl overflow-hidden shadow-lg ring-2 ring-white/70 dark:ring-gray-600/70 bg-white/50 dark:bg-gray-700/50">
                   <Image
@@ -112,7 +144,23 @@ const NavigationCardComponent = ({ link, onClick, index = 0 }: NavigationCardPro
                     onError={() => setImageError(true)}
                   />
                 </div>
+              ) : /* 2. 如果没有设置 favicon，尝试自动获取 */
+              autoFaviconUrl && !autoFaviconError ? (
+                <div className="relative w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 rounded-xl sm:rounded-2xl overflow-hidden shadow-lg ring-2 ring-white/70 dark:ring-gray-600/70 bg-white/50 dark:bg-gray-700/50">
+                  <Image
+                    src={autoFaviconUrl}
+                    alt=""
+                    width={56}
+                    height={56}
+                    className="object-contain p-2"
+                    loading={index < 8 ? "eager" : "lazy"}
+                    priority={index < 4}
+                    onError={() => setAutoFaviconError(true)}
+                    unoptimized
+                  />
+                </div>
               ) : (
+                /* 3. 回退到默认图标 */
                 <div className="w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 rounded-xl sm:rounded-2xl bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center shadow-lg ring-2 ring-white/70 dark:ring-gray-600/70">
                   {networkIcon}
                 </div>
