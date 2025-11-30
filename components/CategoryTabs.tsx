@@ -56,7 +56,15 @@ export function CategoryTabs({
           }}
         >
           {/* "全部" Tab */}
-          <Tab key="all" title="全部" />
+          <Tab 
+            key="all" 
+            title={
+              <div className="flex items-center gap-2">
+                <CategoryIcon icon="BookMarked" iconType="lucide" size="sm" />
+                <span>全部</span>
+              </div>
+            } 
+          />
 
           {/* 分类 Tabs */}
           {categories.map((category) => (

@@ -9,6 +9,7 @@
 "use client";
 
 import * as LucideIcons from "lucide-react";
+import { FolderOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CategoryIconType } from "@/lib/types";
 
@@ -17,7 +18,6 @@ interface CategoryIconProps {
   iconType?: CategoryIconType;
   size?: "sm" | "md" | "lg" | "xl";
   className?: string;
-  fallback?: string;
 }
 
 const sizeMap = {
@@ -27,22 +27,22 @@ const sizeMap = {
   xl: { lucide: 28, emoji: "text-2xl" },
 };
 
+// 兜底图标组件
+function FallbackIcon({ size, className }: { size: number; className?: string }) {
+  return <FolderOpen size={size} className={cn("flex-shrink-0", className)} />;
+}
+
 export function CategoryIcon({
   icon,
   iconType = "emoji",
   size = "md",
   className,
-  fallback = "📁",
 }: CategoryIconProps) {
   const sizeConfig = sizeMap[size];
 
-  // 无图标时显示默认
+  // 无图标时显示默认 FolderOpen
   if (!icon) {
-    return (
-      <span className={cn(sizeConfig.emoji, "flex-shrink-0", className)}>
-        {fallback}
-      </span>
-    );
+    return <FallbackIcon size={sizeConfig.lucide} className={className} />;
   }
 
   // Lucide 图标
@@ -50,14 +50,9 @@ export function CategoryIcon({
     // 尝试从 LucideIcons 中获取图标组件（支持 PascalCase 格式）
     const IconComponent = LucideIcons[icon as keyof typeof LucideIcons];
 
-    // 如果找不到图标，回退到默认图标
-    // 注意：React 组件可能是 function 或 object（forwardRef）
+    // 如果找不到图标，回退到 FolderOpen
     if (!IconComponent) {
-      return (
-        <span className={cn(sizeConfig.emoji, "flex-shrink-0", className)}>
-          {fallback}
-        </span>
-      );
+      return <FallbackIcon size={sizeConfig.lucide} className={className} />;
     }
 
     // 类型断言为 React 组件

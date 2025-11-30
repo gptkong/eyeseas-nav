@@ -56,7 +56,8 @@ export function CategorySidebar({
         <CategoryItem
           id={null}
           name="全部"
-          icon="📚"
+          icon="BookMarked"
+          iconType="lucide"
           count={totalCount}
           isActive={activeCategory === null}
           isCollapsed={isCollapsed}
@@ -77,7 +78,7 @@ export function CategorySidebar({
             key={category.id}
             id={category.id}
             name={category.name}
-            icon={category.icon || "📁"}
+            icon={category.icon}
             iconType={category.iconType}
             count={linkCounts[category.id] || 0}
             isActive={activeCategory === category.id}
@@ -124,7 +125,7 @@ export function CategorySidebar({
 interface CategoryItemProps {
   id: string | null;
   name: string;
-  icon: string;
+  icon?: string;
   iconType?: CategoryIconType;
   count: number;
   isActive: boolean;
