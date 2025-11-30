@@ -9,11 +9,12 @@
 
 "use client";
 
-import { Category } from "@/lib/types";
+import { Category, CategoryIconType } from "@/lib/types";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
+import { CategoryIcon } from "@/components/CategoryIcon";
 
 interface CategorySidebarProps {
   categories: Category[];
@@ -77,6 +78,7 @@ export function CategorySidebar({
             id={category.id}
             name={category.name}
             icon={category.icon || "📁"}
+            iconType={category.iconType}
             count={linkCounts[category.id] || 0}
             isActive={activeCategory === category.id}
             isCollapsed={isCollapsed}
@@ -123,6 +125,7 @@ interface CategoryItemProps {
   id: string | null;
   name: string;
   icon: string;
+  iconType?: CategoryIconType;
   count: number;
   isActive: boolean;
   isCollapsed: boolean;
@@ -135,6 +138,7 @@ interface CategoryItemProps {
 function CategoryItem({
   name,
   icon,
+  iconType,
   count,
   isActive,
   isCollapsed,
@@ -172,14 +176,14 @@ function CategoryItem({
       </AnimatePresence>
 
       {/* 图标 */}
-      <span
+      <div
         className={cn(
-          "text-lg flex-shrink-0 transition-transform duration-200",
+          "flex-shrink-0 transition-transform duration-200",
           isHovered && "scale-110"
         )}
       >
-        {icon}
-      </span>
+        <CategoryIcon icon={icon} iconType={iconType} size="md" />
+      </div>
 
       {/* 名称和计数 */}
       <AnimatePresence mode="wait">

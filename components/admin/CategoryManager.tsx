@@ -4,15 +4,17 @@
  * 管理后台的分类管理界面，支持：
  * - 分类列表展示
  * - 添加/编辑/删除分类
- * - 分类颜色和图标设置
+ * - 分类图标设置（Emoji / Lucide）
  */
 
 "use client";
 
 import { useState, useCallback } from "react";
 import { useCategories } from "@/lib/hooks/useCategories";
-import { Category, CreateCategoryData } from "@/lib/types";
+import { Category, CreateCategoryData, CategoryIconType } from "@/lib/types";
 import { Plus, Edit, Trash2, Folder, GripVertical } from "lucide-react";
+import { CategoryIcon } from "@/components/CategoryIcon";
+import { IconPicker } from "@/components/admin/IconPicker";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/ui/toast";
@@ -33,18 +35,6 @@ import {
   useSortable,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-
-// 可用颜色选项
-const COLORS = [
-  { value: "blue", label: "蓝色", class: "bg-blue-500" },
-  { value: "green", label: "绿色", class: "bg-green-500" },
-  { value: "purple", label: "紫色", class: "bg-purple-500" },
-  { value: "pink", label: "粉色", class: "bg-pink-500" },
-  { value: "orange", label: "橙色", class: "bg-orange-500" },
-  { value: "indigo", label: "靛蓝", class: "bg-indigo-500" },
-  { value: "red", label: "红色", class: "bg-red-500" },
-  { value: "yellow", label: "黄色", class: "bg-yellow-500" },
-];
 
 // 可排序的分类卡片组件
 interface SortableCategoryCardProps {
@@ -89,22 +79,16 @@ function SortableCategoryCard({ category, onEdit, onDelete }: SortableCategoryCa
 
         {/* 分类信息 */}
         <div className="flex items-center gap-3 flex-1 min-w-0">
-          {category.icon && (
-            <span className="text-2xl flex-shrink-0">{category.icon}</span>
-          )}
+          <CategoryIcon
+            icon={category.icon}
+            iconType={category.iconType}
+            size="lg"
+            className="text-gray-700 dark:text-gray-300"
+          />
           <div className="flex-1 min-w-0">
             <h3 className="font-semibold text-gray-900 dark:text-white truncate">
               {category.name}
             </h3>
-            <div className="flex items-center gap-2 mt-1">
-              <div className={cn(
-                "w-3 h-3 rounded-full flex-shrink-0",
-                COLORS.find(c => c.value === category.color)?.class || "bg-blue-500"
-              )} />
-              <span className="text-xs text-gray-500 dark:text-gray-400">
-                {COLORS.find(c => c.value === category.color)?.label || "蓝色"}
-              </span>
-            </div>
           </div>
         </div>
 
@@ -139,7 +123,7 @@ export function CategoryManager() {
   const [formData, setFormData] = useState<CreateCategoryData>({
     name: "",
     icon: "",
-    color: "blue",
+    iconType: "emoji" as CategoryIconType,
   });
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
@@ -179,7 +163,7 @@ export function CategoryManager() {
 
     setShowForm(false);
     setEditingCategory(null);
-    setFormData({ name: "", icon: "", color: "blue" });
+    setFormData({ name: "", icon: "", iconType: "emoji" });
   }, [editingCategory, formData, createCategory, updateCategory, success, showError]);
 
   // 开始编辑
@@ -188,7 +172,7 @@ export function CategoryManager() {
     setFormData({
       name: category.name,
       icon: category.icon || "",
-      color: category.color || "blue",
+      iconType: category.iconType || "emoji",
     });
     setShowForm(true);
   }, []);
@@ -209,7 +193,7 @@ export function CategoryManager() {
   const handleCancel = useCallback(() => {
     setShowForm(false);
     setEditingCategory(null);
-    setFormData({ name: "", icon: "", color: "blue" });
+    setFormData({ name: "", icon: "", iconType: "emoji" });
   }, []);
 
   // 处理拖拽结束
@@ -309,40 +293,15 @@ export function CategoryManager() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    图标 (emoji)
+                    图标
                   </label>
-                  <input
-                    type="text"
+                  <IconPicker
                     value={formData.icon}
-                    onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
-                    className="w-full px-4 py-2 rounded-lg border-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none"
-                    placeholder="🏢"
+                    iconType={formData.iconType}
+                    onChange={(icon, iconType) =>
+                      setFormData({ ...formData, icon, iconType })
+                    }
                   />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    颜色主题
-                  </label>
-                  <div className="grid grid-cols-4 gap-2">
-                    {COLORS.map((color) => (
-                      <button
-                        key={color.value}
-                        type="button"
-                        onClick={() => setFormData({ ...formData, color: color.value })}
-                        className={cn(
-                          "p-3 rounded-lg border-2 transition-all",
-                          formData.color === color.value
-                            ? "border-gray-900 dark:border-white ring-2 ring-offset-2 ring-gray-900 dark:ring-white"
-                            : "border-gray-200 dark:border-gray-700 hover:border-gray-400"
-                        )}
-                      >
-                        <div className={cn("w-full h-6 rounded", color.class)} />
-                        <p className="text-xs mt-1 text-gray-600 dark:text-gray-400">
-                          {color.label}
-                        </p>
-                      </button>
-                    ))}
-                  </div>
                 </div>
                 <div className="flex gap-3 pt-4">
                   <button

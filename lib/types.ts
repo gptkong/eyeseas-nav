@@ -68,10 +68,13 @@ export interface DashboardStats {
 }
 
 // 分类相关接口
+export type CategoryIconType = 'emoji' | 'lucide';
+
 export interface Category {
   id: string;
   name: string;
   icon?: string;
+  iconType?: CategoryIconType;
   color?: string;
   order: number;
   createdAt: string;
@@ -81,6 +84,7 @@ export interface Category {
 export interface CreateCategoryData {
   name: string;
   icon?: string;
+  iconType?: CategoryIconType;
   color?: string;
 }
 

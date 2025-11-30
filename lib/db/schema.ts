@@ -5,6 +5,7 @@ export const categories = pgTable('categories', {
   id: serial('id').primaryKey(),
   name: text('name').notNull(),
   icon: text('icon'),
+  iconType: text('icon_type').default('emoji'), // 'emoji' | 'lucide'
   color: text('color'),
   order: integer('order').notNull().default(0),
   createdAt: timestamp('created_at').notNull().defaultNow(),
