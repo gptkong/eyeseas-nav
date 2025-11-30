@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EyeSeas Nav - 快速添加链接
 // @namespace    https://github.com/eyeseas-nav
-// @version      1.1.0
+// @version      1.2.3
 // @description  将当前页面快速添加到 EyeSeas Nav 导航系统
 // @author       EyeSeas
 // @match        *://*/*
@@ -74,7 +74,8 @@
       width: 480px;
       max-width: 90vw;
       max-height: 90vh;
-      overflow: hidden;
+      display: flex;
+      flex-direction: column;
       font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       opacity: 0;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -91,6 +92,7 @@
       display: flex;
       align-items: center;
       gap: 12px;
+      flex-shrink: 0;
     }
     .eyeseas-header-icon {
       font-size: 28px;
@@ -131,8 +133,9 @@
     
     .eyeseas-body {
       padding: 20px 24px;
-      max-height: calc(90vh - 140px);
+      flex: 1;
       overflow-y: auto;
+      min-height: 0;
     }
     .eyeseas-body::-webkit-scrollbar {
       width: 6px;
@@ -256,21 +259,53 @@
       color: #64748b;
     }
     
-    .eyeseas-checkbox-group {
+    .eyeseas-available-tags {
+      margin-top: 8px;
+    }
+    .eyeseas-available-tags-label {
+      font-size: 12px;
+      color: #64748b;
+      margin-bottom: 6px;
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 6px;
     }
-    .eyeseas-checkbox {
-      width: 20px;
-      height: 20px;
-      accent-color: #6366f1;
-      cursor: pointer;
+    .eyeseas-available-tags-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
     }
-    .eyeseas-checkbox-label {
-      color: #cbd5e1;
-      font-size: 14px;
+    .eyeseas-available-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      background: rgba(99, 102, 241, 0.15);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      border-radius: 6px;
+      font-size: 12px;
+      color: #a5b4fc;
       cursor: pointer;
+      transition: all 0.2s;
+    }
+    .eyeseas-available-tag:hover {
+      background: rgba(99, 102, 241, 0.3);
+      border-color: rgba(99, 102, 241, 0.5);
+      color: #c7d2fe;
+    }
+    .eyeseas-available-tag.selected {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      border-color: transparent;
+      color: white;
+    }
+    .eyeseas-available-tag-count {
+      font-size: 10px;
+      opacity: 0.7;
+    }
+    .eyeseas-tags-loading {
+      font-size: 12px;
+      color: #64748b;
+      font-style: italic;
     }
     
     .eyeseas-footer {
@@ -278,8 +313,61 @@
       background: rgba(15, 23, 42, 0.5);
       border-top: 1px solid rgba(99, 102, 241, 0.1);
       display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .eyeseas-footer-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .eyeseas-footer-right {
+      display: flex;
       gap: 12px;
-      justify-content: flex-end;
+    }
+    .eyeseas-switch {
+      position: relative;
+      display: inline-block;
+      width: 40px;
+      height: 22px;
+    }
+    .eyeseas-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .eyeseas-switch-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(100, 116, 139, 0.5);
+      border-radius: 22px;
+      transition: all 0.3s;
+    }
+    .eyeseas-switch-slider:before {
+      position: absolute;
+      content: "";
+      height: 16px;
+      width: 16px;
+      left: 3px;
+      bottom: 3px;
+      background: white;
+      border-radius: 50%;
+      transition: all 0.3s;
+    }
+    .eyeseas-switch input:checked + .eyeseas-switch-slider {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    }
+    .eyeseas-switch input:checked + .eyeseas-switch-slider:before {
+      transform: translateX(18px);
+    }
+    .eyeseas-switch-label {
+      font-size: 13px;
+      color: #94a3b8;
     }
     .eyeseas-btn {
       padding: 10px 20px;
@@ -449,11 +537,14 @@
       const url = CONFIG.SERVER_URL.replace(/\/$/, '') + endpoint;
       const headers = {
         'Content-Type': 'application/json',
+        'Accept': 'application/json',
       };
       
       if (token) {
         headers['Authorization'] = `Bearer ${token}`;
       }
+
+      console.log(`[EyeSeas] 请求: ${method} ${url}`);
 
       GM_xmlhttpRequest({
         method,
@@ -461,6 +552,23 @@
         headers,
         data: data ? JSON.stringify(data) : null,
         onload: (response) => {
+          console.log(`[EyeSeas] 响应状态: ${response.status}, 类型: ${response.responseHeaders?.match(/content-type:\s*([^\r\n;]+)/i)?.[1] || 'unknown'}`);
+          
+          // 检查响应是否为空
+          if (!response.responseText || response.responseText.trim() === '') {
+            console.error('[EyeSeas] 响应为空');
+            reject(new Error(`服务器返回空响应 (状态码: ${response.status})`));
+            return;
+          }
+
+          // 检查是否为 HTML 响应（可能是错误页面）
+          const contentType = response.responseHeaders?.toLowerCase() || '';
+          if (contentType.includes('text/html') && !response.responseText.trim().startsWith('{')) {
+            console.error('[EyeSeas] 收到 HTML 响应而非 JSON:', response.responseText.substring(0, 200));
+            reject(new Error(`服务器返回 HTML 而非 JSON (状态码: ${response.status})，请检查 SERVER_URL 配置`));
+            return;
+          }
+
           try {
             const result = JSON.parse(response.responseText);
             if (response.status >= 200 && response.status < 300) {
@@ -469,12 +577,19 @@
               reject(new Error(result.error || result.message || `请求失败: ${response.status}`));
             }
           } catch (e) {
-            reject(new Error('解析响应失败'));
+            console.error('[EyeSeas] JSON 解析失败:', response.responseText.substring(0, 500));
+            reject(new Error(`解析响应失败: ${e.message}，响应内容: ${response.responseText.substring(0, 100)}...`));
           }
         },
-        onerror: () => {
-          reject(new Error('网络请求失败，请检查服务器地址'));
+        onerror: (error) => {
+          console.error('[EyeSeas] 网络错误:', error);
+          reject(new Error('网络请求失败，请检查服务器地址和网络连接'));
         },
+        ontimeout: () => {
+          console.error('[EyeSeas] 请求超时');
+          reject(new Error('请求超时，请检查服务器是否可访问'));
+        },
+        timeout: 15000, // 15秒超时
       });
     });
   }
@@ -519,6 +634,20 @@
     }
   }
 
+  async function fetchTags() {
+    try {
+      const result = await apiRequest('GET', '/api/tags');
+      if (result.success && Array.isArray(result.data)) {
+        // API 返回 { tag: string, count: number }[]
+        return result.data;
+      }
+      return [];
+    } catch (e) {
+      console.error('获取标签失败:', e);
+      return [];
+    }
+  }
+
   async function createLink(linkData) {
     const token = await getValidToken();
     return await apiRequest('POST', '/api/links', linkData, token);
@@ -526,6 +655,7 @@
 
   // ========== UI 组件 ==========
   let modalContainer = null;
+  let currentTags = []; // 使用独立变量存储标签，避免 DOM 属性不稳定
 
   function createModal() {
     // 检查配置
@@ -619,20 +749,30 @@
               <input type="text" class="eyeseas-tag-input" id="eyeseas-tags-input" 
                      placeholder="输入标签后按 Enter 添加">
             </div>
-          </div>
-          
-          <div class="eyeseas-form-group">
-            <div class="eyeseas-checkbox-group">
-              <input type="checkbox" class="eyeseas-checkbox" id="eyeseas-is-active" checked>
-              <label class="eyeseas-checkbox-label" for="eyeseas-is-active">启用此链接</label>
+            <div class="eyeseas-available-tags">
+              <div class="eyeseas-available-tags-label">
+                <span>📌 已有标签（点击选择）：</span>
+              </div>
+              <div class="eyeseas-available-tags-list" id="eyeseas-available-tags">
+                <span class="eyeseas-tags-loading">加载中...</span>
+              </div>
             </div>
           </div>
         </div>
         <div class="eyeseas-footer">
-          <button class="eyeseas-btn eyeseas-btn-secondary" data-action="close">取消</button>
-          <button class="eyeseas-btn eyeseas-btn-primary" data-action="submit">
-            ✨ 添加链接
-          </button>
+          <div class="eyeseas-footer-left">
+            <label class="eyeseas-switch">
+              <input type="checkbox" id="eyeseas-is-active" checked>
+              <span class="eyeseas-switch-slider"></span>
+            </label>
+            <span class="eyeseas-switch-label">启用</span>
+          </div>
+          <div class="eyeseas-footer-right">
+            <button class="eyeseas-btn eyeseas-btn-secondary" data-action="close">取消</button>
+            <button class="eyeseas-btn eyeseas-btn-primary" data-action="submit">
+              ✨ 添加链接
+            </button>
+          </div>
         </div>
       </div>
     `;
@@ -674,32 +814,61 @@
   function initTagsInput() {
     const container = document.getElementById('eyeseas-tags-container');
     const input = document.getElementById('eyeseas-tags-input');
+    const availableTagsContainer = document.getElementById('eyeseas-available-tags');
     if (!container || !input) return;
 
-    container.tags = [];
+    // 重置标签数组
+    currentTags = [];
+    let availableTags = []; // 远程获取的标签列表
 
-    container.addEventListener('click', () => input.focus());
+    container.addEventListener('click', (e) => {
+      // 处理删除标签
+      if (e.target.classList.contains('eyeseas-tag-remove')) {
+        const index = parseInt(e.target.dataset.index);
+        currentTags.splice(index, 1);
+        renderTags();
+        updateAvailableTagsUI();
+      } else {
+        input.focus();
+      }
+    });
 
     input.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' || e.key === ',') {
         e.preventDefault();
         const tag = input.value.trim();
-        if (tag && !container.tags.includes(tag)) {
-          container.tags.push(tag);
+        if (tag && !currentTags.includes(tag)) {
+          currentTags.push(tag);
           renderTags();
+          updateAvailableTagsUI();
         }
         input.value = '';
-      } else if (e.key === 'Backspace' && !input.value && container.tags.length > 0) {
-        container.tags.pop();
+      } else if (e.key === 'Backspace' && !input.value && currentTags.length > 0) {
+        currentTags.pop();
         renderTags();
+        updateAvailableTagsUI();
       }
+    });
+
+    // 支持粘贴多个标签（用逗号分隔）
+    input.addEventListener('paste', (e) => {
+      setTimeout(() => {
+        const pastedText = input.value;
+        if (pastedText.includes(',')) {
+          const tags = pastedText.split(',').map(t => t.trim()).filter(t => t && !currentTags.includes(t));
+          currentTags.push(...tags);
+          input.value = '';
+          renderTags();
+          updateAvailableTagsUI();
+        }
+      }, 0);
     });
 
     function renderTags() {
       const existingTags = container.querySelectorAll('.eyeseas-tag');
       existingTags.forEach(t => t.remove());
 
-      container.tags.forEach((tag, index) => {
+      currentTags.forEach((tag, index) => {
         const tagEl = document.createElement('span');
         tagEl.className = 'eyeseas-tag';
         tagEl.innerHTML = `${escapeHtml(tag)}<span class="eyeseas-tag-remove" data-index="${index}">×</span>`;
@@ -707,13 +876,68 @@
       });
     }
 
-    container.addEventListener('click', (e) => {
-      if (e.target.classList.contains('eyeseas-tag-remove')) {
-        const index = parseInt(e.target.dataset.index);
-        container.tags.splice(index, 1);
-        renderTags();
+    // 更新可选标签的 UI 状态
+    function updateAvailableTagsUI() {
+      if (!availableTagsContainer) return;
+      const tagElements = availableTagsContainer.querySelectorAll('.eyeseas-available-tag');
+      tagElements.forEach(el => {
+        const tagName = el.dataset.tag;
+        if (currentTags.includes(tagName)) {
+          el.classList.add('selected');
+        } else {
+          el.classList.remove('selected');
+        }
+      });
+    }
+
+    // 渲染可选标签列表
+    function renderAvailableTags() {
+      if (!availableTagsContainer) return;
+      
+      if (availableTags.length === 0) {
+        availableTagsContainer.innerHTML = '<span class="eyeseas-tags-loading">暂无已有标签</span>';
+        return;
       }
-    });
+
+      availableTagsContainer.innerHTML = availableTags.map(item => {
+        const isSelected = currentTags.includes(item.tag);
+        return `<span class="eyeseas-available-tag${isSelected ? ' selected' : ''}" data-tag="${escapeHtml(item.tag)}">
+          ${escapeHtml(item.tag)}
+          <span class="eyeseas-available-tag-count">(${item.count})</span>
+        </span>`;
+      }).join('');
+
+      // 绑定点击事件
+      availableTagsContainer.querySelectorAll('.eyeseas-available-tag').forEach(el => {
+        el.addEventListener('click', () => {
+          const tag = el.dataset.tag;
+          if (currentTags.includes(tag)) {
+            // 取消选择
+            currentTags = currentTags.filter(t => t !== tag);
+          } else {
+            // 添加标签
+            currentTags.push(tag);
+          }
+          renderTags();
+          updateAvailableTagsUI();
+        });
+      });
+    }
+
+    // 加载远程标签
+    async function loadAvailableTags() {
+      try {
+        availableTags = await fetchTags();
+        renderAvailableTags();
+      } catch (e) {
+        if (availableTagsContainer) {
+          availableTagsContainer.innerHTML = '<span class="eyeseas-tags-loading">获取标签失败</span>';
+        }
+      }
+    }
+
+    // 初始化时加载远程标签
+    loadAvailableTags();
   }
 
   function bindModalEvents() {
@@ -752,6 +976,8 @@
     setTimeout(() => {
       modalContainer.remove();
       modalContainer = null;
+      // 重置标签数组
+      currentTags = [];
     }, 300);
 
     document.removeEventListener('keydown', handleEscKey);
@@ -784,8 +1010,8 @@
       const icon = document.getElementById('eyeseas-icon')?.value.trim();
       const favicon = document.getElementById('eyeseas-favicon')?.value.trim();
       const isActive = document.getElementById('eyeseas-is-active')?.checked;
-      const tagsContainer = document.getElementById('eyeseas-tags-container');
-      const tags = tagsContainer?.tags || [];
+      // 使用模块级变量获取标签
+      const tags = [...currentTags];
 
       // 验证必填字段
       if (!title) {
@@ -843,3 +1069,4 @@
 
   console.log('🧭 EyeSeas Nav 油猴脚本已加载');
 })();
+
