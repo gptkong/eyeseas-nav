@@ -49,6 +49,7 @@ export const categorySchema = z.object({
     .min(1, "分类名称不能为空")
     .max(50, "分类名称不能超过50个字符"),
   icon: z.string().optional(),
+  iconType: z.enum(["emoji", "lucide"]).optional(),
   color: z.string().optional(),
 });
 

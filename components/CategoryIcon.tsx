@@ -35,6 +35,39 @@ function toKebabCase(str: string): string {
     .toLowerCase();
 }
 
+// 有效的 Lucide 图标名称集合（kebab-case 格式）
+const VALID_LUCIDE_ICONS = new Set([
+  // 文件/文档
+  "folder", "folder-open", "file", "file-text", "files", "archive",
+  "book-open", "book", "notebook",
+  // 工作/办公
+  "briefcase", "building", "building-2", "calendar", "clock", "mail",
+  "inbox", "send",
+  // 技术/开发
+  "code", "code-2", "terminal", "database", "server", "cloud", "cpu",
+  "hard-drive", "monitor", "smartphone",
+  // 学习/教育
+  "graduation-cap", "lightbulb", "brain", "flask-conical", "atom", "calculator",
+  // 媒体/娱乐
+  "music", "film", "image", "camera", "gamepad-2", "headphones", "radio", "tv",
+  // 工具/设置
+  "settings", "wrench", "hammer", "palette", "paintbrush", "pencil", "scissors",
+  // 社交/通讯
+  "message-circle", "message-square", "users", "user", "heart", "star", "thumbs-up",
+  // 导航/位置
+  "home", "map-pin", "navigation", "compass", "globe", "map",
+  // 其他常用
+  "search", "link", "bookmark", "tag", "flag", "award", "trophy", "zap",
+  "rocket", "target", "shield", "lock", "key", "eye", "bell", "gift",
+  "shopping-cart", "credit-card", "wallet", "dollar-sign", "trending-up",
+  "bar-chart", "pie-chart", "activity",
+]);
+
+// 检查是否为有效的 Lucide 图标名称
+function isValidLucideIcon(name: string): boolean {
+  return VALID_LUCIDE_ICONS.has(name);
+}
+
 export function CategoryIcon({
   icon,
   iconType = "emoji",
@@ -56,11 +89,20 @@ export function CategoryIcon({
   // Lucide 图标 - 使用 DynamicIcon
   if (iconType === "lucide") {
     // 转换为 kebab-case 格式 (如 "FolderOpen" -> "folder-open")
-    const iconName = toKebabCase(icon) as IconName;
+    const iconName = toKebabCase(icon);
+
+    // 验证图标名称是否有效，无效则回退到默认图标
+    if (!isValidLucideIcon(iconName)) {
+      return (
+        <span className={cn(sizeConfig.emoji, "flex-shrink-0", className)}>
+          {fallback}
+        </span>
+      );
+    }
 
     return (
       <DynamicIcon
-        name={iconName}
+        name={iconName as IconName}
         size={sizeConfig.lucide}
         className={cn("flex-shrink-0", className)}
       />
