@@ -3,30 +3,44 @@
  *
  * 可视化图标选择器，支持：
  * - Emoji 图标（分类展示）
- * - Lucide 图标（搜索 + 网格）
+ * - Lucide 图标（搜索 + 网格）- 支持所有 Lucide 图标，分页加载
  */
 
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, X } from "lucide-react";
-import { DynamicIcon, type IconName } from "lucide-react/dynamic";
+import { Search, X, ChevronDown } from "lucide-react";
+import * as LucideIcons from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CategoryIconType } from "@/lib/types";
 import {
   CategoryIcon,
-  SUGGESTED_LUCIDE_ICONS,
   SUGGESTED_EMOJIS,
 } from "@/components/CategoryIcon";
 
-// PascalCase 转 kebab-case
-function toKebabCase(str: string): string {
-  return str
-    .replace(/([a-z])([A-Z])/g, "$1-$2")
-    .replace(/([A-Z])([A-Z][a-z])/g, "$1-$2")
-    .toLowerCase();
-}
+// 每页显示的图标数量
+const ICONS_PER_PAGE = 80;
+
+// 获取所有 Lucide 图标名称（过滤掉非图标的导出）
+const ALL_LUCIDE_ICONS = Object.keys(LucideIcons).filter((name) => {
+  // 过滤掉工具函数、类型和非图标导出
+  const nonIconExports = [
+    "createLucideIcon",
+    "Icon",
+    "IconNode",
+    "LucideIcon",
+    "LucideProps",
+    "icons",
+    "default",
+  ];
+  if (nonIconExports.includes(name)) return false;
+  // 图标名称应该是 PascalCase 且首字母大写
+  if (!/^[A-Z][a-zA-Z0-9]*$/.test(name)) return false;
+  // 确保是有效的 React 组件
+  const icon = LucideIcons[name as keyof typeof LucideIcons];
+  return typeof icon === "function" || (typeof icon === "object" && icon !== null);
+}).sort();
 
 interface IconPickerProps {
   value?: string;
@@ -46,17 +60,46 @@ export function IconPicker({
   const [activeTab, setActiveTab] = useState<TabType>(iconType);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeEmojiCategory, setActiveEmojiCategory] = useState("常用");
+  const [displayCount, setDisplayCount] = useState(ICONS_PER_PAGE);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   // 过滤 Lucide 图标
   const filteredLucideIcons = useMemo(() => {
     if (!searchQuery.trim()) {
-      return SUGGESTED_LUCIDE_ICONS;
+      return ALL_LUCIDE_ICONS;
     }
     const query = searchQuery.toLowerCase();
-    return SUGGESTED_LUCIDE_ICONS.filter((iconName) =>
+    return ALL_LUCIDE_ICONS.filter((iconName) =>
       iconName.toLowerCase().includes(query)
     );
   }, [searchQuery]);
+
+  // 当前显示的图标（分页）
+  const displayedIcons = useMemo(() => {
+    return filteredLucideIcons.slice(0, displayCount);
+  }, [filteredLucideIcons, displayCount]);
+
+  // 是否还有更多图标
+  const hasMore = displayCount < filteredLucideIcons.length;
+
+  // 加载更多图标
+  const loadMore = useCallback(() => {
+    setDisplayCount((prev) => Math.min(prev + ICONS_PER_PAGE, filteredLucideIcons.length));
+  }, [filteredLucideIcons.length]);
+
+  // 搜索时重置分页
+  useEffect(() => {
+    setDisplayCount(ICONS_PER_PAGE);
+  }, [searchQuery]);
+
+  // 滚动到底部时自动加载更多
+  const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
+    const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
+    // 距离底部 50px 时加载更多
+    if (scrollHeight - scrollTop - clientHeight < 50 && hasMore) {
+      loadMore();
+    }
+  }, [hasMore, loadMore]);
 
   // 当前选中的 emoji 分类
   const currentEmojis = SUGGESTED_EMOJIS[activeEmojiCategory] || [];
@@ -196,10 +239,24 @@ export function IconPicker({
               )}
             </div>
 
+            {/* 图标数量提示 */}
+            <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+              <span>
+                显示 {displayedIcons.length} / {filteredLucideIcons.length} 个图标
+              </span>
+              {searchQuery && (
+                <span>搜索结果</span>
+              )}
+            </div>
+
             {/* Lucide 图标网格 */}
-            <div className="max-h-64 overflow-y-auto scrollbar-thin">
+            <div 
+              ref={scrollContainerRef}
+              className="max-h-64 overflow-y-auto scrollbar-thin"
+              onScroll={handleScroll}
+            >
               <div className="grid grid-cols-8 gap-1">
-                {filteredLucideIcons.map((iconName) => (
+                {displayedIcons.map((iconName) => (
                   <LucideIconButton
                     key={iconName}
                     iconName={iconName}
@@ -208,6 +265,19 @@ export function IconPicker({
                   />
                 ))}
               </div>
+              
+              {/* 加载更多提示 */}
+              {hasMore && (
+                <button
+                  type="button"
+                  onClick={loadMore}
+                  className="w-full mt-2 py-2 flex items-center justify-center gap-1 text-sm text-teal-600 dark:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-900/20 rounded-lg transition-colors"
+                >
+                  <ChevronDown className="w-4 h-4" />
+                  加载更多 ({filteredLucideIcons.length - displayCount} 个)
+                </button>
+              )}
+              
               {filteredLucideIcons.length === 0 && (
                 <p className="text-center py-8 text-gray-500 dark:text-gray-400 text-sm">
                   未找到匹配的图标
@@ -259,8 +329,10 @@ function LucideIconButton({
   isSelected: boolean;
   onClick: () => void;
 }) {
-  // 转换为 kebab-case 格式
-  const kebabName = toKebabCase(iconName) as IconName;
+  // 直接从导入的图标对象中获取组件
+  const IconComponent = LucideIcons[iconName as keyof typeof LucideIcons] as React.ComponentType<{ size?: number; className?: string }>;
+
+  if (!IconComponent) return null;
 
   return (
     <motion.button
@@ -276,7 +348,7 @@ function LucideIconButton({
           : "hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300"
       )}
     >
-      <DynamicIcon name={kebabName} size={18} />
+      <IconComponent size={18} />
     </motion.button>
   );
 }

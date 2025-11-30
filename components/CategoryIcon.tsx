@@ -3,12 +3,12 @@
  *
  * 统一的分类图标渲染组件，支持：
  * - Emoji 图标
- * - Lucide 图标（使用 DynamicIcon 动态加载）
+ * - Lucide 图标（支持所有 Lucide 图标）
  */
 
 "use client";
 
-import { DynamicIcon, type IconName } from "lucide-react/dynamic";
+import * as LucideIcons from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CategoryIconType } from "@/lib/types";
 
@@ -26,47 +26,6 @@ const sizeMap = {
   lg: { lucide: 22, emoji: "text-xl" },
   xl: { lucide: 28, emoji: "text-2xl" },
 };
-
-// PascalCase 转 kebab-case
-function toKebabCase(str: string): string {
-  return str
-    .replace(/([a-z])([A-Z])/g, "$1-$2")
-    .replace(/([A-Z])([A-Z][a-z])/g, "$1-$2")
-    .toLowerCase();
-}
-
-// 有效的 Lucide 图标名称集合（kebab-case 格式）
-const VALID_LUCIDE_ICONS = new Set([
-  // 文件/文档
-  "folder", "folder-open", "file", "file-text", "files", "archive",
-  "book-open", "book", "notebook",
-  // 工作/办公
-  "briefcase", "building", "building-2", "calendar", "clock", "mail",
-  "inbox", "send",
-  // 技术/开发
-  "code", "code-2", "terminal", "database", "server", "cloud", "cpu",
-  "hard-drive", "monitor", "smartphone",
-  // 学习/教育
-  "graduation-cap", "lightbulb", "brain", "flask-conical", "atom", "calculator",
-  // 媒体/娱乐
-  "music", "film", "image", "camera", "gamepad-2", "headphones", "radio", "tv",
-  // 工具/设置
-  "settings", "wrench", "hammer", "palette", "paintbrush", "pencil", "scissors",
-  // 社交/通讯
-  "message-circle", "message-square", "users", "user", "heart", "star", "thumbs-up",
-  // 导航/位置
-  "home", "map-pin", "navigation", "compass", "globe", "map",
-  // 其他常用
-  "search", "link", "bookmark", "tag", "flag", "award", "trophy", "zap",
-  "rocket", "target", "shield", "lock", "key", "eye", "bell", "gift",
-  "shopping-cart", "credit-card", "wallet", "dollar-sign", "trending-up",
-  "bar-chart", "pie-chart", "activity",
-]);
-
-// 检查是否为有效的 Lucide 图标名称
-function isValidLucideIcon(name: string): boolean {
-  return VALID_LUCIDE_ICONS.has(name);
-}
 
 export function CategoryIcon({
   icon,
@@ -86,13 +45,14 @@ export function CategoryIcon({
     );
   }
 
-  // Lucide 图标 - 使用 DynamicIcon
+  // Lucide 图标
   if (iconType === "lucide") {
-    // 转换为 kebab-case 格式 (如 "FolderOpen" -> "folder-open")
-    const iconName = toKebabCase(icon);
+    // 尝试从 LucideIcons 中获取图标组件（支持 PascalCase 格式）
+    const IconComponent = LucideIcons[icon as keyof typeof LucideIcons];
 
-    // 验证图标名称是否有效，无效则回退到默认图标
-    if (!isValidLucideIcon(iconName)) {
+    // 如果找不到图标，回退到默认图标
+    // 注意：React 组件可能是 function 或 object（forwardRef）
+    if (!IconComponent) {
       return (
         <span className={cn(sizeConfig.emoji, "flex-shrink-0", className)}>
           {fallback}
@@ -100,9 +60,11 @@ export function CategoryIcon({
       );
     }
 
+    // 类型断言为 React 组件
+    const Icon = IconComponent as React.ComponentType<{ size?: number; className?: string }>;
+
     return (
-      <DynamicIcon
-        name={iconName as IconName}
+      <Icon
         size={sizeConfig.lucide}
         className={cn("flex-shrink-0", className)}
       />

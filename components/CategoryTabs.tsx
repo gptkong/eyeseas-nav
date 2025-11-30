@@ -12,6 +12,7 @@
 import { Tabs, Tab } from "@heroui/react";
 import { Category } from "@/lib/types";
 import { Plus } from "lucide-react";
+import { CategoryIcon } from "@/components/CategoryIcon";
 
 interface CategoryTabsProps {
   categories: Category[];
@@ -64,7 +65,11 @@ export function CategoryTabs({
               title={
                 <div className="flex items-center gap-2">
                   {category.icon && (
-                    <span className="text-base">{category.icon}</span>
+                    <CategoryIcon 
+                      icon={category.icon} 
+                      iconType={category.iconType} 
+                      size="sm" 
+                    />
                   )}
                   <span>{category.name}</span>
                 </div>
