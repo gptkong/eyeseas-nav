@@ -134,16 +134,31 @@ export function useNavigation(initialData?: NavigationLink[]) {
   const deleteLink = useCallback(async (
     id: string
   ): Promise<{ success: boolean; error?: string }> => {
+    // 乐观更新：立即从本地状态中移除
+    const previousData = data;
+    await mutate(
+      (current) => {
+        if (!current?.data) return current;
+        return {
+          ...current,
+          data: current.data.filter((link) => link.id !== id),
+        };
+      },
+      { revalidate: false }
+    );
+
     const result = await del<null>(`/api/links/${id}`);
     
     if (result.success) {
-      // 乐观更新
+      // 删除成功，重新验证数据确保一致性
       await mutate();
       return { success: true };
     }
     
+    // 删除失败，回滚到之前的数据
+    await mutate(previousData, { revalidate: false });
     return { success: false, error: result.error || "删除失败" };
-  }, [mutate]);
+  }, [mutate, data]);
 
   // 获取所有唯一标签
   const getAllTags = useCallback((): string[] => {
