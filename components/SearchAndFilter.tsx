@@ -80,7 +80,7 @@ export function SearchAndFilter({
 
         <input
           ref={inputRef}
-          type="search"
+          type="text"
           placeholder={placeholder}
           value={searchQuery}
           onChange={(e) => handleSearch(e.target.value)}
