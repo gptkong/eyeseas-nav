@@ -336,14 +336,13 @@ export function LinkForm({
                         onClick={() => setValue("categoryId", category.id)}
                         className={cn(
                           "px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200",
-                          "border-2 flex items-center gap-1.5",
+                          "border-2",
                           watch("categoryId") === category.id
                             ? "border-orange-500 bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400"
                             : "border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-gray-300 dark:hover:border-gray-600"
                         )}
                       >
-                        {category.icon && <span>{category.icon}</span>}
-                        <span>{category.name}</span>
+                        {category.name}
                       </button>
                     ))}
                   </div>

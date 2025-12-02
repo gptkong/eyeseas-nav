@@ -168,10 +168,7 @@ export const LinksTable = memo(function LinksTable({
                   </td>
                   <td className="px-6 py-4 text-center">
                     {link.categoryId ? (
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
-                        {categoryMap.get(link.categoryId)?.icon && (
-                          <span>{categoryMap.get(link.categoryId)?.icon}</span>
-                        )}
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
                         {categoryMap.get(link.categoryId)?.name || "未知分类"}
                       </span>
                     ) : (
