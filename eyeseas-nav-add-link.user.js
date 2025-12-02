@@ -803,7 +803,7 @@
       categories.forEach(cat => {
         const option = document.createElement('option');
         option.value = cat.id;
-        option.textContent = `${cat.icon || '📁'} ${cat.name}`;
+        option.textContent = cat.name;
         select.appendChild(option);
       });
     } catch (e) {
