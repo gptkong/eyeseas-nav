@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EyeSeas Nav - 快速添加链接
 // @namespace    https://github.com/eyeseas-nav
-// @version      1.2.3
+// @version      1.2.4
 // @description  将当前页面快速添加到 EyeSeas Nav 导航系统
 // @author       EyeSeas
 // @match        *://*/*
@@ -803,7 +803,9 @@
       categories.forEach(cat => {
         const option = document.createElement('option');
         option.value = cat.id;
-        option.textContent = cat.name;
+        const label = cat.name || '';
+        option.textContent = label; // 只显示名称，忽略分类 icon 信息
+        option.title = label;
         select.appendChild(option);
       });
     } catch (e) {
@@ -1069,4 +1071,3 @@
 
   console.log('🧭 EyeSeas Nav 油猴脚本已加载');
 })();
-
