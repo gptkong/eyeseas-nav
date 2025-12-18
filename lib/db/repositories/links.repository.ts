@@ -166,6 +166,18 @@ export class LinksRepository {
   }
 
   /**
+   * 批量删除链接
+   */
+  static async deleteMany(ids: string[]): Promise<number> {
+    if (ids.length === 0) return 0;
+    const numericIds = ids.map(toNumericId);
+    const result = await db.delete(links)
+      .where(sql`${links.id} IN (${sql.join(numericIds.map(id => sql`${id}`), sql.raw(','))})`)
+      .returning();
+    return result.length;
+  }
+
+  /**
    * 批量重排序
    */
   static async reorder(linkIds: string[]): Promise<boolean> {

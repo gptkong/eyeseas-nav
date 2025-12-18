@@ -113,8 +113,8 @@ export function put<T, B = unknown>(url: string, body?: B, options?: Omit<Reques
 /**
  * DELETE 请求
  */
-export function del<T>(url: string, options?: Omit<RequestOptions, 'method' | 'body'>) {
-  return apiRequest<T>(url, { ...options, method: 'DELETE' });
+export function del<T, B = unknown>(url: string, body?: B, options?: Omit<RequestOptions, 'method' | 'body'>) {
+  return apiRequest<T, B>(url, { ...options, method: 'DELETE', body });
 }
 
 /**

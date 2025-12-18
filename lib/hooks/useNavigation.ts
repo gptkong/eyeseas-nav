@@ -148,16 +148,51 @@ export function useNavigation(initialData?: NavigationLink[]) {
     );
 
     const result = await del<null>(`/api/links/${id}`);
-    
+
     if (result.success) {
       // 删除成功，重新验证数据确保一致性
       await mutate();
       return { success: true };
     }
-    
+
     // 删除失败，回滚到之前的数据
     await mutate(previousData, { revalidate: false });
     return { success: false, error: result.error || "删除失败" };
+  }, [mutate, data]);
+
+  // 批量删除链接
+  const deleteLinks = useCallback(async (
+    ids: string[]
+  ): Promise<{ success: boolean; deletedCount?: number; error?: string }> => {
+    if (ids.length === 0) {
+      return { success: false, error: "请选择要删除的链接" };
+    }
+
+    // 乐观更新：立即从本地状态中移除
+    const previousData = data;
+    const idsSet = new Set(ids);
+    await mutate(
+      (current) => {
+        if (!current?.data) return current;
+        return {
+          ...current,
+          data: current.data.filter((link) => !idsSet.has(link.id)),
+        };
+      },
+      { revalidate: false }
+    );
+
+    const result = await del<{ deletedCount: number }>('/api/links/batch', { ids });
+
+    if (result.success && result.data) {
+      // 删除成功，重新验证数据确保一致性
+      await mutate();
+      return { success: true, deletedCount: result.data.deletedCount };
+    }
+
+    // 删除失败，回滚到之前的数据
+    await mutate(previousData, { revalidate: false });
+    return { success: false, error: result.error || "批量删除失败" };
   }, [mutate, data]);
 
   // 获取所有唯一标签
@@ -201,6 +236,7 @@ export function useNavigation(initialData?: NavigationLink[]) {
     createLink,
     updateLink,
     deleteLink,
+    deleteLinks,
     getAllTags,
     getTagsByCategory,
   };

@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useState, useMemo } from "react";
+import { memo, useState, useMemo, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Edit, Trash2, Globe } from "lucide-react";
 import { NavigationLink, Category } from "@/lib/types";
@@ -10,6 +10,7 @@ import {
   flexRender,
   getCoreRowModel,
   useReactTable,
+  RowSelectionState,
 } from "@tanstack/react-table";
 import {
   Table,
@@ -19,7 +20,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { cn } from "@/lib/utils";
+import { Checkbox } from "@heroui/react";
 
 interface LinksTableProps {
   links: NavigationLink[];
@@ -27,6 +28,8 @@ interface LinksTableProps {
   isLoading: boolean;
   onEdit: (link: NavigationLink) => void;
   onDelete: (id: string) => void;
+  selectedIds: Set<string>;
+  onSelectionChange: (ids: Set<string>) => void;
 }
 
 /**
@@ -112,12 +115,60 @@ export const LinksTable = memo(function LinksTable({
   isLoading,
   onEdit,
   onDelete,
+  selectedIds,
+  onSelectionChange,
 }: LinksTableProps) {
   // 创建分类 ID 到分类名称的映射
   const categoryMap = useMemo(() => new Map(categories.map(cat => [cat.id, cat])), [categories]);
 
+  // 全选状态
+  const isAllSelected = links.length > 0 && selectedIds.size === links.length;
+  const isIndeterminate = selectedIds.size > 0 && selectedIds.size < links.length;
+
+  // 处理全选
+  const handleSelectAll = useCallback((checked: boolean) => {
+    if (checked) {
+      onSelectionChange(new Set(links.map(link => link.id)));
+    } else {
+      onSelectionChange(new Set());
+    }
+  }, [links, onSelectionChange]);
+
+  // 处理单行选择
+  const handleSelectRow = useCallback((id: string, checked: boolean) => {
+    const newSelection = new Set(selectedIds);
+    if (checked) {
+      newSelection.add(id);
+    } else {
+      newSelection.delete(id);
+    }
+    onSelectionChange(newSelection);
+  }, [selectedIds, onSelectionChange]);
+
   const columns = useMemo<ColumnDef<NavigationLink>[]>(
     () => [
+      {
+        id: "select",
+        header: () => (
+          <Checkbox
+            isSelected={isAllSelected}
+            isIndeterminate={isIndeterminate}
+            onValueChange={handleSelectAll}
+            aria-label="全选"
+            size="sm"
+            color="primary"
+          />
+        ),
+        cell: ({ row }) => (
+          <Checkbox
+            isSelected={selectedIds.has(row.original.id)}
+            onValueChange={(checked) => handleSelectRow(row.original.id, checked)}
+            aria-label={`选择 ${row.original.title}`}
+            size="sm"
+            color="primary"
+          />
+        ),
+      },
       {
         accessorKey: "title",
         header: "标题",
@@ -197,7 +248,7 @@ export const LinksTable = memo(function LinksTable({
         },
       },
     ],
-    [categoryMap, onEdit, onDelete]
+    [categoryMap, onEdit, onDelete, isAllSelected, isIndeterminate, handleSelectAll, selectedIds, handleSelectRow]
   );
 
   const table = useReactTable({
@@ -241,6 +292,9 @@ export const LinksTable = memo(function LinksTable({
             {isLoading ? (
               [...Array(5)].map((_, i) => (
                 <TableRow key={i} className="animate-pulse hover:bg-transparent">
+                  <TableCell className="px-6 py-4">
+                    <div className="h-4 w-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                  </TableCell>
                   <TableCell className="px-6 py-4">
                     <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
                   </TableCell>
