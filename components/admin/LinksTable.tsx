@@ -174,10 +174,23 @@ export const LinksTable = memo(function LinksTable({
         header: "标题",
         cell: ({ row }) => {
           const link = row.original;
+          const url = link.externalUrl || link.internalUrl;
           return (
             <div className="flex items-center gap-3">
               <LinkIcon link={link} />
-              <div className="font-medium text-gray-900 dark:text-white">{link.title}</div>
+              {url ? (
+                <a
+                  href={url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-medium text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 hover:underline transition-colors duration-200"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {link.title}
+                </a>
+              ) : (
+                <div className="font-medium text-gray-900 dark:text-white">{link.title}</div>
+              )}
             </div>
           );
         },
